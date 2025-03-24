@@ -1,0 +1,4 @@
+{
+	"plugins": ["react-perf", "import", "jsdoc", "node", "promise"],
+	"ignorePatterns": ["packages/services/**/*"]
+}

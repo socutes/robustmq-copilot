@@ -1,0 +1,25 @@
+{
+	"name": "robustmq-copilot",
+	"version": "1.0.0",
+	"private": true,
+	"description": "The one-stop RobustMQ operation and maintenance management platform",
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"oxlint": "^0.16.2"
+	},
+	"scripts": {
+		"ui:dev": "pnpm -r --filter=web-ui run dev",
+		"ui:build": "pnpm -r --filter=web-ui run build",
+		"ui:preview": "pnpm -r --filter=web-ui run preview",
+		"lint": "oxlint",
+		"format": "biome format --write ."
+	},
+	"workspaces": ["packages/*"],
+	"keywords": ["MQ", "RobustMQ"],
+	"author": "RobustMQ",
+	"license": "Apache-2.0",
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"packageManager": "pnpm@10.6.5"
+}
