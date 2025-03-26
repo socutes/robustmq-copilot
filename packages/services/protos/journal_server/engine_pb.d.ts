@@ -390,6 +390,100 @@ export namespace DeleteShardResp {
   }
 }
 
+export class ListShardReqBody extends jspb.Message {
+  getNamespace(): string;
+  setNamespace(value: string): ListShardReqBody;
+
+  getShardName(): string;
+  setShardName(value: string): ListShardReqBody;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListShardReqBody.AsObject;
+  static toObject(includeInstance: boolean, msg: ListShardReqBody): ListShardReqBody.AsObject;
+  static serializeBinaryToWriter(message: ListShardReqBody, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListShardReqBody;
+  static deserializeBinaryFromReader(message: ListShardReqBody, reader: jspb.BinaryReader): ListShardReqBody;
+}
+
+export namespace ListShardReqBody {
+  export type AsObject = {
+    namespace: string,
+    shardName: string,
+  }
+}
+
+export class ListShardRespBody extends jspb.Message {
+  getShardsList(): Array<Uint8Array | string>;
+  setShardsList(value: Array<Uint8Array | string>): ListShardRespBody;
+  clearShardsList(): ListShardRespBody;
+  addShards(value: Uint8Array | string, index?: number): ListShardRespBody;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListShardRespBody.AsObject;
+  static toObject(includeInstance: boolean, msg: ListShardRespBody): ListShardRespBody.AsObject;
+  static serializeBinaryToWriter(message: ListShardRespBody, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListShardRespBody;
+  static deserializeBinaryFromReader(message: ListShardRespBody, reader: jspb.BinaryReader): ListShardRespBody;
+}
+
+export namespace ListShardRespBody {
+  export type AsObject = {
+    shardsList: Array<Uint8Array | string>,
+  }
+}
+
+export class ListShardReq extends jspb.Message {
+  getHeader(): ReqHeader | undefined;
+  setHeader(value?: ReqHeader): ListShardReq;
+  hasHeader(): boolean;
+  clearHeader(): ListShardReq;
+
+  getBody(): ListShardReqBody | undefined;
+  setBody(value?: ListShardReqBody): ListShardReq;
+  hasBody(): boolean;
+  clearBody(): ListShardReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListShardReq.AsObject;
+  static toObject(includeInstance: boolean, msg: ListShardReq): ListShardReq.AsObject;
+  static serializeBinaryToWriter(message: ListShardReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListShardReq;
+  static deserializeBinaryFromReader(message: ListShardReq, reader: jspb.BinaryReader): ListShardReq;
+}
+
+export namespace ListShardReq {
+  export type AsObject = {
+    header?: ReqHeader.AsObject,
+    body?: ListShardReqBody.AsObject,
+  }
+}
+
+export class ListShardResp extends jspb.Message {
+  getHeader(): RespHeader | undefined;
+  setHeader(value?: RespHeader): ListShardResp;
+  hasHeader(): boolean;
+  clearHeader(): ListShardResp;
+
+  getBody(): ListShardRespBody | undefined;
+  setBody(value?: ListShardRespBody): ListShardResp;
+  hasBody(): boolean;
+  clearBody(): ListShardResp;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListShardResp.AsObject;
+  static toObject(includeInstance: boolean, msg: ListShardResp): ListShardResp.AsObject;
+  static serializeBinaryToWriter(message: ListShardResp, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListShardResp;
+  static deserializeBinaryFromReader(message: ListShardResp, reader: jspb.BinaryReader): ListShardResp;
+}
+
+export namespace ListShardResp {
+  export type AsObject = {
+    header?: RespHeader.AsObject,
+    body?: ListShardRespBody.AsObject,
+  }
+}
+
 export class GetShardMetadataReqBody extends jspb.Message {
   getShardsList(): Array<GetShardMetadataReqShard>;
   setShardsList(value: Array<GetShardMetadataReqShard>): GetShardMetadataReqBody;
@@ -1178,9 +1272,10 @@ export enum ApiKey {
   WRITE = 2,
   CREATESHARD = 3,
   DELETESHARD = 4,
-  GETSHARDMETADATA = 5,
-  GETCLUSTERMETADATA = 6,
-  FETCHOFFSET = 7,
+  LISTSHARD = 5,
+  GETSHARDMETADATA = 6,
+  GETCLUSTERMETADATA = 7,
+  FETCHOFFSET = 8,
 }
 export enum ApiVersion { 
   V0 = 0,
