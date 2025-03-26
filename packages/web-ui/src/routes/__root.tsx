@@ -7,22 +7,22 @@ import GeneralError from "@/features/errors/general-error";
 import NotFoundError from "@/features/errors/not-found-error";
 
 export const Route = createRootRouteWithContext<{
-	queryClient: QueryClient;
+  queryClient: QueryClient;
 }>()({
-	component: () => {
-		return (
-			<>
-				<Outlet />
-				<Toaster />
-				{import.meta.env.MODE === "development" && (
-					<>
-						<ReactQueryDevtools buttonPosition="bottom-left" />
-						<TanStackRouterDevtools position="bottom-right" />
-					</>
-				)}
-			</>
-		);
-	},
-	notFoundComponent: NotFoundError,
-	errorComponent: GeneralError,
+  component: () => {
+    return (
+      <>
+        <Outlet />
+        <Toaster />
+        {import.meta.env.MODE === "development" && (
+          <>
+            <ReactQueryDevtools buttonPosition="bottom-left" />
+            <TanStackRouterDevtools position="bottom-right" />
+          </>
+        )}
+      </>
+    );
+  },
+  notFoundComponent: NotFoundError,
+  errorComponent: GeneralError,
 });

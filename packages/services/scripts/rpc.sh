@@ -16,9 +16,9 @@
 set -u -e
 
 SCRIPT_DIR="$(dirname "$0")"
-BASE_PATH="$SCRIPT_DIR/../../../src/protocol/src"
+BASE_PATH="$SCRIPT_DIR/../../../robustmq-proto/protos"
 
-GENERATE_PATH="$SCRIPT_DIR/../protos"
+GENERATE_BASE_PATH="$SCRIPT_DIR/../protos"
 
 if [ ! -d "$BASE_PATH" ]; then
     echo "$BASE_PATH does't exist"
@@ -26,30 +26,50 @@ if [ ! -d "$BASE_PATH" ]; then
 fi
 
 # clean the generate path
-rm -rf "$GENERATE_PATH"
+rm -rf "$GENERATE_BASE_PATH"
 
-mkdir -p "$GENERATE_PATH"
+mkdir -p "$GENERATE_BASE_PATH"
 
-proto_dirs_list=""
-proto_files=""
 
-while IFS= read -r file; do
+generate_proto_files() {
+  local target_dir="$BASE_PATH/$1/proto"
+  local proto_files=""
+  
+  local common_proto_folder="$BASE_PATH/prost_validation_types/proto"
+  local generate_path="$GENERATE_BASE_PATH/$1"
+
+  mkdir -p "$generate_path"
+
+  while IFS= read -r file; do
   # get all `proto` directories
   if [[ "$file" == *"/proto/"* ]]; then
-    proto_dir=$(echo "$file" | sed -E 's/(.*\/proto)\/.*/\1/')
-
     relative_file_name=$(echo "$file" | sed -E 's/.*\/proto\/(.*)/\1/')
-    
-    if [[ "$proto_dirs_list" != *"$proto_dir"* ]]; then
-      proto_dirs_list="$proto_dirs_list -I=$proto_dir"
-    fi
 
     if [[ "$proto_files" != *"$relative_file_name"* ]]; then
       proto_files="$proto_files $relative_file_name"
     fi
   fi
-done < <(find "$BASE_PATH" -type f -name "*.proto")
+  done < <(find "$target_dir" -type f -name "*.proto")
+  
+  protoc -I="$target_dir" -I="$common_proto_folder" $proto_files \
+    --js_out="import_style=commonjs:$generate_path" \
+    --grpc-web_out="import_style=typescript,mode=grpcwebtext:$generate_path"
+}
 
-protoc $proto_dirs_list $proto_files \
-  --js_out="import_style=commonjs:$GENERATE_PATH" \
-  --grpc-web_out="import_style=typescript,mode=grpcwebtext:$GENERATE_PATH"
+generate_proto_files "broker_mqtt"
+generate_proto_files "journal_server"
+generate_proto_files "placement_center"
+generate_proto_files "prost_validation_types"
+
+
+update_imports() {
+  find "$GENERATE_BASE_PATH" -type f -name "*.js" | while read -r file; do
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' 's|var validate_validate_pb = require('\''./validate/validate_pb.js'\'');|var validate_validate_pb = require('\''../prost_validation_types/validate/validate_pb.js'\'');|g' "$file"
+    else
+      sed -i 's|var validate_validate_pb = require('\''./validate/validate_pb.js'\'');|var validate_validate_pb = require('\''../prost_validation_types/validate/validate_pb.js'\'');|g' "$file"
+    fi
+  done
+}
+
+update_imports 
