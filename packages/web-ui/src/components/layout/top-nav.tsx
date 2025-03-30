@@ -47,7 +47,7 @@ export function TopNav({ className, links, ...props }: TopNavProps) {
       <nav
         className={cn(
           "hidden items-center space-x-4 md:flex lg:space-x-6",
-          className,
+          className
         )}
         {...props}
       >
@@ -56,7 +56,9 @@ export function TopNav({ className, links, ...props }: TopNavProps) {
             key={`${title}-${href}`}
             to={href}
             disabled={disabled}
-            className={`text-sm font-medium transition-colors hover:text-primary ${isActive ? "" : "text-muted-foreground"}`}
+            className={`text-sm font-medium transition-colors hover:text-primary ${
+              isActive ? "" : "text-muted-foreground"
+            }`}
           >
             {title}
           </Link>
