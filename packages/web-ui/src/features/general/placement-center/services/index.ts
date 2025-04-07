@@ -5,7 +5,7 @@ import { SERVER_CONFIG } from "@/config/server";
 const service = new PlacementCenterServiceClient(
   SERVER_CONFIG.PLACEMENT_CENTER,
   null,
-  null
+  null,
 );
 
 export const fetchClusterStatus =
@@ -21,7 +21,7 @@ export const fetchClusterStatus =
             const ret = response.getContent();
             s(JSON.parse(ret));
           }
-        }
+        },
       );
     });
   };
@@ -40,7 +40,7 @@ export const fetchClusterNodeList =
             console.log(list.nodesList);
             s(list);
           }
-        }
+        },
       );
     });
   };
