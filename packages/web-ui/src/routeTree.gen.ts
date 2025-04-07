@@ -29,40 +29,49 @@ const errors401LazyImport = createFileRoute("/(errors)/401")();
 const authSignUpLazyImport = createFileRoute("/(auth)/sign-up")();
 const authSignIn2LazyImport = createFileRoute("/(auth)/sign-in-2")();
 const authForgotPasswordLazyImport = createFileRoute(
-  "/(auth)/forgot-password"
+  "/(auth)/forgot-password",
 )();
 const AuthenticatedSettingsRouteLazyImport = createFileRoute(
-  "/_authenticated/settings"
+  "/_authenticated/settings",
 )();
 const AuthenticatedUsersIndexLazyImport = createFileRoute(
-  "/_authenticated/users/"
+  "/_authenticated/users/",
 )();
 const AuthenticatedSettingsIndexLazyImport = createFileRoute(
-  "/_authenticated/settings/"
-)();
-const AuthenticatedPlacementCenterIndexLazyImport = createFileRoute(
-  "/_authenticated/placement-center/"
+  "/_authenticated/settings/",
 )();
 const AuthenticatedHelpCenterIndexLazyImport = createFileRoute(
-  "/_authenticated/help-center/"
+  "/_authenticated/help-center/",
 )();
 const AuthenticatedChatsIndexLazyImport = createFileRoute(
-  "/_authenticated/chats/"
+  "/_authenticated/chats/",
 )();
 const AuthenticatedAppsIndexLazyImport = createFileRoute(
-  "/_authenticated/apps/"
+  "/_authenticated/apps/",
 )();
 const AuthenticatedSettingsNotificationsLazyImport = createFileRoute(
-  "/_authenticated/settings/notifications"
+  "/_authenticated/settings/notifications",
 )();
 const AuthenticatedSettingsDisplayLazyImport = createFileRoute(
-  "/_authenticated/settings/display"
+  "/_authenticated/settings/display",
 )();
 const AuthenticatedSettingsAppearanceLazyImport = createFileRoute(
-  "/_authenticated/settings/appearance"
+  "/_authenticated/settings/appearance",
 )();
 const AuthenticatedSettingsAccountLazyImport = createFileRoute(
-  "/_authenticated/settings/account"
+  "/_authenticated/settings/account",
+)();
+const AuthenticatedGeneralSubscribeManagerIndexLazyImport = createFileRoute(
+  "/_authenticated/general/subscribe-manager/",
+)();
+const AuthenticatedGeneralPlacementCenterIndexLazyImport = createFileRoute(
+  "/_authenticated/general/placement-center/",
+)();
+const AuthenticatedAclClientCertificationIndexLazyImport = createFileRoute(
+  "/_authenticated/acl/client-certification/",
+)();
+const AuthenticatedAclClientAuthorizeIndexLazyImport = createFileRoute(
+  "/_authenticated/acl/client-authorize/",
 )();
 
 // Create/Update Routes
@@ -141,7 +150,7 @@ const authForgotPasswordLazyRoute = authForgotPasswordLazyImport
     getParentRoute: () => rootRoute,
   } as any)
   .lazy(() =>
-    import("./routes/(auth)/forgot-password.lazy").then((d) => d.Route)
+    import("./routes/(auth)/forgot-password.lazy").then((d) => d.Route),
   );
 
 const AuthenticatedSettingsRouteLazyRoute =
@@ -150,7 +159,7 @@ const AuthenticatedSettingsRouteLazyRoute =
     path: "/settings",
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import("./routes/_authenticated/settings/route.lazy").then((d) => d.Route)
+    import("./routes/_authenticated/settings/route.lazy").then((d) => d.Route),
   );
 
 const authSignInRoute = authSignInImport.update({
@@ -177,7 +186,7 @@ const AuthenticatedUsersIndexLazyRoute =
     path: "/users/",
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import("./routes/_authenticated/users/index.lazy").then((d) => d.Route)
+    import("./routes/_authenticated/users/index.lazy").then((d) => d.Route),
   );
 
 const AuthenticatedSettingsIndexLazyRoute =
@@ -186,18 +195,7 @@ const AuthenticatedSettingsIndexLazyRoute =
     path: "/",
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
   } as any).lazy(() =>
-    import("./routes/_authenticated/settings/index.lazy").then((d) => d.Route)
-  );
-
-const AuthenticatedPlacementCenterIndexLazyRoute =
-  AuthenticatedPlacementCenterIndexLazyImport.update({
-    id: "/placement-center/",
-    path: "/placement-center/",
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any).lazy(() =>
-    import("./routes/_authenticated/placement-center/index.lazy").then(
-      (d) => d.Route
-    )
+    import("./routes/_authenticated/settings/index.lazy").then((d) => d.Route),
   );
 
 const AuthenticatedHelpCenterIndexLazyRoute =
@@ -207,8 +205,8 @@ const AuthenticatedHelpCenterIndexLazyRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
     import("./routes/_authenticated/help-center/index.lazy").then(
-      (d) => d.Route
-    )
+      (d) => d.Route,
+    ),
   );
 
 const AuthenticatedChatsIndexLazyRoute =
@@ -217,7 +215,7 @@ const AuthenticatedChatsIndexLazyRoute =
     path: "/chats/",
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import("./routes/_authenticated/chats/index.lazy").then((d) => d.Route)
+    import("./routes/_authenticated/chats/index.lazy").then((d) => d.Route),
   );
 
 const AuthenticatedAppsIndexLazyRoute = AuthenticatedAppsIndexLazyImport.update(
@@ -225,9 +223,9 @@ const AuthenticatedAppsIndexLazyRoute = AuthenticatedAppsIndexLazyImport.update(
     id: "/apps/",
     path: "/apps/",
     getParentRoute: () => AuthenticatedRouteRoute,
-  } as any
+  } as any,
 ).lazy(() =>
-  import("./routes/_authenticated/apps/index.lazy").then((d) => d.Route)
+  import("./routes/_authenticated/apps/index.lazy").then((d) => d.Route),
 );
 
 const AuthenticatedSettingsNotificationsLazyRoute =
@@ -237,8 +235,8 @@ const AuthenticatedSettingsNotificationsLazyRoute =
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
   } as any).lazy(() =>
     import("./routes/_authenticated/settings/notifications.lazy").then(
-      (d) => d.Route
-    )
+      (d) => d.Route,
+    ),
   );
 
 const AuthenticatedSettingsDisplayLazyRoute =
@@ -247,7 +245,9 @@ const AuthenticatedSettingsDisplayLazyRoute =
     path: "/display",
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
   } as any).lazy(() =>
-    import("./routes/_authenticated/settings/display.lazy").then((d) => d.Route)
+    import("./routes/_authenticated/settings/display.lazy").then(
+      (d) => d.Route,
+    ),
   );
 
 const AuthenticatedSettingsAppearanceLazyRoute =
@@ -257,8 +257,8 @@ const AuthenticatedSettingsAppearanceLazyRoute =
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
   } as any).lazy(() =>
     import("./routes/_authenticated/settings/appearance.lazy").then(
-      (d) => d.Route
-    )
+      (d) => d.Route,
+    ),
   );
 
 const AuthenticatedSettingsAccountLazyRoute =
@@ -267,7 +267,53 @@ const AuthenticatedSettingsAccountLazyRoute =
     path: "/account",
     getParentRoute: () => AuthenticatedSettingsRouteLazyRoute,
   } as any).lazy(() =>
-    import("./routes/_authenticated/settings/account.lazy").then((d) => d.Route)
+    import("./routes/_authenticated/settings/account.lazy").then(
+      (d) => d.Route,
+    ),
+  );
+
+const AuthenticatedGeneralSubscribeManagerIndexLazyRoute =
+  AuthenticatedGeneralSubscribeManagerIndexLazyImport.update({
+    id: "/general/subscribe-manager/",
+    path: "/general/subscribe-manager/",
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import("./routes/_authenticated/general/subscribe-manager/index.lazy").then(
+      (d) => d.Route,
+    ),
+  );
+
+const AuthenticatedGeneralPlacementCenterIndexLazyRoute =
+  AuthenticatedGeneralPlacementCenterIndexLazyImport.update({
+    id: "/general/placement-center/",
+    path: "/general/placement-center/",
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import("./routes/_authenticated/general/placement-center/index.lazy").then(
+      (d) => d.Route,
+    ),
+  );
+
+const AuthenticatedAclClientCertificationIndexLazyRoute =
+  AuthenticatedAclClientCertificationIndexLazyImport.update({
+    id: "/acl/client-certification/",
+    path: "/acl/client-certification/",
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import("./routes/_authenticated/acl/client-certification/index.lazy").then(
+      (d) => d.Route,
+    ),
+  );
+
+const AuthenticatedAclClientAuthorizeIndexLazyRoute =
+  AuthenticatedAclClientAuthorizeIndexLazyImport.update({
+    id: "/acl/client-authorize/",
+    path: "/acl/client-authorize/",
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import("./routes/_authenticated/acl/client-authorize/index.lazy").then(
+      (d) => d.Route,
+    ),
   );
 
 // Populate the FileRoutesByPath interface
@@ -421,13 +467,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexLazyImport;
       parentRoute: typeof AuthenticatedRouteImport;
     };
-    "/_authenticated/placement-center/": {
-      id: "/_authenticated/placement-center/";
-      path: "/placement-center";
-      fullPath: "/placement-center";
-      preLoaderRoute: typeof AuthenticatedPlacementCenterIndexLazyImport;
-      parentRoute: typeof AuthenticatedRouteImport;
-    };
     "/_authenticated/settings/": {
       id: "/_authenticated/settings/";
       path: "/";
@@ -440,6 +479,34 @@ declare module "@tanstack/react-router" {
       path: "/users";
       fullPath: "/users";
       preLoaderRoute: typeof AuthenticatedUsersIndexLazyImport;
+      parentRoute: typeof AuthenticatedRouteImport;
+    };
+    "/_authenticated/acl/client-authorize/": {
+      id: "/_authenticated/acl/client-authorize/";
+      path: "/acl/client-authorize";
+      fullPath: "/acl/client-authorize";
+      preLoaderRoute: typeof AuthenticatedAclClientAuthorizeIndexLazyImport;
+      parentRoute: typeof AuthenticatedRouteImport;
+    };
+    "/_authenticated/acl/client-certification/": {
+      id: "/_authenticated/acl/client-certification/";
+      path: "/acl/client-certification";
+      fullPath: "/acl/client-certification";
+      preLoaderRoute: typeof AuthenticatedAclClientCertificationIndexLazyImport;
+      parentRoute: typeof AuthenticatedRouteImport;
+    };
+    "/_authenticated/general/placement-center/": {
+      id: "/_authenticated/general/placement-center/";
+      path: "/general/placement-center";
+      fullPath: "/general/placement-center";
+      preLoaderRoute: typeof AuthenticatedGeneralPlacementCenterIndexLazyImport;
+      parentRoute: typeof AuthenticatedRouteImport;
+    };
+    "/_authenticated/general/subscribe-manager/": {
+      id: "/_authenticated/general/subscribe-manager/";
+      path: "/general/subscribe-manager";
+      fullPath: "/general/subscribe-manager";
+      preLoaderRoute: typeof AuthenticatedGeneralSubscribeManagerIndexLazyImport;
       parentRoute: typeof AuthenticatedRouteImport;
     };
   }
@@ -470,7 +537,7 @@ const AuthenticatedSettingsRouteLazyRouteChildren: AuthenticatedSettingsRouteLaz
 
 const AuthenticatedSettingsRouteLazyRouteWithChildren =
   AuthenticatedSettingsRouteLazyRoute._addFileChildren(
-    AuthenticatedSettingsRouteLazyRouteChildren
+    AuthenticatedSettingsRouteLazyRouteChildren,
   );
 
 interface AuthenticatedRouteRouteChildren {
@@ -479,8 +546,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute;
   AuthenticatedChatsIndexLazyRoute: typeof AuthenticatedChatsIndexLazyRoute;
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute;
-  AuthenticatedPlacementCenterIndexLazyRoute: typeof AuthenticatedPlacementCenterIndexLazyRoute;
   AuthenticatedUsersIndexLazyRoute: typeof AuthenticatedUsersIndexLazyRoute;
+  AuthenticatedAclClientAuthorizeIndexLazyRoute: typeof AuthenticatedAclClientAuthorizeIndexLazyRoute;
+  AuthenticatedAclClientCertificationIndexLazyRoute: typeof AuthenticatedAclClientCertificationIndexLazyRoute;
+  AuthenticatedGeneralPlacementCenterIndexLazyRoute: typeof AuthenticatedGeneralPlacementCenterIndexLazyRoute;
+  AuthenticatedGeneralSubscribeManagerIndexLazyRoute: typeof AuthenticatedGeneralSubscribeManagerIndexLazyRoute;
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -490,9 +560,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedChatsIndexLazyRoute: AuthenticatedChatsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
-  AuthenticatedPlacementCenterIndexLazyRoute:
-    AuthenticatedPlacementCenterIndexLazyRoute,
   AuthenticatedUsersIndexLazyRoute: AuthenticatedUsersIndexLazyRoute,
+  AuthenticatedAclClientAuthorizeIndexLazyRoute:
+    AuthenticatedAclClientAuthorizeIndexLazyRoute,
+  AuthenticatedAclClientCertificationIndexLazyRoute:
+    AuthenticatedAclClientCertificationIndexLazyRoute,
+  AuthenticatedGeneralPlacementCenterIndexLazyRoute:
+    AuthenticatedGeneralPlacementCenterIndexLazyRoute,
+  AuthenticatedGeneralSubscribeManagerIndexLazyRoute:
+    AuthenticatedGeneralSubscribeManagerIndexLazyRoute,
 };
 
 const AuthenticatedRouteRouteWithChildren =
@@ -519,9 +595,12 @@ export interface FileRoutesByFullPath {
   "/apps": typeof AuthenticatedAppsIndexLazyRoute;
   "/chats": typeof AuthenticatedChatsIndexLazyRoute;
   "/help-center": typeof AuthenticatedHelpCenterIndexLazyRoute;
-  "/placement-center": typeof AuthenticatedPlacementCenterIndexLazyRoute;
   "/settings/": typeof AuthenticatedSettingsIndexLazyRoute;
   "/users": typeof AuthenticatedUsersIndexLazyRoute;
+  "/acl/client-authorize": typeof AuthenticatedAclClientAuthorizeIndexLazyRoute;
+  "/acl/client-certification": typeof AuthenticatedAclClientCertificationIndexLazyRoute;
+  "/general/placement-center": typeof AuthenticatedGeneralPlacementCenterIndexLazyRoute;
+  "/general/subscribe-manager": typeof AuthenticatedGeneralSubscribeManagerIndexLazyRoute;
 }
 
 export interface FileRoutesByTo {
@@ -543,9 +622,12 @@ export interface FileRoutesByTo {
   "/apps": typeof AuthenticatedAppsIndexLazyRoute;
   "/chats": typeof AuthenticatedChatsIndexLazyRoute;
   "/help-center": typeof AuthenticatedHelpCenterIndexLazyRoute;
-  "/placement-center": typeof AuthenticatedPlacementCenterIndexLazyRoute;
   "/settings": typeof AuthenticatedSettingsIndexLazyRoute;
   "/users": typeof AuthenticatedUsersIndexLazyRoute;
+  "/acl/client-authorize": typeof AuthenticatedAclClientAuthorizeIndexLazyRoute;
+  "/acl/client-certification": typeof AuthenticatedAclClientCertificationIndexLazyRoute;
+  "/general/placement-center": typeof AuthenticatedGeneralPlacementCenterIndexLazyRoute;
+  "/general/subscribe-manager": typeof AuthenticatedGeneralSubscribeManagerIndexLazyRoute;
 }
 
 export interface FileRoutesById {
@@ -571,9 +653,12 @@ export interface FileRoutesById {
   "/_authenticated/apps/": typeof AuthenticatedAppsIndexLazyRoute;
   "/_authenticated/chats/": typeof AuthenticatedChatsIndexLazyRoute;
   "/_authenticated/help-center/": typeof AuthenticatedHelpCenterIndexLazyRoute;
-  "/_authenticated/placement-center/": typeof AuthenticatedPlacementCenterIndexLazyRoute;
   "/_authenticated/settings/": typeof AuthenticatedSettingsIndexLazyRoute;
   "/_authenticated/users/": typeof AuthenticatedUsersIndexLazyRoute;
+  "/_authenticated/acl/client-authorize/": typeof AuthenticatedAclClientAuthorizeIndexLazyRoute;
+  "/_authenticated/acl/client-certification/": typeof AuthenticatedAclClientCertificationIndexLazyRoute;
+  "/_authenticated/general/placement-center/": typeof AuthenticatedGeneralPlacementCenterIndexLazyRoute;
+  "/_authenticated/general/subscribe-manager/": typeof AuthenticatedGeneralSubscribeManagerIndexLazyRoute;
 }
 
 export interface FileRouteTypes {
@@ -599,9 +684,12 @@ export interface FileRouteTypes {
     | "/apps"
     | "/chats"
     | "/help-center"
-    | "/placement-center"
     | "/settings/"
-    | "/users";
+    | "/users"
+    | "/acl/client-authorize"
+    | "/acl/client-certification"
+    | "/general/placement-center"
+    | "/general/subscribe-manager";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/500"
@@ -622,9 +710,12 @@ export interface FileRouteTypes {
     | "/apps"
     | "/chats"
     | "/help-center"
-    | "/placement-center"
     | "/settings"
-    | "/users";
+    | "/users"
+    | "/acl/client-authorize"
+    | "/acl/client-certification"
+    | "/general/placement-center"
+    | "/general/subscribe-manager";
   id:
     | "__root__"
     | "/_authenticated"
@@ -648,9 +739,12 @@ export interface FileRouteTypes {
     | "/_authenticated/apps/"
     | "/_authenticated/chats/"
     | "/_authenticated/help-center/"
-    | "/_authenticated/placement-center/"
     | "/_authenticated/settings/"
-    | "/_authenticated/users/";
+    | "/_authenticated/users/"
+    | "/_authenticated/acl/client-authorize/"
+    | "/_authenticated/acl/client-certification/"
+    | "/_authenticated/general/placement-center/"
+    | "/_authenticated/general/subscribe-manager/";
   fileRoutesById: FileRoutesById;
 }
 
@@ -716,8 +810,11 @@ export const routeTree = rootRoute
         "/_authenticated/apps/",
         "/_authenticated/chats/",
         "/_authenticated/help-center/",
-        "/_authenticated/placement-center/",
-        "/_authenticated/users/"
+        "/_authenticated/users/",
+        "/_authenticated/acl/client-authorize/",
+        "/_authenticated/acl/client-certification/",
+        "/_authenticated/general/placement-center/",
+        "/_authenticated/general/subscribe-manager/"
       ]
     },
     "/(auth)/500": {
@@ -796,16 +893,28 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/help-center/index.lazy.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/placement-center/": {
-      "filePath": "_authenticated/placement-center/index.lazy.tsx",
-      "parent": "/_authenticated"
-    },
     "/_authenticated/settings/": {
       "filePath": "_authenticated/settings/index.lazy.tsx",
       "parent": "/_authenticated/settings"
     },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/acl/client-authorize/": {
+      "filePath": "_authenticated/acl/client-authorize/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/acl/client-certification/": {
+      "filePath": "_authenticated/acl/client-certification/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/general/placement-center/": {
+      "filePath": "_authenticated/general/placement-center/index.lazy.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/general/subscribe-manager/": {
+      "filePath": "_authenticated/general/subscribe-manager/index.lazy.tsx",
       "parent": "/_authenticated"
     }
   }

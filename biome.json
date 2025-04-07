@@ -1,6 +1,6 @@
 {
   "files": {
-    "ignore": ["node_modules", "dist", "packages/services/**/*"]
+    "ignore": ["node_modules", "dist", "packages/services/**/*", "*.json"]
   },
   "linter": {
     "enabled": false

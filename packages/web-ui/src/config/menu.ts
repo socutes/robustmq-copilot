@@ -1,10 +1,4 @@
-import {
-  IconChecklist,
-  IconLayoutDashboard,
-  IconMessages,
-  IconPackages,
-  IconUsers,
-} from "@tabler/icons-react";
+import { IconChecklist, IconLayoutDashboard } from "@tabler/icons-react";
 import { AudioWaveform, Command, GalleryVerticalEnd } from "lucide-react";
 import { type SidebarData } from "@/utils/types";
 
@@ -42,24 +36,28 @@ export const sidebarData: SidebarData = {
         },
         {
           title: "PlacementCenter",
-          url: "/placement-center",
+          url: "/general/placement-center",
           icon: IconChecklist,
         },
         {
-          title: "Apps",
-          url: "/apps",
-          icon: IconPackages,
+          title: "SubscribeManager",
+          url: "/general/subscribe-manager",
+          icon: IconChecklist,
+        },
+      ],
+    },
+    {
+      title: "ACL",
+      items: [
+        {
+          title: "ClientAuthorize",
+          url: "/acl/client-authorize",
+          icon: IconChecklist,
         },
         {
-          title: "Chats",
-          url: "/chats",
-          badge: "3",
-          icon: IconMessages,
-        },
-        {
-          title: "Users",
-          url: "/users",
-          icon: IconUsers,
+          title: "ClientCertification",
+          url: "/acl/client-certification",
+          icon: IconChecklist,
         },
       ],
     },
