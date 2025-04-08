@@ -7,21 +7,21 @@ export default function SessionList() {
   const columns: ColumnDef<any>[] = [
     {
       id: "clientId",
-      accessorKey: "clientId",
+      accessorKey: "client_id",
       header: "ClientId",
     },
     {
-      accessorKey: "topicName",
-      header: "TopicName",
+      accessorKey: "source_ip_addr",
+      header: "SourceIpAddr",
     },
     {
-      accessorKey: "qos",
-      header: "QOS",
+      accessorKey: "protocol",
+      header: "Protocol",
     },
   ];
 
   const query = useQuery({
-    queryKey: ["QueryTopicData"],
+    queryKey: ["QueryConnectionData"],
     queryFn: fetchConnectionList,
   });
 

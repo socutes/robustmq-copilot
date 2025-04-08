@@ -5,7 +5,7 @@ import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 
 export default defineConfig({
   html: {
-    title: "RobustMQ",
+    title: "RobustMQ Admin",
     favicon: path.resolve(__dirname, "./public/images/favicon.png"),
     meta: {
       "theme-color": "#fff",
