@@ -23,18 +23,21 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { UseQueryResult } from "@tanstack/react-query";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData, TValue, TError> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  data?: TData[];
   hideToolBar?: boolean;
+  query?: UseQueryResult<TData[], TError>
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData, TValue, TError>({
   columns,
   data,
   hideToolBar = false,
-}: DataTableProps<TData, TValue>) {
+  query
+}: DataTableProps<TData, TValue, TError>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -44,7 +47,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
-    data,
+    data: query?.data || data || [],
     columns,
     state: {
       sorting,

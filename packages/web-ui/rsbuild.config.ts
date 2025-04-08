@@ -5,7 +5,38 @@ import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 
 export default defineConfig({
   html: {
-    template: "./index.html",
+    title: "RobustMQ",
+    favicon: path.resolve(__dirname, "./public/images/favicon.png"),
+    meta: {
+      "theme-color": "#fff",
+      title: "RobustMQ Admin",
+      description: "RobustMQ Admin",
+      viewport: "width=device-width, initial-scale=1",
+    },
+    tags: [
+      {
+        tag: "link",
+        attrs: {
+          rel: "preconnect",
+          href: "https://fonts.googleapis.com",
+        },
+      },
+      {
+        tag: "link",
+        attrs: {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossOriginIsolated: true,
+        },
+      },
+      {
+        tag: "link",
+        attrs: {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&display=swap",
+        },
+      },
+    ],
   },
   source: {
     entry: {
