@@ -25,7 +25,8 @@ type NavCollapsible = BaseNavItem & {
 type NavItem = NavCollapsible | NavLink;
 
 interface NavGroup {
-  title: string;
+  // Allow use empty title which will not render group title
+  title?: string;
   items: NavItem[];
 }
 
