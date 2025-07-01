@@ -30,7 +30,7 @@ export const sidebarData: SidebarData = {
     {
       items: [
         {
-          title: 'Cluster Overview',
+          title: 'Overview',
           url: '/',
           icon: LayoutDashboard,
         },
@@ -55,7 +55,7 @@ export const sidebarData: SidebarData = {
           icon: ListTodo,
         },
         {
-          title: 'Subscription Management',
+          title: 'Subscribe',
           url: '/general/subscribe-manager',
           icon: Bell,
         },
@@ -65,17 +65,17 @@ export const sidebarData: SidebarData = {
       title: 'Access Control',
       items: [
         {
-          title: 'User Management',
+          title: 'User',
           url: '/acl/user-management',
           icon: Users,
         },
         {
-          title: 'ACL Management',
+          title: 'ACL',
           url: '/acl/acl-management',
           icon: Shield,
         },
         {
-          title: 'Blacklist Management',
+          title: 'Blacklist',
           url: '/acl/blacklist-management',
           icon: UserX,
         },

@@ -103,7 +103,7 @@ export default function Dashboard() {
       {/* ===== Main ===== */}
       <Main>
         <div className="mb-2 flex items-center justify-between space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Overview</h1>
         </div>
         <div className="mt-4 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
