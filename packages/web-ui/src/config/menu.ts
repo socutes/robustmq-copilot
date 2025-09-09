@@ -59,6 +59,11 @@ export const sidebarData: SidebarData = {
           url: '/general/subscribe-manager',
           icon: Bell,
         },
+        {
+          title: 'Delayed Message',
+          url: '/advanced/delayed-message',
+          icon: Timer,
+        },
       ],
     },
     {
@@ -97,21 +102,6 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: 'Monitoring',
-      items: [
-        {
-          title: 'Cluster',
-          url: '/monitoring/cluster',
-          icon: BarChart2,
-        },
-        {
-          title: 'Topic',
-          url: '/monitoring/topic',
-          icon: LineChart,
-        },
-      ],
-    },
-    {
       title: 'Advanced',
       items: [
         {
@@ -130,23 +120,29 @@ export const sidebarData: SidebarData = {
           icon: FileEdit,
         },
         {
-          title: 'Delayed Message',
-          url: '/advanced/delayed-message',
-          icon: Timer,
-        },
-        {
           title: 'Connection Jitter',
           url: '/advanced/connection-jitter',
           icon: Activity,
         },
+        {
+          title: 'System Alarm',
+          url: '/advanced/connection-jitter',
+          icon: Timer,
+        },
       ],
     },
     {
+      title: 'Setting',
       items: [
         {
-          title: 'Setting',
-          url: '/system-setting',
-          icon: Settings,
+          title: 'Configuration',
+          url: '/advanced/connection-jitter',
+          icon: Timer,
+        },
+        {
+          title: 'Audit Log',
+          url: '/advanced/connection-jitter',
+          icon: Timer,
         },
       ],
     },
