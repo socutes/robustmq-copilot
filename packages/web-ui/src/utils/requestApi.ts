@@ -2,7 +2,7 @@ import axios from 'axios';
 import { QueryOption } from '@/services/common/query';
 
 const requestInstance = axios.create({
-  baseURL: process.env.PUBLIC_MQTT_SERVER,
+  baseURL: process.env.PUBLIC_ADMIN_SERVER,
 });
 
 export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Promise<R> = async (api, data) => {
