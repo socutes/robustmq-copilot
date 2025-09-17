@@ -5,7 +5,7 @@ import { QueryOption } from '../common';
 import { getQueryOptions } from './util';
 import { RaftNodeState } from './placement-status';
 
-const service = new MQTTBrokerAdminServiceClient(process.env.PUBLIC_MQTT_SERVER, null, null);
+const service = new MQTTBrokerAdminServiceClient(process.env.PUBLIC_ADMIN_SERVER, null, null);
 
 /** Overview API  */
 export interface OverviewMetricsDataItem {
