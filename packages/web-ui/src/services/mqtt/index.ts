@@ -27,7 +27,7 @@ export interface OverviewMetricsDataParam {
 }
 
 export const getOverviewMetricsData = async (param: OverviewMetricsDataParam): Promise<OverviewMetricsData> => {
-  const response = await requestApi('/mqtt/overview/metrics', param);
+  const response = await requestApi('/api/mqtt/overview/metrics', param);
 
   const data: OverviewMetricsData = {
     connectionNum: JSON.parse(response.connection_num),
@@ -74,7 +74,7 @@ export interface OverviewStatusData {
 }
 
 export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
-  const response = await requestApi('/mqtt/overview');
+  const response = await requestApi('/api/mqtt/overview');
   const data: OverviewStatusData = {
     clusterName: response.cluster_name,
     messageInRate: response.message_in_rate,
@@ -284,7 +284,7 @@ export const getUserList = async (
   usersList: UserRaw[];
   totalCount: number;
 }> => {
-  const response = await requestApi('/mqtt/user/list', query);
+  const response = await requestApi('/api/mqtt/user/list', query);
   return {
     usersList: response.data,
     totalCount: response.total_count,
