@@ -40,6 +40,9 @@ interface DataTableProps<TData, TValue> {
   hideToolBar?: boolean;
   fetchDataFn: FetchDataFn<TData>;
   queryKey: string;
+  defaultPageSize?: number;
+  extraActions?: React.ReactNode;
+  headerClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -47,6 +50,9 @@ export function DataTable<TData, TValue>({
   hideToolBar = false,
   fetchDataFn,
   queryKey,
+  defaultPageSize = 10,
+  extraActions,
+  headerClassName,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -54,7 +60,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: defaultPageSize,
   });
   const [tagFilters, setTagFilters] = React.useState<TagValue[]>([]);
 
@@ -122,16 +128,21 @@ export function DataTable<TData, TValue>({
           tagFilters={tagFilters}
           onTagFilterChange={setTagFilters}
           attrFilters={attrFilter}
+          extraActions={extraActions}
         />
       )}
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className={headerClassName}>
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className={headerClassName ? 'border-0' : ''}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className={headerClassName ? 'text-white font-semibold' : ''}
+                    >
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );

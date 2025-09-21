@@ -59,11 +59,6 @@ export const sidebarData: SidebarData = {
           url: '/general/subscribe-manager',
           icon: Bell,
         },
-        {
-          title: 'Delayed Message',
-          url: '/advanced/delayed-message',
-          icon: Timer,
-        },
       ],
     },
     {
@@ -104,6 +99,11 @@ export const sidebarData: SidebarData = {
     {
       title: 'Advanced',
       items: [
+        {
+          title: 'Delayed Message',
+          url: '/advanced/delayed-message',
+          icon: Timer,
+        },
         {
           title: 'Auto Subscription',
           url: '/advanced/auto-subscription',

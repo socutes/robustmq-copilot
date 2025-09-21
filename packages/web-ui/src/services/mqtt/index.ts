@@ -272,6 +272,123 @@ export const getTopicRewriteRuleList = async (
   });
 };
 
+// -------- Client APIs --------
+export interface ClientRaw {
+  connection_id: number;
+  connection_type: string;
+  protocol: string;
+  source_addr: string;
+  create_time: string;
+}
+
+// 将前端的 offset/limit 分页参数转换为 HTTP API 的 page/limit 格式
+const convertPaginationForHttpApi = (query?: QueryOption) => {
+  if (!query || !query.pagination) {
+    return query;
+  }
+
+  const { pagination, ...rest } = query;
+  const page = Math.floor(pagination.offset / pagination.limit) + 1; // 计算页码，从1开始
+
+  return {
+    ...rest,
+    limit: pagination.limit,
+    page: page,
+  };
+};
+
+export const getClientListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  clientsList: ClientRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/client/list', httpQuery);
+  return {
+    clientsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Session APIs --------
+export interface SessionRaw {
+  client_id: string;
+  session_expiry: number;
+  is_contain_last_will: boolean;
+  last_will_delay_interval: number;
+  create_time: number;
+  connection_id: number;
+  broker_id: number;
+  reconnect_time: number;
+  distinct_time: number;
+}
+
+export const getSessionListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  sessionsList: SessionRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/session/list', httpQuery);
+  return {
+    sessionsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Topic APIs --------
+export interface TopicRaw {
+  topic_id: string;
+  topic_name: string;
+  is_contain_retain_message: boolean;
+}
+
+export const getTopicListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  topicsList: TopicRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/topic/list', httpQuery);
+  return {
+    topicsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Subscribe APIs --------
+export interface SubscribeRaw {
+  client_id: string;
+  path: string;
+  broker_id: number;
+  protocol: string;
+  qos: string;
+  no_local: number;
+  preserve_retain: number;
+  retain_handling: string;
+  create_time: string;
+  pk_id: number;
+  properties: string;
+  is_share_sub: boolean;
+}
+
+export const getSubscribeListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  subscriptionsList: SubscribeRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/subscribe/list', httpQuery);
+  return {
+    subscriptionsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
 // -------- User APIs --------
 export interface UserRaw {
   username: string;
@@ -289,4 +406,24 @@ export const getUserList = async (
     usersList: response.data,
     totalCount: response.total_count,
   };
+};
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  is_superuser: boolean;
+}
+
+export const createUser = async (data: CreateUserRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/user/create', data);
+  return response;
+};
+
+export interface DeleteUserRequest {
+  username: string;
+}
+
+export const deleteUser = async (data: DeleteUserRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/user/delete', data);
+  return response;
 };
