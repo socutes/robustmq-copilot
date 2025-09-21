@@ -12,7 +12,9 @@ export function SimpleTable({ columns, data }: SimpleTableProps) {
         <TableHeader>
           <TableRow>
             {columns.map(column => (
-              <TableHead key={column.key}>{column.label}</TableHead>
+              <TableHead key={column.key}>
+                {column.label}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>

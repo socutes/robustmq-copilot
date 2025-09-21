@@ -29,13 +29,32 @@ export interface OverviewMetricsDataParam {
 export const getOverviewMetricsData = async (param: OverviewMetricsDataParam): Promise<OverviewMetricsData> => {
   const response = await requestApi('/api/mqtt/overview/metrics', param);
 
+  // 转换 API 返回的数据格式：{date, value} → {date, count}
+  const transformData = (rawData: { date: number; value: number }[]): OverviewMetricsDataItem[] => {
+    try {
+      if (!Array.isArray(rawData)) {
+        console.warn('Invalid data format, expected array:', rawData);
+        return [];
+      }
+      return rawData
+        .map((item: { date: number; value: number }) => ({
+          date: item.date * 1000, // 转换为毫秒时间戳
+          count: item.value,
+        }))
+        .sort((a, b) => a.date - b.date); // 根据 date 进行升序排列
+    } catch (error) {
+      console.warn('Failed to transform metrics data:', error);
+      return [];
+    }
+  };
+
   const data: OverviewMetricsData = {
-    connectionNum: JSON.parse(response.connection_num),
-    topicNum: JSON.parse(response.topic_num),
-    subscribeNum: JSON.parse(response.subscribe_num),
-    messageInNum: JSON.parse(response.message_in_num),
-    messageOutNum: JSON.parse(response.message_out_num),
-    messageDropNum: JSON.parse(response.message_drop_num),
+    connectionNum: transformData(response.connection_num || []),
+    topicNum: transformData(response.topic_num || []),
+    subscribeNum: transformData(response.subscribe_num || []),
+    messageInNum: transformData(response.message_in_num || []),
+    messageOutNum: transformData(response.message_out_num || []),
+    messageDropNum: transformData(response.message_drop_num || []),
   };
 
   return data;
