@@ -446,3 +446,101 @@ export const deleteUser = async (data: DeleteUserRequest): Promise<string> => {
   const response = await requestApi('/api/mqtt/user/delete', data);
   return response;
 };
+
+// -------- ACL APIs --------
+export interface AclRaw {
+  resource_type: string;
+  resource_name: string;
+  topic: string;
+  ip: string;
+  action: string;
+  permission: string;
+}
+
+export const getAclListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  aclsList: AclRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/acl/list', httpQuery);
+  return {
+    aclsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateAclRequest {
+  resource_type: string;
+  resource_name: string;
+  topic: string;
+  ip: string;
+  action: string;
+  permission: string;
+}
+
+export const createAcl = async (data: CreateAclRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/acl/create', data);
+  return response;
+};
+
+export interface DeleteAclRequest {
+  resource_type: string;
+  resource_name: string;
+  topic: string;
+  ip: string;
+  action: string;
+  permission: string;
+}
+
+export const deleteAcl = async (data: DeleteAclRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/acl/delete', data);
+  return response;
+};
+
+// -------- Blacklist APIs --------
+export interface BlacklistRaw {
+  blacklist_type: string;
+  resource_name: string;
+  desc: string;
+  end_time: number;
+}
+
+export const getBlacklistListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  blacklistsList: BlacklistRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/blacklist/list', httpQuery);
+  return {
+    blacklistsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateBlacklistRequest {
+  blacklist_type: string;
+  resource_name: string;
+  end_time: number;
+  desc: string;
+}
+
+export const createBlacklist = async (data: CreateBlacklistRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/blacklist/create', data);
+  return response;
+};
+
+export interface DeleteBlacklistRequest {
+  blacklist_type: string;
+  resource_name: string;
+  end_time: number;
+  desc: string;
+}
+
+export const deleteBlacklist = async (data: DeleteBlacklistRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/blacklist/delete', data);
+  return response;
+};

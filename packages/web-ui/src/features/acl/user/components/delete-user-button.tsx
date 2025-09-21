@@ -36,11 +36,8 @@ export function DeleteUserButton({ username, isSuperUser }: DeleteUserButtonProp
       setIsOpen(false);
     },
     onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error?.response?.data?.message || 'Failed to delete user',
-      });
+      // 错误信息已经在 requestApi 中显示了，这里不需要重复显示
+      console.error('Failed to delete user:', error);
     },
   });
 

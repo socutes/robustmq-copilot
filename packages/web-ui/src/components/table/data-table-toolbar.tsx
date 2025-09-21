@@ -12,6 +12,7 @@ interface DataTableToolbarProps<TData> {
   onTagFilterChange?: (tagFilters: TagValue[]) => void;
   attrFilters: AttributeValue[];
   extraActions?: React.ReactNode;
+  isRefreshing?: boolean;
 }
 
 export function DataTableToolbar<TData>({
@@ -21,6 +22,7 @@ export function DataTableToolbar<TData>({
   onTagFilterChange,
   attrFilters,
   extraActions,
+  isRefreshing = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -65,12 +67,18 @@ export function DataTableToolbar<TData>({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 px-2 lg:px-3" onClick={handleRefresh}>
-                <ReloadIcon className="h-4 w-4" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-2 lg:px-3"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                <ReloadIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Refresh</p>
+              <p>{isRefreshing ? 'Refreshing...' : 'Refresh'}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

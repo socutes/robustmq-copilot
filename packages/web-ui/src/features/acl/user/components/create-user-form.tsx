@@ -11,23 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { createUser } from '@/services/mqtt';
 
@@ -69,11 +56,8 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
       onOpenChange(false);
     },
     onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error?.response?.data?.message || 'Failed to create user',
-      });
+      // 错误信息已经在 requestApi 中显示了，这里不需要重复显示
+      console.error('Failed to create user:', error);
     },
     onSettled: () => {
       setIsLoading(false);
@@ -99,11 +83,9 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription>
-            Create a new MQTT user with username, password and role permissions.
-          </DialogDescription>
+          <DialogDescription>Create a new MQTT user with username, password and role permissions.</DialogDescription>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -119,7 +101,7 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="password"
@@ -133,15 +115,15 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="is_superuser"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select 
-                    onValueChange={(value) => field.onChange(value === 'true')} 
+                  <Select
+                    onValueChange={value => field.onChange(value === 'true')}
                     defaultValue={field.value ? 'true' : 'false'}
                   >
                     <FormControl>
@@ -158,14 +140,9 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
                 </FormItem>
               )}
             />
-            
+
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => handleOpenChange(false)}
-                disabled={isLoading}
-              >
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>

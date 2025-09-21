@@ -5,6 +5,7 @@ import { SimpleLineChart } from './components/chart';
 import { HeaderCard } from './components/card';
 import { CombinedCard } from './components/combined-card';
 import { ThemeSwitch } from '@/components/theme-switch';
+import { InspirationalQuote } from '@/components/inspirational-quote';
 import {
   Network,
   Hash,
@@ -73,6 +74,7 @@ export default function Dashboard() {
       <Header>
         <TopNav links={[]} />
         <div className="ml-auto flex items-center space-x-4">
+          <InspirationalQuote />
           <ThemeSwitch />
         </div>
       </Header>
