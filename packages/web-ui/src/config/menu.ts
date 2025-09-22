@@ -124,11 +124,6 @@ export const sidebarData: SidebarData = {
           url: '/advanced/system-alarm',
           icon: Timer,
         },
-        {
-          title: 'Delayed Message',
-          url: '/advanced/delayed-message',
-          icon: Timer,
-        },
       ],
     },
     {
