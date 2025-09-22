@@ -544,3 +544,185 @@ export const deleteBlacklist = async (data: DeleteBlacklistRequest): Promise<str
   const response = await requestApi('/api/mqtt/blacklist/delete', data);
   return response;
 };
+
+// -------- Connector APIs --------
+export interface ConnectorRaw {
+  connector_name: string;
+  connector_type: string;
+  config: string;
+  topic_id: string;
+  status: string;
+  broker_id: string;
+  create_time: string;
+  update_time: string;
+}
+
+export const getConnectorListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  connectorsList: ConnectorRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/connector/list', httpQuery);
+  return {
+    connectorsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Schema APIs --------
+export interface SchemaRaw {
+  name: string;
+  schema_type: string;
+  desc: string;
+  schema: string;
+}
+
+export const getSchemaListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  schemasList: SchemaRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/schema/list', httpQuery);
+  return {
+    schemasList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateSchemaRequest {
+  schema_name: string;
+  schema_type: string;
+  schema: string;
+  desc: string;
+}
+
+export const createSchema = async (data: CreateSchemaRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema/create', data);
+  return response;
+};
+
+export interface DeleteSchemaRequest {
+  schema_name: string;
+}
+
+export const deleteSchema = async (data: DeleteSchemaRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema/delete', data);
+  return response;
+};
+
+// -------- Auto Subscribe APIs --------
+export interface AutoSubscribeRaw {
+  topic: string;
+  qos: string;
+  no_local: boolean;
+  retain_as_published: boolean;
+  retained_handling: string;
+}
+
+export const getAutoSubscribeListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  autoSubscribesList: AutoSubscribeRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/auto-subscribe/list', httpQuery);
+  return {
+    autoSubscribesList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateAutoSubscribeRequest {
+  topic: string;
+  qos: number;
+  no_local: boolean;
+  retain_as_published: boolean;
+  retained_handling: number;
+}
+
+export const createAutoSubscribe = async (data: CreateAutoSubscribeRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/auto-subscribe/create', data);
+  return response;
+};
+
+export interface DeleteAutoSubscribeRequest {
+  topic_name: string;
+}
+
+export const deleteAutoSubscribe = async (data: DeleteAutoSubscribeRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/auto-subscribe/delete', data);
+  return response;
+};
+
+// -------- Slow Subscribe APIs --------
+export interface SlowSubscribeRaw {
+  client_id: string;
+  topic_name: string;
+  time_span: number;
+  node_info: string;
+  create_time: string;
+  subscribe_name: string;
+}
+
+export const getSlowSubscribeListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  slowSubscribesList: SlowSubscribeRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/slow-subscribe/list', httpQuery);
+  return {
+    slowSubscribesList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Topic Rewrite APIs --------
+export interface TopicRewriteRaw {
+  source_topic: string;
+  dest_topic: string;
+  regex: string;
+  action: string;
+}
+
+export const getTopicRewriteListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  topicRewritesList: TopicRewriteRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/topic-rewrite/list', httpQuery);
+  return {
+    topicRewritesList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- System Alarm APIs --------
+export interface SystemAlarmRaw {
+  name: string;
+  message: string;
+  activate_at: string;
+  activated: boolean;
+}
+
+export const getSystemAlarmListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  systemAlarmsList: SystemAlarmRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/system-alarm/list', httpQuery);
+  return {
+    systemAlarmsList: response.data,
+    totalCount: response.total_count,
+  };
+};

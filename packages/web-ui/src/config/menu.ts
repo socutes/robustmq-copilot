@@ -100,11 +100,6 @@ export const sidebarData: SidebarData = {
       title: 'Advanced',
       items: [
         {
-          title: 'Delayed Message',
-          url: '/advanced/delayed-message',
-          icon: Timer,
-        },
-        {
           title: 'Auto Subscription',
           url: '/advanced/auto-subscription',
           icon: Zap,
@@ -126,7 +121,12 @@ export const sidebarData: SidebarData = {
         },
         {
           title: 'System Alarm',
-          url: '/advanced/connection-jitter',
+          url: '/advanced/system-alarm',
+          icon: Timer,
+        },
+        {
+          title: 'Delayed Message',
+          url: '/advanced/delayed-message',
           icon: Timer,
         },
       ],
