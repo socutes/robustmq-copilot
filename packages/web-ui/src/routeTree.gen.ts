@@ -15,6 +15,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
+import { Route as AuthenticatedSystemConfigurationRouteImport } from './routes/_authenticated/system/configuration'
+import { Route as AuthenticatedSystemBanLogRouteImport } from './routes/_authenticated/system/ban-log'
 import { Route as AuthenticatedAdvancedSystemAlarmRouteImport } from './routes/_authenticated/advanced/system-alarm'
 
 const errors503LazyRouteImport = createFileRoute('/(errors)/503')()
@@ -185,6 +187,18 @@ const AuthenticatedAppsIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_authenticated/apps/index.lazy').then((d) => d.Route),
   )
+const AuthenticatedSystemConfigurationRoute =
+  AuthenticatedSystemConfigurationRouteImport.update({
+    id: '/system/configuration',
+    path: '/system/configuration',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSystemBanLogRoute =
+  AuthenticatedSystemBanLogRouteImport.update({
+    id: '/system/ban-log',
+    path: '/system/ban-log',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdvancedSystemAlarmRoute =
   AuthenticatedAdvancedSystemAlarmRouteImport.update({
     id: '/advanced/system-alarm',
@@ -365,6 +379,8 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503LazyRoute
   '/': typeof AuthenticatedIndexRoute
   '/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
+  '/system/ban-log': typeof AuthenticatedSystemBanLogRoute
+  '/system/configuration': typeof AuthenticatedSystemConfigurationRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
@@ -398,6 +414,8 @@ export interface FileRoutesByTo {
   '/503': typeof errors503LazyRoute
   '/': typeof AuthenticatedIndexRoute
   '/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
+  '/system/ban-log': typeof AuthenticatedSystemBanLogRoute
+  '/system/configuration': typeof AuthenticatedSystemConfigurationRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
@@ -433,6 +451,8 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503LazyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
+  '/_authenticated/system/ban-log': typeof AuthenticatedSystemBanLogRoute
+  '/_authenticated/system/configuration': typeof AuthenticatedSystemConfigurationRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/system-setting/': typeof AuthenticatedSystemSettingIndexLazyRoute
@@ -468,6 +488,8 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/advanced/system-alarm'
+    | '/system/ban-log'
+    | '/system/configuration'
     | '/apps'
     | '/help-center'
     | '/system-setting'
@@ -501,6 +523,8 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/advanced/system-alarm'
+    | '/system/ban-log'
+    | '/system/configuration'
     | '/apps'
     | '/help-center'
     | '/system-setting'
@@ -535,6 +559,8 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/_authenticated/'
     | '/_authenticated/advanced/system-alarm'
+    | '/_authenticated/system/ban-log'
+    | '/_authenticated/system/configuration'
     | '/_authenticated/apps/'
     | '/_authenticated/help-center/'
     | '/_authenticated/system-setting/'
@@ -677,6 +703,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsIndexLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/system/configuration': {
+      id: '/_authenticated/system/configuration'
+      path: '/system/configuration'
+      fullPath: '/system/configuration'
+      preLoaderRoute: typeof AuthenticatedSystemConfigurationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/system/ban-log': {
+      id: '/_authenticated/system/ban-log'
+      path: '/system/ban-log'
+      fullPath: '/system/ban-log'
+      preLoaderRoute: typeof AuthenticatedSystemBanLogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/advanced/system-alarm': {
       id: '/_authenticated/advanced/system-alarm'
       path: '/advanced/system-alarm'
@@ -802,6 +842,8 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdvancedSystemAlarmRoute: typeof AuthenticatedAdvancedSystemAlarmRoute
+  AuthenticatedSystemBanLogRoute: typeof AuthenticatedSystemBanLogRoute
+  AuthenticatedSystemConfigurationRoute: typeof AuthenticatedSystemConfigurationRoute
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedSystemSettingIndexLazyRoute: typeof AuthenticatedSystemSettingIndexLazyRoute
@@ -826,6 +868,8 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdvancedSystemAlarmRoute: AuthenticatedAdvancedSystemAlarmRoute,
+  AuthenticatedSystemBanLogRoute: AuthenticatedSystemBanLogRoute,
+  AuthenticatedSystemConfigurationRoute: AuthenticatedSystemConfigurationRoute,
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedSystemSettingIndexLazyRoute:

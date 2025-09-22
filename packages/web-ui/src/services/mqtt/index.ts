@@ -726,3 +726,177 @@ export const getSystemAlarmListHttp = async (
     totalCount: response.total_count,
   };
 };
+
+// -------- Connection Jitter (Flapping Detect) APIs --------
+export interface ConnectionJitterRaw {
+  client_id: string;
+  before_last_windows_connections: number;
+  first_request_time: number;
+}
+
+export const getConnectionJitterListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  connectionJittersList: ConnectionJitterRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/flapping_detect/list', httpQuery);
+  return {
+    connectionJittersList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Ban Log APIs --------
+export interface BanLogRaw {
+  id: string;
+  ban_type: string;
+  resource_name: string;
+  reason: string;
+  ban_time: number;
+  expire_time: number;
+  operator: string;
+}
+
+export const getBanLogListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  banLogsList: BanLogRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/ban-log/list', httpQuery);
+  return {
+    banLogsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Configuration APIs --------
+export interface ClusterConfig {
+  cluster_name: string;
+  broker_id: number;
+  roles: string[];
+  grpc_port: number;
+  meta_addrs: Record<string, string>;
+  prometheus: {
+    enable: boolean;
+    port: number;
+  };
+  log: {
+    level: string;
+    path: string;
+  };
+  runtime: {
+    runtime_worker_threads: number;
+    tls_cert: string;
+    tls_key: string;
+  };
+  network: {
+    accept_thread_num: number;
+    handler_thread_num: number;
+    response_thread_num: number;
+    queue_size: number;
+    lock_max_try_mut_times: number;
+    lock_try_mut_sleep_time_ms: number;
+  };
+  p_prof: {
+    enable: boolean;
+    port: number;
+    frequency: number;
+  };
+  meta_runtime: {
+    heartbeat_timeout_ms: number;
+    heartbeat_check_time_ms: number;
+  };
+  rocksdb: {
+    data_path: string;
+    max_open_files: number;
+  };
+  journal_server: {
+    tcp_port: number;
+  };
+  journal_runtime: {
+    enable_auto_create_shard: boolean;
+    shard_replica_num: number;
+    max_segment_size: number;
+  };
+  journal_storage: {
+    data_path: string[];
+    rocksdb_max_open_files: number;
+  };
+  mqtt_server: {
+    tcp_port: number;
+    tls_port: number;
+    websocket_port: number;
+    websockets_port: number;
+    quic_port: number;
+  };
+  mqtt_auth_storage: {
+    storage_type: string;
+    journal_addr: string;
+    mysql_addr: string;
+  };
+  mqtt_message_storage: {
+    storage_type: string;
+    journal_addr: string;
+    mysql_addr: string;
+    rocksdb_data_path: string;
+    rocksdb_max_open_files: number;
+  };
+  mqtt_runtime: {
+    default_user: string;
+    default_password: string;
+    max_connection_num: number;
+  };
+  mqtt_offline_message: {
+    enable: boolean;
+    expire_ms: number;
+    max_messages_num: number;
+  };
+  mqtt_slow_subscribe_config: {
+    enable: boolean;
+    record_time: number;
+    delay_type: string;
+  };
+  mqtt_flapping_detect: {
+    enable: boolean;
+    window_time: number;
+    max_client_connections: number;
+    ban_time: number;
+  };
+  mqtt_protocol_config: {
+    max_session_expiry_interval: number;
+    default_session_expiry_interval: number;
+    topic_alias_max: number;
+    max_qos: number;
+    max_packet_size: number;
+    max_server_keep_alive: number;
+    default_server_keep_alive: number;
+    receive_max: number;
+    max_message_expiry_interval: number;
+    client_pkid_persistent: boolean;
+  };
+  mqtt_security: {
+    is_self_protection_status: boolean;
+    secret_free_login: boolean;
+  };
+  mqtt_schema: {
+    enable: boolean;
+    strategy: string;
+    failed_operation: string;
+    echo_log: boolean;
+    log_level: string;
+  };
+  mqtt_system_monitor: {
+    enable: boolean;
+    os_cpu_high_watermark: number;
+    os_memory_high_watermark: number;
+  };
+}
+
+export const getClusterConfig = async (): Promise<ClusterConfig> => {
+  const response = await requestApi('/api/cluster/config/get', {});
+  return response;
+};

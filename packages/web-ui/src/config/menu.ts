@@ -132,16 +132,16 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: 'Setting',
+      title: 'SYSTEM',
       items: [
         {
-          title: 'Configuration',
-          url: '/advanced/connection-jitter',
+          title: 'Ban Log',
+          url: '/system/ban-log',
           icon: Timer,
         },
         {
-          title: 'Audit Log',
-          url: '/advanced/connection-jitter',
+          title: 'Configuration',
+          url: '/system/configuration',
           icon: Timer,
         },
       ],
