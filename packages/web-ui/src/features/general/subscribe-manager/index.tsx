@@ -1,12 +1,18 @@
 import { CommonLayout } from '@/components/layout/common-layout';
+import { Bell } from 'lucide-react';
 import SubscribeList from './list';
 
 export default function SubscribeManager() {
   return (
     <CommonLayout>
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Topic</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 space-y-2">
+        <div className="flex items-center space-x-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-md">
+            <Bell className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-purple-600">Subscribe Management</h2>
+          </div>
         </div>
       </div>
       <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">

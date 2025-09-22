@@ -40,6 +40,9 @@ interface DataTableProps<TData, TValue> {
   hideToolBar?: boolean;
   fetchDataFn: FetchDataFn<TData>;
   queryKey: string;
+  defaultPageSize?: number;
+  extraActions?: React.ReactNode;
+  headerClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -47,6 +50,9 @@ export function DataTable<TData, TValue>({
   hideToolBar = false,
   fetchDataFn,
   queryKey,
+  defaultPageSize = 10,
+  extraActions,
+  headerClassName,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -54,7 +60,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: defaultPageSize,
   });
   const [tagFilters, setTagFilters] = React.useState<TagValue[]>([]);
 
@@ -122,16 +128,22 @@ export function DataTable<TData, TValue>({
           tagFilters={tagFilters}
           onTagFilterChange={setTagFilters}
           attrFilters={attrFilter}
+          extraActions={extraActions}
+          isRefreshing={query.isFetching}
         />
       )}
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className={headerClassName}>
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className={headerClassName ? 'border-0' : ''}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className={headerClassName ? 'text-white font-semibold' : ''}
+                    >
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
@@ -140,7 +152,16 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {query.isFetching ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                    <span className="text-sm text-muted-foreground">Loading...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map(cell => (

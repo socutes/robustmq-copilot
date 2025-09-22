@@ -29,8 +29,12 @@ export function NavGroup({ title, items }: NavGroup) {
   const href = useLocation({ select: location => location.href });
 
   return (
-    <SidebarGroup>
-      {!!title && <SidebarGroupLabel>{title}</SidebarGroupLabel>}
+    <SidebarGroup className="px-2">
+      {!!title && (
+        <SidebarGroupLabel className="text-purple-600 font-semibold text-xs uppercase tracking-wider mb-2 px-2 py-1 bg-purple-50 dark:bg-purple-950 dark:text-purple-400 rounded-md">
+          {title}
+        </SidebarGroupLabel>
+      )}
       <SidebarMenu>
         {items.map(item => {
           const key = `${item.title}-${item.url}`;
@@ -47,17 +51,38 @@ export function NavGroup({ title, items }: NavGroup) {
 }
 
 const NavBadge = ({ children }: { children: ReactNode }) => (
-  <Badge className="rounded-full px-1 py-0 text-xs">{children}</Badge>
+  <Badge className="rounded-full px-2 py-0.5 text-xs bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-sm border-0 font-medium">
+    {children}
+  </Badge>
 );
 
 const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
   const { setOpenMobile } = useSidebar();
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={checkIsActive(href, item)} tooltip={item.title}>
+      <SidebarMenuButton
+        asChild
+        isActive={checkIsActive(href, item)}
+        tooltip={item.title}
+        className={
+          checkIsActive(href, item)
+            ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-700 hover:from-purple-200 hover:to-purple-100 dark:from-purple-900 dark:to-purple-800 dark:text-purple-300 dark:hover:from-purple-800 dark:hover:to-purple-700 border-l-4 border-purple-500 shadow-sm'
+            : 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-25 hover:text-purple-600 dark:hover:from-purple-950 dark:hover:to-purple-900 dark:hover:text-purple-400 transition-all duration-200'
+        }
+      >
         <Link to={item.url} onClick={() => setOpenMobile(false)}>
-          {item.icon && <item.icon />}
-          <span>{item.title}</span>
+          {item.icon && (
+            <div
+              className={`p-1 rounded-md transition-all duration-200 ${
+                checkIsActive(href, item)
+                  ? 'bg-purple-200 dark:bg-purple-700'
+                  : 'group-hover:bg-purple-100 dark:group-hover:bg-purple-800'
+              }`}
+            >
+              <item.icon className="h-4 w-4" />
+            </div>
+          )}
+          <span className="font-medium">{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>
       </SidebarMenuButton>
@@ -82,7 +107,15 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
           <SidebarMenuSub>
             {item.items.map(subItem => (
               <SidebarMenuSubItem key={subItem.title}>
-                <SidebarMenuSubButton asChild isActive={checkIsActive(href, subItem)}>
+                <SidebarMenuSubButton
+                  asChild
+                  isActive={checkIsActive(href, subItem)}
+                  className={
+                    checkIsActive(href, subItem)
+                      ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-700 hover:from-purple-200 hover:to-purple-100 dark:from-purple-900 dark:to-purple-800 dark:text-purple-300 dark:hover:from-purple-800 dark:hover:to-purple-700 border-l-2 border-purple-400 shadow-sm ml-2'
+                      : 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-25 hover:text-purple-600 dark:hover:from-purple-950 dark:hover:to-purple-900 dark:hover:text-purple-400 transition-all duration-200 ml-2'
+                  }
+                >
                   <Link to={subItem.url} onClick={() => setOpenMobile(false)}>
                     {subItem.icon && <subItem.icon />}
                     <span>{subItem.title}</span>
@@ -103,7 +136,15 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
     <SidebarMenuItem>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <SidebarMenuButton tooltip={item.title} isActive={checkIsActive(href, item)}>
+          <SidebarMenuButton
+            tooltip={item.title}
+            isActive={checkIsActive(href, item)}
+            className={
+              checkIsActive(href, item)
+                ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-700 hover:from-purple-200 hover:to-purple-100 dark:from-purple-900 dark:to-purple-800 dark:text-purple-300 dark:hover:from-purple-800 dark:hover:to-purple-700 border-l-4 border-purple-500 shadow-sm'
+                : 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-25 hover:text-purple-600 dark:hover:from-purple-950 dark:hover:to-purple-900 dark:hover:text-purple-400 transition-all duration-200'
+            }
+          >
             {item.icon && <item.icon />}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
@@ -117,7 +158,10 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
           <DropdownMenuSeparator />
           {item.items.map(sub => (
             <DropdownMenuItem key={`${sub.title}-${sub.url}`} asChild>
-              <Link to={sub.url} className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''}`}>
+              <Link
+                to={sub.url}
+                className={`${checkIsActive(href, sub) ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' : ''}`}
+              >
                 {sub.icon && <sub.icon />}
                 <span className="max-w-52 text-wrap">{sub.title}</span>
                 {sub.badge && <span className="ml-auto text-xs">{sub.badge}</span>}

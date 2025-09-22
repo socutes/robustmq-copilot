@@ -29,13 +29,32 @@ export interface OverviewMetricsDataParam {
 export const getOverviewMetricsData = async (param: OverviewMetricsDataParam): Promise<OverviewMetricsData> => {
   const response = await requestApi('/api/mqtt/overview/metrics', param);
 
+  // 转换 API 返回的数据格式：{date, value} → {date, count}
+  const transformData = (rawData: { date: number; value: number }[]): OverviewMetricsDataItem[] => {
+    try {
+      if (!Array.isArray(rawData)) {
+        console.warn('Invalid data format, expected array:', rawData);
+        return [];
+      }
+      return rawData
+        .map((item: { date: number; value: number }) => ({
+          date: item.date * 1000, // 转换为毫秒时间戳
+          count: item.value,
+        }))
+        .sort((a, b) => a.date - b.date); // 根据 date 进行升序排列
+    } catch (error) {
+      console.warn('Failed to transform metrics data:', error);
+      return [];
+    }
+  };
+
   const data: OverviewMetricsData = {
-    connectionNum: JSON.parse(response.connection_num),
-    topicNum: JSON.parse(response.topic_num),
-    subscribeNum: JSON.parse(response.subscribe_num),
-    messageInNum: JSON.parse(response.message_in_num),
-    messageOutNum: JSON.parse(response.message_out_num),
-    messageDropNum: JSON.parse(response.message_drop_num),
+    connectionNum: transformData(response.connection_num || []),
+    topicNum: transformData(response.topic_num || []),
+    subscribeNum: transformData(response.subscribe_num || []),
+    messageInNum: transformData(response.message_in_num || []),
+    messageOutNum: transformData(response.message_out_num || []),
+    messageDropNum: transformData(response.message_drop_num || []),
   };
 
   return data;
@@ -272,6 +291,123 @@ export const getTopicRewriteRuleList = async (
   });
 };
 
+// -------- Client APIs --------
+export interface ClientRaw {
+  connection_id: number;
+  connection_type: string;
+  protocol: string;
+  source_addr: string;
+  create_time: string;
+}
+
+// 将前端的 offset/limit 分页参数转换为 HTTP API 的 page/limit 格式
+const convertPaginationForHttpApi = (query?: QueryOption) => {
+  if (!query || !query.pagination) {
+    return query;
+  }
+
+  const { pagination, ...rest } = query;
+  const page = Math.floor(pagination.offset / pagination.limit) + 1; // 计算页码，从1开始
+
+  return {
+    ...rest,
+    limit: pagination.limit,
+    page: page,
+  };
+};
+
+export const getClientListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  clientsList: ClientRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/client/list', httpQuery);
+  return {
+    clientsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Session APIs --------
+export interface SessionRaw {
+  client_id: string;
+  session_expiry: number;
+  is_contain_last_will: boolean;
+  last_will_delay_interval: number;
+  create_time: number;
+  connection_id: number;
+  broker_id: number;
+  reconnect_time: number;
+  distinct_time: number;
+}
+
+export const getSessionListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  sessionsList: SessionRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/session/list', httpQuery);
+  return {
+    sessionsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Topic APIs --------
+export interface TopicRaw {
+  topic_id: string;
+  topic_name: string;
+  is_contain_retain_message: boolean;
+}
+
+export const getTopicListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  topicsList: TopicRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/topic/list', httpQuery);
+  return {
+    topicsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Subscribe APIs --------
+export interface SubscribeRaw {
+  client_id: string;
+  path: string;
+  broker_id: number;
+  protocol: string;
+  qos: string;
+  no_local: number;
+  preserve_retain: number;
+  retain_handling: string;
+  create_time: string;
+  pk_id: number;
+  properties: string;
+  is_share_sub: boolean;
+}
+
+export const getSubscribeListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  subscriptionsList: SubscribeRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/subscribe/list', httpQuery);
+  return {
+    subscriptionsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
 // -------- User APIs --------
 export interface UserRaw {
   username: string;
@@ -289,4 +425,478 @@ export const getUserList = async (
     usersList: response.data,
     totalCount: response.total_count,
   };
+};
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  is_superuser: boolean;
+}
+
+export const createUser = async (data: CreateUserRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/user/create', data);
+  return response;
+};
+
+export interface DeleteUserRequest {
+  username: string;
+}
+
+export const deleteUser = async (data: DeleteUserRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/user/delete', data);
+  return response;
+};
+
+// -------- ACL APIs --------
+export interface AclRaw {
+  resource_type: string;
+  resource_name: string;
+  topic: string;
+  ip: string;
+  action: string;
+  permission: string;
+}
+
+export const getAclListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  aclsList: AclRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/acl/list', httpQuery);
+  return {
+    aclsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateAclRequest {
+  resource_type: string;
+  resource_name: string;
+  topic: string;
+  ip: string;
+  action: string;
+  permission: string;
+}
+
+export const createAcl = async (data: CreateAclRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/acl/create', data);
+  return response;
+};
+
+export interface DeleteAclRequest {
+  resource_type: string;
+  resource_name: string;
+  topic: string;
+  ip: string;
+  action: string;
+  permission: string;
+}
+
+export const deleteAcl = async (data: DeleteAclRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/acl/delete', data);
+  return response;
+};
+
+// -------- Blacklist APIs --------
+export interface BlacklistRaw {
+  blacklist_type: string;
+  resource_name: string;
+  desc: string;
+  end_time: number;
+}
+
+export const getBlacklistListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  blacklistsList: BlacklistRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/blacklist/list', httpQuery);
+  return {
+    blacklistsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateBlacklistRequest {
+  blacklist_type: string;
+  resource_name: string;
+  end_time: number;
+  desc: string;
+}
+
+export const createBlacklist = async (data: CreateBlacklistRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/blacklist/create', data);
+  return response;
+};
+
+export interface DeleteBlacklistRequest {
+  blacklist_type: string;
+  resource_name: string;
+  end_time: number;
+  desc: string;
+}
+
+export const deleteBlacklist = async (data: DeleteBlacklistRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/blacklist/delete', data);
+  return response;
+};
+
+// -------- Connector APIs --------
+export interface ConnectorRaw {
+  connector_name: string;
+  connector_type: string;
+  config: string;
+  topic_id: string;
+  status: string;
+  broker_id: string;
+  create_time: string;
+  update_time: string;
+}
+
+export const getConnectorListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  connectorsList: ConnectorRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/connector/list', httpQuery);
+  return {
+    connectorsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Schema APIs --------
+export interface SchemaRaw {
+  name: string;
+  schema_type: string;
+  desc: string;
+  schema: string;
+}
+
+export const getSchemaListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  schemasList: SchemaRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/schema/list', httpQuery);
+  return {
+    schemasList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateSchemaRequest {
+  schema_name: string;
+  schema_type: string;
+  schema: string;
+  desc: string;
+}
+
+export const createSchema = async (data: CreateSchemaRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema/create', data);
+  return response;
+};
+
+export interface DeleteSchemaRequest {
+  schema_name: string;
+}
+
+export const deleteSchema = async (data: DeleteSchemaRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema/delete', data);
+  return response;
+};
+
+// -------- Auto Subscribe APIs --------
+export interface AutoSubscribeRaw {
+  topic: string;
+  qos: string;
+  no_local: boolean;
+  retain_as_published: boolean;
+  retained_handling: string;
+}
+
+export const getAutoSubscribeListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  autoSubscribesList: AutoSubscribeRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/auto-subscribe/list', httpQuery);
+  return {
+    autoSubscribesList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+export interface CreateAutoSubscribeRequest {
+  topic: string;
+  qos: number;
+  no_local: boolean;
+  retain_as_published: boolean;
+  retained_handling: number;
+}
+
+export const createAutoSubscribe = async (data: CreateAutoSubscribeRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/auto-subscribe/create', data);
+  return response;
+};
+
+export interface DeleteAutoSubscribeRequest {
+  topic_name: string;
+}
+
+export const deleteAutoSubscribe = async (data: DeleteAutoSubscribeRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/auto-subscribe/delete', data);
+  return response;
+};
+
+// -------- Slow Subscribe APIs --------
+export interface SlowSubscribeRaw {
+  client_id: string;
+  topic_name: string;
+  time_span: number;
+  node_info: string;
+  create_time: string;
+  subscribe_name: string;
+}
+
+export const getSlowSubscribeListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  slowSubscribesList: SlowSubscribeRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/slow-subscribe/list', httpQuery);
+  return {
+    slowSubscribesList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Topic Rewrite APIs --------
+export interface TopicRewriteRaw {
+  source_topic: string;
+  dest_topic: string;
+  regex: string;
+  action: string;
+}
+
+export const getTopicRewriteListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  topicRewritesList: TopicRewriteRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/topic-rewrite/list', httpQuery);
+  return {
+    topicRewritesList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- System Alarm APIs --------
+export interface SystemAlarmRaw {
+  name: string;
+  message: string;
+  activate_at: string;
+  activated: boolean;
+}
+
+export const getSystemAlarmListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  systemAlarmsList: SystemAlarmRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/system-alarm/list', httpQuery);
+  return {
+    systemAlarmsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Connection Jitter (Flapping Detect) APIs --------
+export interface ConnectionJitterRaw {
+  client_id: string;
+  before_last_windows_connections: number;
+  first_request_time: number;
+}
+
+export const getConnectionJitterListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  connectionJittersList: ConnectionJitterRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/flapping_detect/list', httpQuery);
+  return {
+    connectionJittersList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Ban Log APIs --------
+export interface BanLogRaw {
+  id: string;
+  ban_type: string;
+  resource_name: string;
+  reason: string;
+  ban_time: number;
+  expire_time: number;
+  operator: string;
+}
+
+export const getBanLogListHttp = async (
+  query?: QueryOption,
+): Promise<{
+  banLogsList: BanLogRaw[];
+  totalCount: number;
+}> => {
+  const httpQuery = convertPaginationForHttpApi(query);
+  const response = await requestApi('/api/mqtt/ban-log/list', httpQuery);
+  return {
+    banLogsList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Configuration APIs --------
+export interface ClusterConfig {
+  cluster_name: string;
+  broker_id: number;
+  roles: string[];
+  grpc_port: number;
+  meta_addrs: Record<string, string>;
+  prometheus: {
+    enable: boolean;
+    port: number;
+  };
+  log: {
+    level: string;
+    path: string;
+  };
+  runtime: {
+    runtime_worker_threads: number;
+    tls_cert: string;
+    tls_key: string;
+  };
+  network: {
+    accept_thread_num: number;
+    handler_thread_num: number;
+    response_thread_num: number;
+    queue_size: number;
+    lock_max_try_mut_times: number;
+    lock_try_mut_sleep_time_ms: number;
+  };
+  p_prof: {
+    enable: boolean;
+    port: number;
+    frequency: number;
+  };
+  meta_runtime: {
+    heartbeat_timeout_ms: number;
+    heartbeat_check_time_ms: number;
+  };
+  rocksdb: {
+    data_path: string;
+    max_open_files: number;
+  };
+  journal_server: {
+    tcp_port: number;
+  };
+  journal_runtime: {
+    enable_auto_create_shard: boolean;
+    shard_replica_num: number;
+    max_segment_size: number;
+  };
+  journal_storage: {
+    data_path: string[];
+    rocksdb_max_open_files: number;
+  };
+  mqtt_server: {
+    tcp_port: number;
+    tls_port: number;
+    websocket_port: number;
+    websockets_port: number;
+    quic_port: number;
+  };
+  mqtt_auth_storage: {
+    storage_type: string;
+    journal_addr: string;
+    mysql_addr: string;
+  };
+  mqtt_message_storage: {
+    storage_type: string;
+    journal_addr: string;
+    mysql_addr: string;
+    rocksdb_data_path: string;
+    rocksdb_max_open_files: number;
+  };
+  mqtt_runtime: {
+    default_user: string;
+    default_password: string;
+    max_connection_num: number;
+  };
+  mqtt_offline_message: {
+    enable: boolean;
+    expire_ms: number;
+    max_messages_num: number;
+  };
+  mqtt_slow_subscribe_config: {
+    enable: boolean;
+    record_time: number;
+    delay_type: string;
+  };
+  mqtt_flapping_detect: {
+    enable: boolean;
+    window_time: number;
+    max_client_connections: number;
+    ban_time: number;
+  };
+  mqtt_protocol_config: {
+    max_session_expiry_interval: number;
+    default_session_expiry_interval: number;
+    topic_alias_max: number;
+    max_qos: number;
+    max_packet_size: number;
+    max_server_keep_alive: number;
+    default_server_keep_alive: number;
+    receive_max: number;
+    max_message_expiry_interval: number;
+    client_pkid_persistent: boolean;
+  };
+  mqtt_security: {
+    is_self_protection_status: boolean;
+    secret_free_login: boolean;
+  };
+  mqtt_schema: {
+    enable: boolean;
+    strategy: string;
+    failed_operation: string;
+    echo_log: boolean;
+    log_level: string;
+  };
+  mqtt_system_monitor: {
+    enable: boolean;
+    os_cpu_high_watermark: number;
+    os_memory_high_watermark: number;
+  };
+}
+
+export const getClusterConfig = async (): Promise<ClusterConfig> => {
+  const response = await requestApi('/api/cluster/config/get', {});
+  return response;
 };

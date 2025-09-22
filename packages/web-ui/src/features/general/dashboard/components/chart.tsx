@@ -24,19 +24,19 @@ function generateDefaultData(): OverviewMetricsDataItem[] {
   return data;
 }
 
-// 格式化日期显示
-function formatDate(timestamp: number): string {
-  const date = new Date(timestamp);
-  return format(date, 'MM-dd');
+// 格式化时间显示为时分秒格式
+function formatTime(timestamp: number): string {
+  const date = new Date(timestamp); // timestamp 已经是毫秒时间戳
+  return format(date, 'HH:mm:ss');
 }
 
 export function SimpleLineChart({ title = '', data }: SimpleLineChartProps) {
   const chartData = !data || data.length === 0 ? generateDefaultData() : data;
 
   return (
-    <Card>
+    <Card className="border-l-4 border-purple-500 bg-gradient-to-br from-white to-purple-50 dark:from-gray-900 dark:to-purple-950 hover:shadow-lg transition-all duration-200">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="text-sm font-bold text-purple-700 dark:text-purple-300">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
@@ -48,7 +48,7 @@ export function SimpleLineChart({ title = '', data }: SimpleLineChartProps) {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={formatDate}
+              tickFormatter={formatTime}
             />
             <YAxis
               stroke="var(--muted-foreground)"
@@ -64,21 +64,27 @@ export function SimpleLineChart({ title = '', data }: SimpleLineChartProps) {
                 border: '1px solid var(--border)',
                 borderRadius: '6px',
               }}
-              labelFormatter={formatDate}
+              labelFormatter={formatTime}
             />
             <Line
               type="monotone"
-              dataKey="value"
-              stroke="var(--primary)"
-              strokeWidth={2}
+              dataKey="count"
+              stroke="#8b5cf6"
+              strokeWidth={3}
               connectNulls={true}
               isAnimationActive={true}
               animationDuration={1000}
               dot={{
-                fill: 'var(--primary)',
+                fill: '#8b5cf6',
                 stroke: '#fff',
                 strokeWidth: 2,
-                r: 4,
+                r: 5,
+              }}
+              activeDot={{
+                fill: '#7c3aed',
+                stroke: '#fff',
+                strokeWidth: 2,
+                r: 6,
               }}
             />
           </LineChart>

@@ -1,17 +1,35 @@
+import { useState } from 'react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import AutoSubscriptionList from './list';
+import { Zap, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CreateAutoSubscribeForm } from './components/create-auto-subscribe-form';
 
 export default function AutoSubscription() {
+  const [createAutoSubscribeOpen, setCreateAutoSubscribeOpen] = useState(false);
+
+  const extraActions = (
+    <Button
+      onClick={() => setCreateAutoSubscribeOpen(true)}
+      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+    >
+      <Plus className="mr-2 h-4 w-4" />
+      Create Auto Subscription
+    </Button>
+  );
+
   return (
     <CommonLayout>
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Auto Subscription</h2>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 space-y-2">
+        <div className="flex items-center space-x-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-md">
+            <Zap className="h-5 w-5 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-purple-600">Auto Subscription Management</h2>
         </div>
       </div>
-      <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <AutoSubscriptionList />
-      </div>
+      <AutoSubscriptionList extraActions={extraActions} />
+      <CreateAutoSubscribeForm open={createAutoSubscribeOpen} onOpenChange={setCreateAutoSubscribeOpen} />
     </CommonLayout>
   );
 }

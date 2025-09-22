@@ -59,11 +59,6 @@ export const sidebarData: SidebarData = {
           url: '/general/subscribe-manager',
           icon: Bell,
         },
-        {
-          title: 'Delayed Message',
-          url: '/advanced/delayed-message',
-          icon: Timer,
-        },
       ],
     },
     {
@@ -126,22 +121,22 @@ export const sidebarData: SidebarData = {
         },
         {
           title: 'System Alarm',
-          url: '/advanced/connection-jitter',
+          url: '/advanced/system-alarm',
           icon: Timer,
         },
       ],
     },
     {
-      title: 'Setting',
+      title: 'SYSTEM',
       items: [
         {
-          title: 'Configuration',
-          url: '/advanced/connection-jitter',
+          title: 'Ban Log',
+          url: '/system/ban-log',
           icon: Timer,
         },
         {
-          title: 'Audit Log',
-          url: '/advanced/connection-jitter',
+          title: 'Configuration',
+          url: '/system/configuration',
           icon: Timer,
         },
       ],

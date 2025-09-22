@@ -11,6 +11,8 @@ interface DataTableToolbarProps<TData> {
   tagFilters: TagValue[];
   onTagFilterChange?: (tagFilters: TagValue[]) => void;
   attrFilters: AttributeValue[];
+  extraActions?: React.ReactNode;
+  isRefreshing?: boolean;
 }
 
 export function DataTableToolbar<TData>({
@@ -19,6 +21,8 @@ export function DataTableToolbar<TData>({
   tagFilters,
   onTagFilterChange,
   attrFilters,
+  extraActions,
+  isRefreshing = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -36,17 +40,19 @@ export function DataTableToolbar<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg border shadow-sm">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
         <div className="w-[720px]">
-          <TagSearchBox
-            value={tagFilters}
-            onChange={onTagFilterChange}
-            attributes={attrFilters}
-            onSearchButtonClick={() => {
-              handleRefresh();
-            }}
-          />
+          <div className="relative">
+            <TagSearchBox
+              value={tagFilters}
+              onChange={onTagFilterChange}
+              attributes={attrFilters}
+              onSearchButtonClick={() => {
+                handleRefresh();
+              }}
+            />
+          </div>
         </div>
         {isFiltered && (
           <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">
@@ -56,16 +62,23 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center space-x-2">
+        {extraActions}
         <DataTableViewOptions table={table} />
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 px-2 lg:px-3" onClick={handleRefresh}>
-                <ReloadIcon className="h-4 w-4" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-2 lg:px-3"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                <ReloadIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Refresh</p>
+              <p>{isRefreshing ? 'Refreshing...' : 'Refresh'}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
