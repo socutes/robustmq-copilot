@@ -4,6 +4,9 @@ import { pluginReact } from '@rsbuild/plugin-react';
 import { TanStackRouterRspack } from '@tanstack/router-plugin/rspack';
 
 export default defineConfig({
+  server: {
+    port: 8080,
+  },
   html: {
     title: 'RobustMQ Admin',
     favicon: path.resolve(__dirname, './public/images/favicon.png'),

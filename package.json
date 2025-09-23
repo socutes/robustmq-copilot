@@ -12,7 +12,6 @@
   "scripts": {
     "ui:dev": "pnpm -r --filter=web-ui run dev",
     "ui:build": "pnpm -r --filter=web-ui run build",
-    "ui:build:experience": "cd packages/web-ui && pnpm run build:experience",
     "ui:preview": "pnpm -r --filter=web-ui run preview",
     "lint": "oxlint",
     "format": "prettier --write .",

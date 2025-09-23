@@ -2,8 +2,17 @@ import axios from 'axios';
 import { QueryOption } from '@/services/common/query';
 import { toast } from '@/hooks/use-toast';
 
+// 动态获取当前页面的 origin 作为 API 基础地址
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  // 服务端渲染时的fallback（虽然这个项目是SPA，但保险起见）
+  return 'http://localhost:8080';
+};
+
 const requestInstance = axios.create({
-  baseURL: process.env.PUBLIC_ADMIN_SERVER,
+  baseURL: getApiBaseUrl(),
 });
 
 interface ApiResponse<T = any> {

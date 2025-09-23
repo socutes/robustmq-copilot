@@ -5,7 +5,16 @@ import { QueryOption } from '../common';
 import { getQueryOptions } from './util';
 import { RaftNodeState } from './placement-status';
 
-const service = new MQTTBrokerAdminServiceClient(process.env.PUBLIC_ADMIN_SERVER, null, null);
+// 动态获取当前页面的 origin 作为 gRPC 服务地址
+const getGrpcServiceUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  // 服务端渲染时的fallback
+  return 'http://localhost:8080';
+};
+
+const service = new MQTTBrokerAdminServiceClient(getGrpcServiceUrl(), null, null);
 
 /** Overview API  */
 export interface OverviewMetricsDataItem {
