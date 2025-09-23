@@ -5,12 +5,20 @@ import { QueryOption } from '../common';
 import { getQueryOptions } from './util';
 import { RaftNodeState } from './placement-status';
 
-// 动态获取当前页面的 origin 作为 gRPC 服务地址
+// 动态获取 gRPC 服务地址
+// 优先级：环境变量 > 当前页面地址 > 默认fallback
 const getGrpcServiceUrl = () => {
+  // 1. 优先使用环境变量配置的gRPC地址
+  if (typeof window !== 'undefined' && window.__APP_CONFIG__?.api?.grpcUrl) {
+    return window.__APP_CONFIG__.api.grpcUrl;
+  }
+
+  // 2. 使用当前页面地址
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  // 服务端渲染时的fallback
+
+  // 3. 服务端渲染时的fallback
   return 'http://localhost:8080';
 };
 

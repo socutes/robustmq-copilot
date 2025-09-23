@@ -2,12 +2,20 @@ import axios from 'axios';
 import { QueryOption } from '@/services/common/query';
 import { toast } from '@/hooks/use-toast';
 
-// 动态获取当前页面的 origin 作为 API 基础地址
+// 动态获取 API 基础地址
+// 优先级：环境变量 > 当前页面地址 > 默认fallback
 const getApiBaseUrl = () => {
+  // 1. 优先使用环境变量配置的API地址
+  if (typeof window !== 'undefined' && window.__APP_CONFIG__?.api?.baseUrl) {
+    return window.__APP_CONFIG__.api.baseUrl;
+  }
+
+  // 2. 使用当前页面地址
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  // 服务端渲染时的fallback（虽然这个项目是SPA，但保险起见）
+
+  // 3. 服务端渲染时的fallback（虽然这个项目是SPA，但保险起见）
   return 'http://localhost:8080';
 };
 
