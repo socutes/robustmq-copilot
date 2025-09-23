@@ -29,7 +29,26 @@ export default function Apps() {
     .filter(app => (appType === 'connected' ? app.connected : appType === 'notConnected' ? !app.connected : true))
     .filter(app => app.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const service = new PlacementCenterServiceClient('http://127.0.0.1:1228', null, null);
+  // 动态获取 PlacementCenter gRPC 服务地址
+  // 优先级：环境变量 > 当前页面地址+1228端口 > 默认fallback
+  const getPlacementServiceUrl = () => {
+    // 1. 优先使用环境变量配置的PlacementCenter gRPC地址
+    if (typeof window !== 'undefined' && window.__APP_CONFIG__?.api?.placementGrpcUrl) {
+      return window.__APP_CONFIG__.api.placementGrpcUrl;
+    }
+
+    // 2. 使用当前页面地址，但使用不同的端口
+    if (typeof window !== 'undefined') {
+      const origin = new URL(window.location.origin);
+      origin.port = '1228'; // PlacementCenter 使用不同的端口
+      return origin.toString();
+    }
+
+    // 3. 服务端渲染时的fallback
+    return 'http://localhost:1228';
+  };
+
+  const service = new PlacementCenterServiceClient(getPlacementServiceUrl(), null, null);
 
   service.clusterStatus(new innerApi.ClusterStatusRequest(), null, (err, response) => {
     if (err) {
