@@ -37,6 +37,7 @@ export default function Dashboard() {
       messageOutNum: [],
       messageDropNum: [],
     },
+    refetchInterval: 5000,
   });
 
   const { data: statusData } = useQuery({
@@ -62,6 +63,7 @@ export default function Dashboard() {
       shareSubscribeLeaderThreadNum: 0,
       shareSubscribeFollowerThreadNum: 0,
     },
+    refetchInterval: 5000,
   });
 
   return (
@@ -168,7 +170,7 @@ export default function Dashboard() {
         {/* 分割线 */}
         <div className="border-t border-purple-200 dark:border-purple-800"></div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
           <SimpleLineChart title="Message In (Count/Sec)" data={data?.messageInNum || []} />
           <SimpleLineChart title="Message Out (Count/Sec)" data={data?.messageOutNum || []} />
           <SimpleLineChart title="Message Drop (Count/Sec)" data={data?.messageDropNum || []} />

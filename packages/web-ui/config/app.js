@@ -4,9 +4,9 @@
 const defaultConfig = {
   // 服务器端口配置
   ports: {
-    dev: 3000,
-    preview: 3000,
-    build: 3000,
+    dev: 4000,
+    preview: 4000,
+    build: 4000,
   },
 
   // 应用配置

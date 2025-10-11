@@ -25,14 +25,14 @@ pnpm install
 pnpm ui:dev
 ```
 
-The web UI will be available at `http://localhost:3000`
+The web UI will be available at `http://localhost:4000`
 
 ## Usage Guide
 
 ### Development Commands
 
 ```bash
-# Start development server (default port 3000)
+# Start development server (default port 4000)
 pnpm ui:dev
 
 # Start development server on custom port
@@ -143,7 +143,7 @@ Configuration is managed through `packages/web-ui/config/app.js`. You can view t
 ```bash
 # Standard local development
 pnpm ui:dev
-# Access at http://localhost:3000
+# Access at http://localhost:4000
 ```
 
 #### Development with Custom Backend
@@ -151,7 +151,7 @@ pnpm ui:dev
 ```bash
 # Connect to remote API server
 API_BASE_URL=http://192.168.1.100:8080 pnpm ui:dev
-# Frontend at http://localhost:3000, API calls to http://192.168.1.100:8080
+# Frontend at http://localhost:4000, API calls to http://192.168.1.100:8080
 ```
 
 #### Multi-Service Development

@@ -12,9 +12,9 @@ Web UI 项目使用配置文件来管理各种设置，支持环境变量覆盖�
 
 #### 端口配置
 
-- `ports.dev` - 开发服务器端口（默认：3000）
-- `ports.preview` - 预览服务器端口（默认：3000）
-- `ports.build` - 构建端口（默认：3000）
+- `ports.dev` - 开发服务器端口（默认：4000）
+- `ports.preview` - 预览服务器端口（默认：4000）
+- `ports.build` - 构建端口（默认：4000）
 
 #### 应用配置
 
@@ -96,7 +96,7 @@ export API_PLACEMENT_GRPC_URL=http://placement.example.com:1228
 
 ```bash
 pnpm run dev
-# 开发服务器将在 http://localhost:3000 启动
+# 开发服务器将在 http://localhost:4000 启动
 ```
 
 ### 2. 使用环境变量覆盖
