@@ -20,6 +20,7 @@ import { DataTableToolbar } from './data-table-toolbar';
 import { useQuery } from '@tanstack/react-query';
 import { AttributeValue, TagValue } from '@/components/tag-search-box';
 import { convertTagToSearchValue, FilterValue } from './filter';
+import { Separator } from '@/components/ui/separator';
 
 type FetchDataFn<TData> = (
   pageIndex: number,
@@ -70,13 +71,12 @@ export function DataTable<TData, TValue>({
       const searchValue = convertTagToSearchValue(tagFilters);
       return fetchDataFn(pagination.pageIndex, pagination.pageSize, searchValue);
     },
+    refetchOnWindowFocus: false,
   });
 
-  React.useEffect(() => {
-    if (query?.refetch) {
-      query.refetch();
-    }
-  }, [pagination.pageIndex, pagination.pageSize]);
+  const handleRefresh = React.useCallback(() => {
+    query.refetch();
+  }, [query.refetch]);
 
   const table = useReactTable({
     data: query?.data?.data || [],
@@ -120,17 +120,20 @@ export function DataTable<TData, TValue>({
   }, [columns]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {!hideToolBar && (
-        <DataTableToolbar
-          table={table}
-          onRefresh={() => query.refetch()}
-          tagFilters={tagFilters}
-          onTagFilterChange={setTagFilters}
-          attrFilters={attrFilter}
-          extraActions={extraActions}
-          isRefreshing={query.isFetching}
-        />
+        <>
+          <DataTableToolbar
+            table={table}
+            onRefresh={handleRefresh}
+            tagFilters={tagFilters}
+            onTagFilterChange={setTagFilters}
+            attrFilters={attrFilter}
+            extraActions={extraActions}
+            isRefreshing={query.isFetching}
+          />
+          <Separator className="my-2" />
+        </>
       )}
       <div className="rounded-md border">
         <Table>

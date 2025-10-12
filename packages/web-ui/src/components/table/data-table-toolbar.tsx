@@ -40,19 +40,17 @@ export function DataTableToolbar<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg border shadow-sm">
+    <div className="flex items-center justify-between mb-2">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
         <div className="w-[720px]">
-          <div className="relative">
-            <TagSearchBox
-              value={tagFilters}
-              onChange={onTagFilterChange}
-              attributes={attrFilters}
-              onSearchButtonClick={() => {
-                handleRefresh();
-              }}
-            />
-          </div>
+          <TagSearchBox
+            value={tagFilters}
+            onChange={onTagFilterChange}
+            attributes={attrFilters}
+            onSearchButtonClick={() => {
+              handleRefresh();
+            }}
+          />
         </div>
         {isFiltered && (
           <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">
@@ -70,7 +68,7 @@ export function DataTableToolbar<TData>({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-2 lg:px-3"
+                className="h-8 px-2 lg:px-3 bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:border-blue-700"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
               >

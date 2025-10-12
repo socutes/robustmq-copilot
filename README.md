@@ -25,14 +25,14 @@ pnpm install
 pnpm ui:dev
 ```
 
-The web UI will be available at `http://localhost:3000`
+The web UI will be available at `http://localhost:4000`
 
 ## Usage Guide
 
 ### Development Commands
 
 ```bash
-# Start development server (default port 3000)
+# Start development server (default port 4000)
 pnpm ui:dev
 
 # Start development server on custom port
@@ -68,16 +68,7 @@ The system automatically detects the current page address for API requests, but 
 
 ```bash
 # Set custom HTTP API address
-API_BASE_URL=http://api.example.com:8080 pnpm ui:dev
-
-# Set custom gRPC service address
-API_GRPC_URL=http://grpc.example.com:8080 pnpm ui:dev
-
-# Set custom PlacementCenter gRPC address
-API_PLACEMENT_GRPC_URL=http://placement.example.com:1228 pnpm ui:dev
-
-# Combine multiple configurations
-API_BASE_URL=http://api.example.com:8080 API_GRPC_URL=http://grpc.example.com:8080 pnpm ui:dev
+API_BASE_URL=http://localhost:8080 pnpm ui:dev
 ```
 
 #### Application Configuration
@@ -143,7 +134,7 @@ Configuration is managed through `packages/web-ui/config/app.js`. You can view t
 ```bash
 # Standard local development
 pnpm ui:dev
-# Access at http://localhost:3000
+# Access at http://localhost:4000
 ```
 
 #### Development with Custom Backend
@@ -151,7 +142,7 @@ pnpm ui:dev
 ```bash
 # Connect to remote API server
 API_BASE_URL=http://192.168.1.100:8080 pnpm ui:dev
-# Frontend at http://localhost:3000, API calls to http://192.168.1.100:8080
+# Frontend at http://localhost:4000, API calls to http://192.168.1.100:8080
 ```
 
 #### Multi-Service Development
