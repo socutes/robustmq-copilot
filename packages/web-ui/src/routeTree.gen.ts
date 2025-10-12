@@ -81,6 +81,9 @@ const AuthenticatedAclBlacklistManagementIndexLazyRouteImport = createFileRoute(
 const AuthenticatedAclAclManagementIndexLazyRouteImport = createFileRoute(
   '/_authenticated/acl/acl-management/',
 )()
+const AuthenticatedGeneralClientClientIdLazyRouteImport = createFileRoute(
+  '/_authenticated/general/client/$clientId',
+)()
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -365,6 +368,16 @@ const AuthenticatedAclAclManagementIndexLazyRoute =
       (d) => d.Route,
     ),
   )
+const AuthenticatedGeneralClientClientIdLazyRoute =
+  AuthenticatedGeneralClientClientIdLazyRouteImport.update({
+    id: '/general/client/$clientId',
+    path: '/general/client/$clientId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/general/client/$clientId.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 
 export interface FileRoutesByFullPath {
   '/otp': typeof authOtpRoute
@@ -384,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/acl/acl-management': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/acl/blacklist-management': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
   '/acl/user-management': typeof AuthenticatedAclUserManagementIndexLazyRoute
@@ -419,6 +433,7 @@ export interface FileRoutesByTo {
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/acl/acl-management': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/acl/blacklist-management': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
   '/acl/user-management': typeof AuthenticatedAclUserManagementIndexLazyRoute
@@ -456,6 +471,7 @@ export interface FileRoutesById {
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/system-setting/': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/_authenticated/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/_authenticated/acl/acl-management/': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/_authenticated/acl/blacklist-management/': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
   '/_authenticated/acl/user-management/': typeof AuthenticatedAclUserManagementIndexLazyRoute
@@ -493,6 +509,7 @@ export interface FileRouteTypes {
     | '/apps'
     | '/help-center'
     | '/system-setting'
+    | '/general/client/$clientId'
     | '/acl/acl-management'
     | '/acl/blacklist-management'
     | '/acl/user-management'
@@ -528,6 +545,7 @@ export interface FileRouteTypes {
     | '/apps'
     | '/help-center'
     | '/system-setting'
+    | '/general/client/$clientId'
     | '/acl/acl-management'
     | '/acl/blacklist-management'
     | '/acl/user-management'
@@ -564,6 +582,7 @@ export interface FileRouteTypes {
     | '/_authenticated/apps/'
     | '/_authenticated/help-center/'
     | '/_authenticated/system-setting/'
+    | '/_authenticated/general/client/$clientId'
     | '/_authenticated/acl/acl-management/'
     | '/_authenticated/acl/blacklist-management/'
     | '/_authenticated/acl/user-management/'
@@ -836,6 +855,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAclAclManagementIndexLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/general/client/$clientId': {
+      id: '/_authenticated/general/client/$clientId'
+      path: '/general/client/$clientId'
+      fullPath: '/general/client/$clientId'
+      preLoaderRoute: typeof AuthenticatedGeneralClientClientIdLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -847,6 +873,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedSystemSettingIndexLazyRoute: typeof AuthenticatedSystemSettingIndexLazyRoute
+  AuthenticatedGeneralClientClientIdLazyRoute: typeof AuthenticatedGeneralClientClientIdLazyRoute
   AuthenticatedAclAclManagementIndexLazyRoute: typeof AuthenticatedAclAclManagementIndexLazyRoute
   AuthenticatedAclBlacklistManagementIndexLazyRoute: typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
   AuthenticatedAclUserManagementIndexLazyRoute: typeof AuthenticatedAclUserManagementIndexLazyRoute
@@ -874,6 +901,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedSystemSettingIndexLazyRoute:
     AuthenticatedSystemSettingIndexLazyRoute,
+  AuthenticatedGeneralClientClientIdLazyRoute:
+    AuthenticatedGeneralClientClientIdLazyRoute,
   AuthenticatedAclAclManagementIndexLazyRoute:
     AuthenticatedAclAclManagementIndexLazyRoute,
   AuthenticatedAclBlacklistManagementIndexLazyRoute:

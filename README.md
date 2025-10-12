@@ -68,16 +68,7 @@ The system automatically detects the current page address for API requests, but 
 
 ```bash
 # Set custom HTTP API address
-API_BASE_URL=http://api.example.com:8080 pnpm ui:dev
-
-# Set custom gRPC service address
-API_GRPC_URL=http://grpc.example.com:8080 pnpm ui:dev
-
-# Set custom PlacementCenter gRPC address
-API_PLACEMENT_GRPC_URL=http://placement.example.com:1228 pnpm ui:dev
-
-# Combine multiple configurations
-API_BASE_URL=http://api.example.com:8080 API_GRPC_URL=http://grpc.example.com:8080 pnpm ui:dev
+API_BASE_URL=http://localhost:8080 pnpm ui:dev
 ```
 
 #### Application Configuration

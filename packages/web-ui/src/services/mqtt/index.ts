@@ -310,11 +310,20 @@ export const getTopicRewriteRuleList = async (
 
 // -------- Client APIs --------
 export interface ClientRaw {
+  client_id: string;
   connection_id: number;
-  connection_type: string;
-  protocol: string;
-  source_addr: string;
-  create_time: string;
+  network_connection: {
+    connection_type: string;
+    protocol: string;
+    [key: string]: any;
+  };
+  mqtt_connection: {
+    create_time: string;
+    [key: string]: any;
+  };
+  session?: {
+    [key: string]: any;
+  };
 }
 
 // 将前端的 offset/limit 分页参数转换为 HTTP API 的 page/limit 格式
