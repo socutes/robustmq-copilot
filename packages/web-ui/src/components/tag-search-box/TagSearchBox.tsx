@@ -1,27 +1,17 @@
-import React, { Component, createRef, forwardRef } from "react";
-import clone from "clone";
-import { Tag, TagValue } from "@/components/tag-search-box/Tag";
-import { TagInput } from "@/components/tag-search-box/TagInput";
-import { mergeRefs } from "@/components/tag-search-box/utils/MergeRefs";
-import { TagSearchBoxContext } from "@/components/tag-search-box/TagSearchboxContext";
-import { withOutsideClick } from "@/components/tag-search-box/utils/withOutsideClick";
+import React, { Component, createRef, forwardRef } from 'react';
+import clone from 'clone';
+import { Tag, TagValue } from '@/components/tag-search-box/Tag';
+import { TagInput } from '@/components/tag-search-box/TagInput';
+import { mergeRefs } from '@/components/tag-search-box/utils/MergeRefs';
+import { TagSearchBoxContext } from '@/components/tag-search-box/TagSearchboxContext';
+import { withOutsideClick } from '@/components/tag-search-box/utils/withOutsideClick';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { X, Info, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { AttributeValue } from "@/components/tag-search-box/AttributeSelect";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { X, Info, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { AttributeValue } from '@/components/tag-search-box/AttributeSelect';
 
 export type { AttributeValue, TagValue };
 
@@ -138,7 +128,7 @@ class ITagSearchBox extends Component<
   },
   TagSearchBoxState
 > {
-  static displayName = "TagSearchBox";
+  static displayName = 'TagSearchBox';
 
   private searchWrapRef = createRef<HTMLDivElement>();
   private searchBoxRef = createRef<HTMLDivElement>();
@@ -149,10 +139,10 @@ class ITagSearchBox extends Component<
     this.tagRefs = {};
 
     const { defaultValue = [], value } = props;
-    const initialTags = defaultValue.map((item) => {
+    const initialTags = defaultValue.map(item => {
       const newItem = clone(item);
       // @ts-ignore
-      newItem["_key"] = COUNTER++;
+      newItem['_key'] = COUNTER++;
       return newItem;
     });
 
@@ -170,11 +160,11 @@ class ITagSearchBox extends Component<
     const { value } = this.props;
     if (value !== prevProps.value) {
       const tagValue =
-        value?.map((item) => {
+        value?.map(item => {
           const newItem = clone(item);
-          if (!("_key" in newItem)) {
+          if (!('_key' in newItem)) {
             // @ts-ignore
-            newItem["_key"] = COUNTER++;
+            newItem['_key'] = COUNTER++;
           }
           return newItem;
         }) || [];
@@ -187,17 +177,14 @@ class ITagSearchBox extends Component<
   }
 
   // 重置标签状态
-  private resetTagsState = (
-    props: TagSearchBoxProps,
-    callback?: () => void
-  ) => {
-    if ("value" in props) {
+  private resetTagsState = (props: TagSearchBoxProps, callback?: () => void) => {
+    if ('value' in props) {
       const tagValue =
-        props.value?.map((item) => {
+        props.value?.map(item => {
           const newItem = clone(item);
-          if (!("_key" in newItem)) {
+          if (!('_key' in newItem)) {
             // @ts-ignore
-            newItem["_key"] = COUNTER++;
+            newItem['_key'] = COUNTER++;
           }
           return newItem;
         }) || [];
@@ -221,7 +208,7 @@ class ITagSearchBox extends Component<
       this.setState({ active: true });
       this.setState({ curPosType: FocusPosType.INPUT, curPos: tags.length });
     } else {
-      this.handleTagEvent("click-input", tags.length);
+      this.handleTagEvent('click-input', tags.length);
     }
     this.setState({ showSelect: true });
 
@@ -236,10 +223,10 @@ class ITagSearchBox extends Component<
     const updatedTags = tags.map((item, index) => {
       const newItem = clone(item);
       // @ts-ignore
-      if (newItem["_edit"]) {
+      if (newItem['_edit']) {
         this.tagRefs[`tag-${index}`]?.editDone();
         // @ts-ignore
-        newItem["_edit"] = false;
+        newItem['_edit'] = false;
       }
       return newItem;
     });
@@ -258,7 +245,7 @@ class ITagSearchBox extends Component<
           }
         });
       },
-      false
+      false,
     );
   };
 
@@ -266,16 +253,16 @@ class ITagSearchBox extends Component<
   private getValue = (tags: TagValue[]) => {
     const result: TagValue[] = [];
 
-    tags.forEach((item) => {
+    tags.forEach(item => {
       const { values, attr = undefined } = item;
       if (values && values.length > 0) {
         result.push({
           attr,
           values,
           // @ts-ignore
-          _key: item["_key"],
+          _key: item['_key'],
           // @ts-ignore
-          _edit: item["_edit"],
+          _edit: item['_edit'],
         });
       }
     });
@@ -290,11 +277,7 @@ class ITagSearchBox extends Component<
   };
 
   // 设置标签状态
-  private setTags = (
-    newTags: TagValue[],
-    callback?: (() => void) | null,
-    shouldNotify = true
-  ) => {
+  private setTags = (newTags: TagValue[], callback?: (() => void) | null, shouldNotify = true) => {
     const { value } = this.props;
     const cb = () => {
       if (shouldNotify) {
@@ -327,17 +310,17 @@ class ITagSearchBox extends Component<
     onClearButtonClick(e);
 
     const { tags } = this.state;
-    const nextTags = tags.filter((i) => i.attr && i.attr.removeable === false);
+    const nextTags = tags.filter(i => i.attr && i.attr.removeable === false);
     const index = `tag-${nextTags.length}`;
 
     if (tags.length <= 0) {
-      this.tagRefs[index]?.setInputValue("");
+      this.tagRefs[index]?.setInputValue('');
       return;
     }
 
     this.setTags(nextTags, () => {
       return setTimeout(() => {
-        this.tagRefs[index]?.setInputValue("");
+        this.tagRefs[index]?.setInputValue('');
         this.tagRefs[index]?.focusInput();
       }, 0);
     });
@@ -371,7 +354,7 @@ class ITagSearchBox extends Component<
 
     if (!active) {
       // 如果监听了按钮点击，此时点击按钮不激活搜索框
-      if ("onSearchButtonClick" in this.props) {
+      if ('onSearchButtonClick' in this.props) {
         e.stopPropagation();
         onSearchButtonClick(e, this.getValue(tags));
       }
@@ -400,7 +383,7 @@ class ITagSearchBox extends Component<
       if (!tagInput || !tagInput.addTagByEditInputValue) return;
 
       // @ts-ignore
-      if (tags[i]["_edit"] && tagInput.addTagByEditInputValue()) {
+      if (tags[i]['_edit'] && tagInput.addTagByEditInputValue()) {
         flag = true;
       }
     }
@@ -412,17 +395,13 @@ class ITagSearchBox extends Component<
   };
 
   // 处理标签事件
-  private handleTagEvent = async (
-    type: string,
-    index: number,
-    payload?: any
-  ) => {
+  private handleTagEvent = async (type: string, index: number, payload?: any) => {
     const { tags } = this.state;
     const newTags = clone(tags);
 
     switch (type) {
-      case "add":
-        payload["_key"] = COUNTER++;
+      case 'add':
+        payload['_key'] = COUNTER++;
         newTags.splice(++index, 0, payload);
         this.setTags(newTags, () => {
           this.tagRefs[`tag-${index}`]?.focusInput();
@@ -430,12 +409,12 @@ class ITagSearchBox extends Component<
         this.setState({ showSelect: false });
         break;
 
-      case "edit":
+      case 'edit':
         this.tagRefs[`tag-${index}`]?.editDone();
         newTags[index].attr = payload.attr;
         newTags[index].values = payload.values;
         // @ts-ignore
-        newTags[index]["_edit"] = false;
+        newTags[index]['_edit'] = false;
         this.setTags(newTags);
         index++;
         this.setState({
@@ -444,7 +423,7 @@ class ITagSearchBox extends Component<
         });
         break;
 
-      case "edit-cancel":
+      case 'edit-cancel':
         this.tagRefs[`tag-${index}`]?.editDone();
         this.setTags(newTags, () => null, false);
         this.setState({
@@ -453,16 +432,14 @@ class ITagSearchBox extends Component<
         });
         break;
 
-      case "editing":
-        if ("attr" in payload && newTags[index])
-          newTags[index].attr = payload.attr;
-        if ("values" in payload && newTags[index])
-          newTags[index].values = payload.values;
+      case 'editing':
+        if ('attr' in payload && newTags[index]) newTags[index].attr = payload.attr;
+        if ('values' in payload && newTags[index]) newTags[index].values = payload.values;
         this.setTags(newTags, null, false);
         break;
 
-      case "del":
-        if (payload === "keyboard") index--;
+      case 'del':
+        if (payload === 'keyboard') index--;
         if (!newTags[index]) break;
 
         const { onDeleteTag } = this.props;
@@ -479,12 +456,12 @@ class ITagSearchBox extends Component<
           this.setState({ curPosType: FocusPosType.INPUT });
         });
 
-        if (payload !== "edit") {
+        if (payload !== 'edit') {
           this.setState({ showSelect: false });
         }
         break;
 
-      case "click":
+      case 'click':
         if (!this.state.active) {
           this.open();
           return;
@@ -492,7 +469,7 @@ class ITagSearchBox extends Component<
 
         const pos = payload;
         // @ts-ignore
-        newTags[index]["_edit"] = true;
+        newTags[index]['_edit'] = true;
         this.setTags(
           newTags,
           () => {
@@ -500,13 +477,13 @@ class ITagSearchBox extends Component<
               this.tagRefs[`tag-${index}`]?.edit(pos);
             });
           },
-          false
+          false,
         );
         this.setState({ curPosType: FocusPosType.INPUT_EDIT });
         break;
 
-      case "click-input":
-        if (payload === "edit") {
+      case 'click-input':
+        if (payload === 'edit') {
           this.setState({ curPosType: FocusPosType.INPUT_EDIT });
         } else {
           this.setState({ curPosType: FocusPosType.INPUT });
@@ -528,7 +505,7 @@ class ITagSearchBox extends Component<
       attributes = [],
       hideHelp,
       tips = 'Separate keywords with "|"; press Enter to separate filter tags',
-      attributesSelectTips = "Select a filter",
+      attributesSelectTips = 'Select a filter',
       disableAttributesFilter,
       disabled,
       forwardRef,
@@ -538,29 +515,26 @@ class ITagSearchBox extends Component<
 
     // 用于计算 focused 及 isFocused, 判断是否显示选择组件
     let focusedInputIndex = -1;
-    if (
-      curPosType === FocusPosType.INPUT ||
-      curPosType === FocusPosType.INPUT_EDIT
-    ) {
+    if (curPosType === FocusPosType.INPUT || curPosType === FocusPosType.INPUT_EDIT) {
       focusedInputIndex = curPos;
     }
 
     // 渲染标签列表
     const tagList = tags.map((item, index) => {
       // 补全 attr 属性
-      attributes.forEach((attrItem) => {
+      attributes.forEach(attrItem => {
         if (item.attr && attrItem.key && attrItem.key == item.attr.key) {
           item.attr = Object.assign({}, item.attr, attrItem);
         }
       });
 
       const selectedAttrKeys: string[] = [];
-      tags.forEach((tag) => {
+      tags.forEach(tag => {
         if (
           tag.attr &&
           item.attr &&
           // @ts-ignore
-          item["_edit"] &&
+          item['_edit'] &&
           item.attr.key === tag.attr.key
         ) {
           return null;
@@ -570,85 +544,60 @@ class ITagSearchBox extends Component<
         }
       });
 
-      const useableAttributes = attributes.filter(
-        (item) => selectedAttrKeys.indexOf(item.key) < 0
-      );
+      const useableAttributes = attributes.filter(item => selectedAttrKeys.indexOf(item.key) < 0);
 
       return (
         <Tag
-          ref={(tag) => (this.tagRefs[`tag-${index}`] = tag) as any}
+          ref={tag => (this.tagRefs[`tag-${index}`] = tag) as any}
           active={active}
           // @ts-ignore
-          key={item["_key"]}
+          key={item['_key']}
           attributes={useableAttributes}
           attr={item.attr}
           values={item.values}
-          maxWidth={
-            this.searchWrapRef.current
-              ? this.searchWrapRef.current.clientWidth
-              : null
-          }
-          focused={
-            focusedInputIndex === index && showSelect ? curPosType : null
-          }
-          dispatchTagEvent={(type, payload) =>
-            this.handleTagEvent(type, index, payload)
-          }
+          maxWidth={this.searchWrapRef.current ? this.searchWrapRef.current.clientWidth : null}
+          focused={focusedInputIndex === index && showSelect ? curPosType : null}
+          dispatchTagEvent={(type, payload) => this.handleTagEvent(type, index, payload)}
         />
       );
     });
 
     // 过滤可用属性
     const selectedAttrKeys = tags
-      .map((item) => (item.attr && !item.attr.reusable ? item.attr.key : null))
-      .filter((item) => !!item);
+      .map(item => (item.attr && !item.attr.reusable ? item.attr.key : null))
+      .filter(item => !!item);
 
-    const useableAttributes = attributes.filter(
-      (item) => selectedAttrKeys.indexOf(item.key) < 0
-    );
+    const useableAttributes = attributes.filter(item => selectedAttrKeys.indexOf(item.key) < 0);
 
     // 添加输入标签
     tagList.push(
       <TagInput
         key="__input__"
-        ref={(input) => (this.tagRefs[`tag-${tags.length}`] = input) as any}
+        ref={input => (this.tagRefs[`tag-${tags.length}`] = input) as any}
         active={active}
-        maxWidth={
-          this.searchWrapRef.current
-            ? this.searchWrapRef.current.clientWidth
-            : null
-        }
+        maxWidth={this.searchWrapRef.current ? this.searchWrapRef.current.clientWidth : null}
         attributes={useableAttributes}
         isFocused={focusedInputIndex === tags.length && showSelect}
-        dispatchTagEvent={(type, payload) =>
-          this.handleTagEvent(type, tags.length, payload)
-        }
-      />
+        dispatchTagEvent={(type, payload) => this.handleTagEvent(type, tags.length, payload)}
+      />,
     );
 
     return (
       <div className="w-full">
         <div
           className={cn(
-            "w-full relative rounded-md border border-input",
-            "pl-2 py-0",
-            "bg-background text-sm leading-none",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-            "box-border",
-            !active && ["overflow-hidden", "h-[34px]"],
-            !disabled && [
-              "cursor-text",
-              active && "border-primary",
-              active && "ring-4 ring-primary/20",
-            ]
+            'w-full relative rounded-md border border-input',
+            'pl-2 py-0',
+            'bg-background text-sm leading-none',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            'box-border',
+            !active && ['overflow-hidden', 'h-[34px]'],
+            !disabled && ['cursor-text', active && 'border-primary', active && 'ring-4 ring-primary/20'],
           )}
           ref={mergeRefs(this.searchWrapRef, forwardRef)}
           onClick={this.open}
         >
-          <div
-            className="inline-flex align-top flex-wrap"
-            ref={mergeRefs(this.searchBoxRef)}
-          >
+          <div className="inline-flex align-top flex-wrap" ref={mergeRefs(this.searchBoxRef)}>
             <TagSearchBoxContext.Provider
               value={{
                 attributesSelectTips,
@@ -662,20 +611,15 @@ class ITagSearchBox extends Component<
 
           <div
             className={cn(
-              "inline-block overflow-hidden",
-              "pointer-events-none text-muted-foreground/70 text-sm whitespace-nowrap",
-              "h-8 leading-8"
+              'inline-block overflow-hidden',
+              'pointer-events-none text-muted-foreground/70 text-sm whitespace-nowrap',
+              'h-8 leading-8',
             )}
           >
             {tips}
           </div>
 
-          <div
-            className={cn(
-              "inline-block absolute right-0 h-8",
-              "bg-transparent"
-            )}
-          >
+          <div className={cn('inline-block absolute right-0 h-8', 'bg-transparent')}>
             {!!active && tags.length > 0 && (
               <TooltipProvider>
                 <Tooltip>
@@ -723,16 +667,17 @@ class ITagSearchBox extends Component<
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     className={cn(
-                      "h-[30px] w-[30px] p-0 hover:bg-muted rounded-none rounded-r-md",
-                      active && "text-primary"
+                      'h-[30px] px-3 rounded-none rounded-r-md',
+                      'bg-purple-600 text-white hover:bg-purple-700',
+                      'dark:bg-purple-700 dark:hover:bg-purple-800',
                     )}
                     disabled={disabled}
                     onClick={this.handleSearch}
                   >
-                    <Search className="h-4 w-4" />
-                    <span className="sr-only">Search</span>
+                    <Search className="h-4 w-4 mr-1" />
+                    <span>Search</span>
                   </Button>
                 </TooltipTrigger>
                 {active && (
@@ -758,17 +703,12 @@ class ITagSearchBox extends Component<
   }
 }
 
-export const TagSearchBoxWithOutsideClick = withOutsideClick("close")(
-  ITagSearchBox,
-  {
-    ignoreClasses: ["ignore-outside-click"],
-  }
-);
+export const TagSearchBoxWithOutsideClick = withOutsideClick('close')(ITagSearchBox, {
+  ignoreClasses: ['ignore-outside-click'],
+});
 
-export const TagSearchBox = forwardRef<HTMLDivElement, TagSearchBoxProps>(
-  (props, ref) => {
-    return <TagSearchBoxWithOutsideClick {...props} forwardRef={ref} />;
-  }
-);
+export const TagSearchBox = forwardRef<HTMLDivElement, TagSearchBoxProps>((props, ref) => {
+  return <TagSearchBoxWithOutsideClick {...props} forwardRef={ref} />;
+});
 
-TagSearchBox.displayName = "TagSearchBox";
+TagSearchBox.displayName = 'TagSearchBox';

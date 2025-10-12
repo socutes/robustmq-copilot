@@ -23,9 +23,9 @@ export function CommonLayout(props: CommonLayoutProps) {
       </Main>
 
       {/* Footer - 固定在页面底部 */}
-      <footer className="fixed bottom-0 left-0 right-0 ml-auto border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-1 z-[5] peer-data-[state=collapsed]/sidebar:w-[calc(100%-var(--sidebar-width-icon))] peer-data-[state=expanded]/sidebar:w-[calc(100%-var(--sidebar-width))] transition-[width] duration-200 ease-linear">
+      <footer className="fixed bottom-0 left-0 right-0 ml-auto border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-3 z-[5] peer-data-[state=collapsed]/sidebar:w-[calc(100%-var(--sidebar-width-icon))] peer-data-[state=expanded]/sidebar:w-[calc(100%-var(--sidebar-width))] transition-[width] duration-200 ease-linear">
         <div className="flex flex-col items-center text-xs text-muted-foreground" style={{ marginLeft: '15%' }}>
-          <div className="flex items-center space-x-2 mb-1.5">
+          <div className="flex items-center space-x-2 mb-2">
             <span className="font-semibold text-purple-600 dark:text-purple-400">@RobustMQ</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               - New generation of cloud-native and AI-native messaging infrastructure

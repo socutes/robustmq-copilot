@@ -20,6 +20,7 @@ import { DataTableToolbar } from './data-table-toolbar';
 import { useQuery } from '@tanstack/react-query';
 import { AttributeValue, TagValue } from '@/components/tag-search-box';
 import { convertTagToSearchValue, FilterValue } from './filter';
+import { Separator } from '@/components/ui/separator';
 
 type FetchDataFn<TData> = (
   pageIndex: number,
@@ -120,17 +121,20 @@ export function DataTable<TData, TValue>({
   }, [columns]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {!hideToolBar && (
-        <DataTableToolbar
-          table={table}
-          onRefresh={() => query.refetch()}
-          tagFilters={tagFilters}
-          onTagFilterChange={setTagFilters}
-          attrFilters={attrFilter}
-          extraActions={extraActions}
-          isRefreshing={query.isFetching}
-        />
+        <>
+          <DataTableToolbar
+            table={table}
+            onRefresh={() => query.refetch()}
+            tagFilters={tagFilters}
+            onTagFilterChange={setTagFilters}
+            attrFilters={attrFilter}
+            extraActions={extraActions}
+            isRefreshing={query.isFetching}
+          />
+          <Separator className="my-2" />
+        </>
       )}
       <div className="rounded-md border">
         <Table>
