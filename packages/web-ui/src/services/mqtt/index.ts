@@ -324,6 +324,11 @@ export interface ClientRaw {
   session?: {
     [key: string]: any;
   };
+  heartbeat?: {
+    heartbeat: number;
+    keep_live: number;
+    [key: string]: any;
+  };
 }
 
 // 将前端的 offset/limit 分页参数转换为 HTTP API 的 page/limit 格式

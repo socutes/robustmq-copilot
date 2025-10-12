@@ -68,7 +68,7 @@ export function DataTableToolbar<TData>({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-2 lg:px-3"
+                className="h-8 px-2 lg:px-3 bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:border-blue-700"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
               >

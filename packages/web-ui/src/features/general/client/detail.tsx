@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,12 @@ import {
   Info,
   Hash,
   Tag,
+  Timer,
 } from 'lucide-react';
 import { getClientListHttp } from '@/services/mqtt';
 import { format } from 'date-fns';
 import { CommonLayout } from '@/components/layout/common-layout';
+import { useEffect } from 'react';
 
 // 根据字段名返回对应的图标
 const getFieldIcon = (key: string) => {
@@ -47,41 +49,64 @@ const getFieldIcon = (key: string) => {
 
 // 格式化显示值的辅助函数
 const formatValue = (key: string, value: any): string => {
-  if (value === null || value === undefined) return '-';
+  try {
+    if (value === null || value === undefined) return '-';
 
-  // 如果是对象，返回 JSON 字符串
-  if (typeof value === 'object') {
-    return JSON.stringify(value, null, 2);
-  }
-
-  // 如果字段名包含 time 并且是数字（时间戳），格式化为日期时间
-  if (key.toLowerCase().includes('time') && (typeof value === 'number' || !isNaN(Number(value)))) {
-    try {
-      const timestamp = typeof value === 'string' ? parseInt(value) : value;
-      return format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
-    } catch {
-      return String(value);
+    // 如果是对象，返回 JSON 字符串
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
     }
-  }
 
-  return String(value);
+    // 如果字段名包含 time 并且是数字（时间戳），格式化为日期时间
+    if (key.toLowerCase().includes('time') && (typeof value === 'number' || !isNaN(Number(value)))) {
+      try {
+        const timestamp = typeof value === 'string' ? parseInt(value) : value;
+        return format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
+      } catch (err) {
+        console.error(`[formatValue] Error formatting time for ${key}:`, err);
+        return String(value);
+      }
+    }
+
+    return String(value);
+  } catch (err) {
+    console.error(`[formatValue] Error formatting ${key}:`, err);
+    return '-';
+  }
 };
 
 export default function ClientDetail() {
   const { clientId } = useParams({ from: '/_authenticated/general/client/$clientId' });
-  const navigate = useNavigate();
 
   // 获取客户端列表并找到对应的客户端
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['clientDetail', clientId],
     queryFn: async () => {
-      const result = await getClientListHttp({
-        pagination: { offset: 0, limit: 100 },
-        filers: [{ attr: 'client_id', values: [clientId] }],
-      });
-      return result.clientsList.find(client => client.client_id === clientId);
+      try {
+        console.log('[Client Detail] Fetching client data for:', clientId);
+        const result = await getClientListHttp({
+          pagination: { offset: 0, limit: 100 },
+          filers: [{ field: 'client_id', valueList: [clientId] }],
+        });
+        console.log('[Client Detail] API Response:', result);
+        const client = result.clientsList.find(client => client.client_id === clientId);
+        console.log('[Client Detail] Found client:', client);
+        return client;
+      } catch (err) {
+        console.error('[Client Detail] Error fetching data:', err);
+        throw err;
+      }
     },
   });
+
+  // 每5秒自动刷新数据
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   if (isLoading) {
     return (
@@ -93,19 +118,51 @@ export default function ClientDetail() {
     );
   }
 
-  if (!data) {
+  if (error) {
+    console.error('[Client Detail] Render error:', error);
     return (
       <CommonLayout>
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <div className="text-lg">Client not found</div>
-          <Button onClick={() => navigate({ to: '/general/client' })}>
+          <div className="text-lg text-red-600">Error loading client data</div>
+          <div className="text-sm text-gray-600">{String(error)}</div>
+          <Button onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to List
+            Back
           </Button>
         </div>
       </CommonLayout>
     );
   }
+
+  if (!data) {
+    return (
+      <CommonLayout>
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <div className="text-lg">Client not found</div>
+          <Button onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+      </CommonLayout>
+    );
+  }
+
+  // 安全获取 heartbeat 数据
+  const heartbeatTime = (() => {
+    try {
+      if (data.heartbeat?.heartbeat) {
+        const timestamp =
+          typeof data.heartbeat.heartbeat === 'string' ? parseInt(data.heartbeat.heartbeat) : data.heartbeat.heartbeat;
+        return format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
+      }
+    } catch (error) {
+      console.error('Error formatting heartbeat time:', error);
+    }
+    return '-';
+  })();
+
+  const keepAlive = data.heartbeat?.keep_live ? `${data.heartbeat.keep_live}s` : '-';
 
   return (
     <CommonLayout>
@@ -113,7 +170,7 @@ export default function ClientDetail() {
         {/* 头部 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: '/general/client' })}>
+            <Button variant="outline" size="sm" onClick={() => window.history.back()}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
@@ -126,10 +183,13 @@ export default function ClientDetail() {
         {/* 基本信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <Info className="h-5 w-5 text-purple-600" />
+              <span>Basic Information</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                 <div className="flex-shrink-0 mt-1">
                   <Hash className="h-4 w-4 text-purple-500" />
@@ -154,6 +214,30 @@ export default function ClientDetail() {
                   <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
                     {data.connection_id}
                   </div>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
+                <div className="flex-shrink-0 mt-1">
+                  <Clock className="h-4 w-4 text-green-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Last Heartbeat
+                  </label>
+                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
+                    {heartbeatTime}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
+                <div className="flex-shrink-0 mt-1">
+                  <Timer className="h-4 w-4 text-blue-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Keep Alive
+                  </label>
+                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">{keepAlive}</div>
                 </div>
               </div>
             </div>

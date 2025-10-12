@@ -15,11 +15,16 @@ export default function SessionList() {
       accessorKey: 'client_id',
       header: 'Client ID',
       cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
+        <div
+          className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate({ to: '/general/client/$clientId', params: { clientId: row.original.client_id } })}
+        >
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
             <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
-          <span className="font-medium">{row.original.client_id}</span>
+          <span className="font-medium text-purple-600 dark:text-purple-400 hover:underline">
+            {row.original.client_id}
+          </span>
         </div>
       ),
       attr: true,
@@ -77,6 +82,47 @@ export default function SessionList() {
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4 text-gray-500" />
             <span className="text-sm">{formattedTime}</span>
+          </div>
+        );
+      },
+      attr: true,
+    },
+    {
+      accessorKey: 'heartbeat_time',
+      header: 'Heartbeat Time',
+      cell: ({ row }) => {
+        const heartbeatTime = row.original.heartbeat?.heartbeat;
+        if (!heartbeatTime) return '-';
+
+        // 如果是时间戳（数字），转换为日期格式
+        const timestamp = typeof heartbeatTime === 'string' ? parseInt(heartbeatTime) : heartbeatTime;
+        const formattedTime = format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
+
+        return (
+          <div className="flex items-center space-x-2">
+            <Clock className="h-4 w-4 text-green-500" />
+            <span className="text-sm">{formattedTime}</span>
+          </div>
+        );
+      },
+      attr: true,
+    },
+    {
+      accessorKey: 'keep_alive',
+      header: 'Keep Alive',
+      cell: ({ row }) => {
+        const keepLive = row.original.heartbeat?.keep_live;
+        if (keepLive === null || keepLive === undefined) return '-';
+
+        return (
+          <div className="flex items-center space-x-2">
+            <Badge
+              variant="outline"
+              className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800"
+            >
+              <Clock className="mr-1 h-3 w-3" />
+              {keepLive}s
+            </Badge>
           </div>
         );
       },

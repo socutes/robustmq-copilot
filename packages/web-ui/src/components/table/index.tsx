@@ -71,13 +71,12 @@ export function DataTable<TData, TValue>({
       const searchValue = convertTagToSearchValue(tagFilters);
       return fetchDataFn(pagination.pageIndex, pagination.pageSize, searchValue);
     },
+    refetchOnWindowFocus: false,
   });
 
-  React.useEffect(() => {
-    if (query?.refetch) {
-      query.refetch();
-    }
-  }, [pagination.pageIndex, pagination.pageSize]);
+  const handleRefresh = React.useCallback(() => {
+    query.refetch();
+  }, [query.refetch]);
 
   const table = useReactTable({
     data: query?.data?.data || [],
@@ -126,7 +125,7 @@ export function DataTable<TData, TValue>({
         <>
           <DataTableToolbar
             table={table}
-            onRefresh={() => query.refetch()}
+            onRefresh={handleRefresh}
             tagFilters={tagFilters}
             onTagFilterChange={setTagFilters}
             attrFilters={attrFilter}
