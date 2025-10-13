@@ -409,6 +409,32 @@ export const getTopicListHttp = async (
   };
 };
 
+export interface TopicSubscription {
+  client_id: string;
+  path: string;
+}
+
+export interface TopicDetail {
+  topic_info: {
+    cluster_name: string;
+    topic_name: string;
+    create_time: number;
+  };
+  retain_message: string | null; // Base64 编码的字符串或 null
+  retain_message_at: number | null; // 毫秒级时间戳或 null
+  sub_list: TopicSubscription[];
+}
+
+export const getTopicDetail = async (topicName: string): Promise<TopicDetail> => {
+  const response = await requestApi('/api/mqtt/topic/detail', { topic_name: topicName });
+  return {
+    topic_info: response.topic_info,
+    retain_message: response.retain_message,
+    retain_message_at: response.retain_message_at,
+    sub_list: response.sub_list || [],
+  };
+};
+
 // -------- Subscribe APIs --------
 export interface SubscribeRaw {
   client_id: string;

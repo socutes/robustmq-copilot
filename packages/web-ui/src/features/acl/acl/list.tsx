@@ -88,6 +88,7 @@ export default function AclList({ extraActions }: AclListProps) {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => <DeleteAclButton acl={row.original} />,
+      size: 100,
     },
   ];
 

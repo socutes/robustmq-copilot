@@ -42,7 +42,9 @@ interface DataTableProps<TData, TValue> {
   fetchDataFn: FetchDataFn<TData>;
   queryKey: string;
   defaultPageSize?: number;
+  defaultSorting?: SortingState;
   extraActions?: React.ReactNode;
+  leftActions?: React.ReactNode;
   headerClassName?: string;
 }
 
@@ -52,13 +54,15 @@ export function DataTable<TData, TValue>({
   fetchDataFn,
   queryKey,
   defaultPageSize = 10,
+  defaultSorting = [],
   extraActions,
+  leftActions,
   headerClassName,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>(defaultSorting);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: defaultPageSize,
@@ -130,6 +134,7 @@ export function DataTable<TData, TValue>({
             onTagFilterChange={setTagFilters}
             attrFilters={attrFilter}
             extraActions={extraActions}
+            leftActions={leftActions}
             isRefreshing={query.isFetching}
           />
           <Separator className="my-2" />

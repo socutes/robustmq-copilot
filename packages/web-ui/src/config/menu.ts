@@ -18,6 +18,7 @@ import {
   Timer,
   Activity,
   Settings,
+  MessageSquare,
 } from 'lucide-react';
 
 export const sidebarData: SidebarData = {
@@ -138,6 +139,11 @@ export const sidebarData: SidebarData = {
           title: 'Configuration',
           url: '/system/configuration',
           icon: Timer,
+        },
+        {
+          title: 'Pub Sub',
+          url: '/system/pub-sub',
+          icon: MessageSquare,
         },
       ],
     },
