@@ -2,9 +2,12 @@ import { DataTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
 import { getSubscribeListHttp } from '@/services/mqtt';
 import { Badge } from '@/components/ui/badge';
-import { User, Route, Server, Wifi, Shield, ToggleLeft, Archive, Settings, Hash, FileText, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, Route, Wifi, Shield, ToggleLeft, Archive, Settings, Hash, Clock, Eye } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 
 export default function SubscribeList() {
+  const navigate = useNavigate();
   const columns: ColumnDef<any>[] = [
     {
       id: 'client_id',
@@ -18,6 +21,7 @@ export default function SubscribeList() {
           <span className="font-medium">{row.original.client_id}</span>
         </div>
       ),
+      attr: true,
     },
     {
       accessorKey: 'path',
@@ -28,16 +32,7 @@ export default function SubscribeList() {
           <span className="font-mono text-sm break-all">{row.original.path || '-'}</span>
         </div>
       ),
-    },
-    {
-      accessorKey: 'broker_id',
-      header: 'Broker ID',
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <Server className="h-4 w-4 text-gray-500" />
-          <span className="font-mono text-sm">{row.original.broker_id || '-'}</span>
-        </div>
-      ),
+      attr: true,
     },
     {
       accessorKey: 'protocol',
@@ -86,10 +81,13 @@ export default function SubscribeList() {
       accessorKey: 'preserve_retain',
       header: 'Preserve Retain',
       cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <Archive className="h-4 w-4 text-gray-500" />
-          <span className="text-sm">{row.original.preserve_retain || '-'}</span>
-        </div>
+        <Badge
+          variant="outline"
+          className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800"
+        >
+          <Archive className="mr-1 h-3 w-3" />
+          {row.original.preserve_retain ?? '-'}
+        </Badge>
       ),
     },
     {
@@ -113,18 +111,6 @@ export default function SubscribeList() {
       ),
     },
     {
-      accessorKey: 'properties',
-      header: 'Properties',
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <FileText className="h-4 w-4 text-gray-500" />
-          <span className="text-sm truncate max-w-[200px]" title={row.original.properties}>
-            {row.original.properties || '-'}
-          </span>
-        </div>
-      ),
-    },
-    {
       accessorKey: 'create_time',
       header: 'Created At',
       cell: ({ row }) => (
@@ -134,14 +120,41 @@ export default function SubscribeList() {
         </div>
       ),
     },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <Button
+          size="sm"
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
+          onClick={() => {
+            navigate({
+              to: '/general/subscribe/$subscribeId',
+              params: { subscribeId: row.original.client_id || 'unknown' },
+              state: { subscribeData: row.original },
+            });
+          }}
+        >
+          <Eye className="mr-0.5 h-2.5 w-2.5" />
+          Details
+        </Button>
+      ),
+      size: 100,
+    },
   ];
 
-  const fetchDataFn = async (pageIndex: number, pageSize: number) => {
+  const fetchDataFn = async (pageIndex: number, pageSize: number, searchValue: any[]) => {
+    const filter = searchValue[0];
     const ret = await getSubscribeListHttp({
       pagination: {
         offset: pageIndex * pageSize,
         limit: pageSize,
       },
+      ...(filter && {
+        filter_field: filter.field,
+        filter_values: filter.valueList,
+        exact_match: filter.exactMatch ? 'true' : 'false',
+      }),
     });
     return {
       data: ret.subscriptionsList,

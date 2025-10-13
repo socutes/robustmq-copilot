@@ -15,9 +15,12 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
+import { Route as AuthenticatedSystemPubSubRouteImport } from './routes/_authenticated/system/pub-sub'
 import { Route as AuthenticatedSystemConfigurationRouteImport } from './routes/_authenticated/system/configuration'
 import { Route as AuthenticatedSystemBanLogRouteImport } from './routes/_authenticated/system/ban-log'
 import { Route as AuthenticatedAdvancedSystemAlarmRouteImport } from './routes/_authenticated/advanced/system-alarm'
+import { Route as AuthenticatedGeneralTopicTopicIdRouteImport } from './routes/_authenticated/general/topic/$topicId'
+import { Route as AuthenticatedGeneralSubscribeSubscribeIdRouteImport } from './routes/_authenticated/general/subscribe/$subscribeId'
 
 const errors503LazyRouteImport = createFileRoute('/(errors)/503')()
 const errors500LazyRouteImport = createFileRoute('/(errors)/500')()
@@ -190,6 +193,12 @@ const AuthenticatedAppsIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_authenticated/apps/index.lazy').then((d) => d.Route),
   )
+const AuthenticatedSystemPubSubRoute =
+  AuthenticatedSystemPubSubRouteImport.update({
+    id: '/system/pub-sub',
+    path: '/system/pub-sub',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSystemConfigurationRoute =
   AuthenticatedSystemConfigurationRouteImport.update({
     id: '/system/configuration',
@@ -378,6 +387,18 @@ const AuthenticatedGeneralClientClientIdLazyRoute =
       (d) => d.Route,
     ),
   )
+const AuthenticatedGeneralTopicTopicIdRoute =
+  AuthenticatedGeneralTopicTopicIdRouteImport.update({
+    id: '/general/topic/$topicId',
+    path: '/general/topic/$topicId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGeneralSubscribeSubscribeIdRoute =
+  AuthenticatedGeneralSubscribeSubscribeIdRouteImport.update({
+    id: '/general/subscribe/$subscribeId',
+    path: '/general/subscribe/$subscribeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/otp': typeof authOtpRoute
@@ -394,9 +415,12 @@ export interface FileRoutesByFullPath {
   '/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
   '/system/ban-log': typeof AuthenticatedSystemBanLogRoute
   '/system/configuration': typeof AuthenticatedSystemConfigurationRoute
+  '/system/pub-sub': typeof AuthenticatedSystemPubSubRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
+  '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/acl/acl-management': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/acl/blacklist-management': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -430,9 +454,12 @@ export interface FileRoutesByTo {
   '/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
   '/system/ban-log': typeof AuthenticatedSystemBanLogRoute
   '/system/configuration': typeof AuthenticatedSystemConfigurationRoute
+  '/system/pub-sub': typeof AuthenticatedSystemPubSubRoute
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
+  '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/acl/acl-management': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/acl/blacklist-management': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -468,9 +495,12 @@ export interface FileRoutesById {
   '/_authenticated/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
   '/_authenticated/system/ban-log': typeof AuthenticatedSystemBanLogRoute
   '/_authenticated/system/configuration': typeof AuthenticatedSystemConfigurationRoute
+  '/_authenticated/system/pub-sub': typeof AuthenticatedSystemPubSubRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/system-setting/': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/_authenticated/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
+  '/_authenticated/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
   '/_authenticated/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/_authenticated/acl/acl-management/': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/_authenticated/acl/blacklist-management/': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -506,9 +536,12 @@ export interface FileRouteTypes {
     | '/advanced/system-alarm'
     | '/system/ban-log'
     | '/system/configuration'
+    | '/system/pub-sub'
     | '/apps'
     | '/help-center'
     | '/system-setting'
+    | '/general/subscribe/$subscribeId'
+    | '/general/topic/$topicId'
     | '/general/client/$clientId'
     | '/acl/acl-management'
     | '/acl/blacklist-management'
@@ -542,9 +575,12 @@ export interface FileRouteTypes {
     | '/advanced/system-alarm'
     | '/system/ban-log'
     | '/system/configuration'
+    | '/system/pub-sub'
     | '/apps'
     | '/help-center'
     | '/system-setting'
+    | '/general/subscribe/$subscribeId'
+    | '/general/topic/$topicId'
     | '/general/client/$clientId'
     | '/acl/acl-management'
     | '/acl/blacklist-management'
@@ -579,9 +615,12 @@ export interface FileRouteTypes {
     | '/_authenticated/advanced/system-alarm'
     | '/_authenticated/system/ban-log'
     | '/_authenticated/system/configuration'
+    | '/_authenticated/system/pub-sub'
     | '/_authenticated/apps/'
     | '/_authenticated/help-center/'
     | '/_authenticated/system-setting/'
+    | '/_authenticated/general/subscribe/$subscribeId'
+    | '/_authenticated/general/topic/$topicId'
     | '/_authenticated/general/client/$clientId'
     | '/_authenticated/acl/acl-management/'
     | '/_authenticated/acl/blacklist-management/'
@@ -720,6 +759,13 @@ declare module '@tanstack/react-router' {
       path: '/apps'
       fullPath: '/apps'
       preLoaderRoute: typeof AuthenticatedAppsIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/system/pub-sub': {
+      id: '/_authenticated/system/pub-sub'
+      path: '/system/pub-sub'
+      fullPath: '/system/pub-sub'
+      preLoaderRoute: typeof AuthenticatedSystemPubSubRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/system/configuration': {
@@ -862,6 +908,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGeneralClientClientIdLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/general/topic/$topicId': {
+      id: '/_authenticated/general/topic/$topicId'
+      path: '/general/topic/$topicId'
+      fullPath: '/general/topic/$topicId'
+      preLoaderRoute: typeof AuthenticatedGeneralTopicTopicIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/general/subscribe/$subscribeId': {
+      id: '/_authenticated/general/subscribe/$subscribeId'
+      path: '/general/subscribe/$subscribeId'
+      fullPath: '/general/subscribe/$subscribeId'
+      preLoaderRoute: typeof AuthenticatedGeneralSubscribeSubscribeIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -870,9 +930,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdvancedSystemAlarmRoute: typeof AuthenticatedAdvancedSystemAlarmRoute
   AuthenticatedSystemBanLogRoute: typeof AuthenticatedSystemBanLogRoute
   AuthenticatedSystemConfigurationRoute: typeof AuthenticatedSystemConfigurationRoute
+  AuthenticatedSystemPubSubRoute: typeof AuthenticatedSystemPubSubRoute
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedSystemSettingIndexLazyRoute: typeof AuthenticatedSystemSettingIndexLazyRoute
+  AuthenticatedGeneralSubscribeSubscribeIdRoute: typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
+  AuthenticatedGeneralTopicTopicIdRoute: typeof AuthenticatedGeneralTopicTopicIdRoute
   AuthenticatedGeneralClientClientIdLazyRoute: typeof AuthenticatedGeneralClientClientIdLazyRoute
   AuthenticatedAclAclManagementIndexLazyRoute: typeof AuthenticatedAclAclManagementIndexLazyRoute
   AuthenticatedAclBlacklistManagementIndexLazyRoute: typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -897,10 +960,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdvancedSystemAlarmRoute: AuthenticatedAdvancedSystemAlarmRoute,
   AuthenticatedSystemBanLogRoute: AuthenticatedSystemBanLogRoute,
   AuthenticatedSystemConfigurationRoute: AuthenticatedSystemConfigurationRoute,
+  AuthenticatedSystemPubSubRoute: AuthenticatedSystemPubSubRoute,
   AuthenticatedAppsIndexLazyRoute: AuthenticatedAppsIndexLazyRoute,
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedSystemSettingIndexLazyRoute:
     AuthenticatedSystemSettingIndexLazyRoute,
+  AuthenticatedGeneralSubscribeSubscribeIdRoute:
+    AuthenticatedGeneralSubscribeSubscribeIdRoute,
+  AuthenticatedGeneralTopicTopicIdRoute: AuthenticatedGeneralTopicTopicIdRoute,
   AuthenticatedGeneralClientClientIdLazyRoute:
     AuthenticatedGeneralClientClientIdLazyRoute,
   AuthenticatedAclAclManagementIndexLazyRoute:

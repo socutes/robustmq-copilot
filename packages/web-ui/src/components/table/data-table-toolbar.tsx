@@ -12,6 +12,7 @@ interface DataTableToolbarProps<TData> {
   onTagFilterChange?: (tagFilters: TagValue[]) => void;
   attrFilters: AttributeValue[];
   extraActions?: React.ReactNode;
+  leftActions?: React.ReactNode;
   isRefreshing?: boolean;
 }
 
@@ -22,6 +23,7 @@ export function DataTableToolbar<TData>({
   onTagFilterChange,
   attrFilters,
   extraActions,
+  leftActions,
   isRefreshing = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -42,6 +44,7 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
+        {leftActions && <div className="flex items-center">{leftActions}</div>}
         <div className="w-[720px]">
           <TagSearchBox
             value={tagFilters}

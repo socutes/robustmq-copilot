@@ -102,6 +102,7 @@ export default function BlackList({ extraActions }: BlackListProps) {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => <DeleteBlacklistButton blacklist={row.original} />,
+      size: 100,
     },
   ];
 

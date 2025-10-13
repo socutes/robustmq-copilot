@@ -19,6 +19,7 @@ import {
   Hash,
   Tag,
   Timer,
+  User,
 } from 'lucide-react';
 import { getClientListHttp } from '@/services/mqtt';
 import { format } from 'date-fns';
@@ -168,14 +169,29 @@ export default function ClientDetail() {
     <CommonLayout>
       <div className="container mx-auto p-6 space-y-6 pb-16">
         {/* 头部 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" onClick={() => window.history.back()}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <div>
-              <p className="text-sm text-muted-foreground">Client ID: {clientId}</p>
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 rounded-lg p-4 shadow-sm border border-purple-200 dark:border-purple-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.history.back()}
+                className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 dark:bg-purple-500">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">
+                    Client ID
+                  </p>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{clientId}</h1>
+                </div>
+              </div>
             </div>
           </div>
         </div>

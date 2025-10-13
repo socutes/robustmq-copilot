@@ -96,6 +96,7 @@ export default function SchemaList({ extraActions }: SchemaListProps) {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => <DeleteSchemaButton schema={row.original} />,
+      size: 100,
     },
   ];
 

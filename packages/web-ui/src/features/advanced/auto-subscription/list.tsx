@@ -110,6 +110,7 @@ export default function AutoSubscriptionList({ extraActions }: AutoSubscriptionL
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => <DeleteAutoSubscribeButton autoSubscribe={row.original} />,
+      size: 100,
     },
   ];
 

@@ -48,6 +48,7 @@ export default function UserList({ extraActions }: UserListProps) {
           <DeleteUserButton username={row.original.username} isSuperUser={row.original.isSuperUser} />
         </div>
       ),
+      size: 100,
     },
   ];
 

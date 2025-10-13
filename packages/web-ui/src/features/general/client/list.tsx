@@ -3,7 +3,7 @@ import { getClientListHttp } from '@/services/mqtt';
 import { FilterValue } from '@/components/table/filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Hash, Wifi, Clock, Eye, User } from 'lucide-react';
+import { Hash, Wifi, Clock, User, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from '@tanstack/react-router';
 
@@ -133,16 +133,17 @@ export default function SessionList() {
       header: 'Actions',
       cell: ({ row }) => (
         <Button
-          variant="outline"
           size="sm"
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
           onClick={() => {
             navigate({ to: '/general/client/$clientId', params: { clientId: row.original.client_id } });
           }}
         >
-          <Eye className="mr-2 h-4 w-4" />
-          View Details
+          <Eye className="mr-0.5 h-2.5 w-2.5" />
+          Details
         </Button>
       ),
+      size: 100,
     },
   ];
 
@@ -153,7 +154,9 @@ export default function SessionList() {
         limit: pageSize,
       },
       filers: searchValue,
-    });
+      sort_field: 'create_time',
+      sort_by: 'desc',
+    } as any);
     return {
       data: ret.clientsList,
       totalCount: ret.totalCount,
