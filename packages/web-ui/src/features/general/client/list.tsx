@@ -3,31 +3,55 @@ import { getClientListHttp } from '@/services/mqtt';
 import { FilterValue } from '@/components/table/filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Hash, Wifi, Clock, User, Eye } from 'lucide-react';
+import { Hash, Wifi, Clock, User, Eye, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from '@tanstack/react-router';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SessionList() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleCopyClientId = (clientId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(clientId);
+    toast({
+      title: 'Copied!',
+      description: 'Client ID copied to clipboard',
+      duration: 2000,
+    });
+  };
+
   const columns: ColumnSetting<any, any>[] = [
     {
       id: 'client_id',
       accessorKey: 'client_id',
       header: 'Client ID',
       cell: ({ row }) => (
-        <div
-          className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate({ to: '/general/client/$clientId', params: { clientId: row.original.client_id } })}
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-            <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <div className="flex items-center space-x-2 max-w-xs">
+          <div
+            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity flex-1 min-w-0"
+            onClick={() => navigate({ to: '/general/client/$clientId', params: { clientId: row.original.client_id } })}
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 flex-shrink-0">
+              <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <span className="font-medium text-purple-600 dark:text-purple-400 hover:underline truncate">
+              {row.original.client_id}
+            </span>
           </div>
-          <span className="font-medium text-purple-600 dark:text-purple-400 hover:underline">
-            {row.original.client_id}
-          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 flex-shrink-0 hover:bg-blue-100 dark:hover:bg-blue-900"
+            onClick={e => handleCopyClientId(row.original.client_id, e)}
+          >
+            <Copy className="h-3 w-3 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400" />
+          </Button>
         </div>
       ),
       attr: true,
+      size: 280,
     },
     {
       id: 'connection_id',
