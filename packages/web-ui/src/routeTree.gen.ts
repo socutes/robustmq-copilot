@@ -21,6 +21,7 @@ import { Route as AuthenticatedSystemBanLogRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdvancedSystemAlarmRouteImport } from './routes/_authenticated/advanced/system-alarm'
 import { Route as AuthenticatedGeneralTopicTopicIdRouteImport } from './routes/_authenticated/general/topic/$topicId'
 import { Route as AuthenticatedGeneralSubscribeSubscribeIdRouteImport } from './routes/_authenticated/general/subscribe/$subscribeId'
+import { Route as AuthenticatedGeneralSessionSessionIdRouteImport } from './routes/_authenticated/general/session/$sessionId'
 
 const errors503LazyRouteImport = createFileRoute('/(errors)/503')()
 const errors500LazyRouteImport = createFileRoute('/(errors)/500')()
@@ -399,6 +400,12 @@ const AuthenticatedGeneralSubscribeSubscribeIdRoute =
     path: '/general/subscribe/$subscribeId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedGeneralSessionSessionIdRoute =
+  AuthenticatedGeneralSessionSessionIdRouteImport.update({
+    id: '/general/session/$sessionId',
+    path: '/general/session/$sessionId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/otp': typeof authOtpRoute
@@ -419,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -458,6 +466,7 @@ export interface FileRoutesByTo {
   '/apps': typeof AuthenticatedAppsIndexLazyRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/system-setting': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -499,6 +508,7 @@ export interface FileRoutesById {
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexLazyRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexLazyRoute
   '/_authenticated/system-setting/': typeof AuthenticatedSystemSettingIndexLazyRoute
+  '/_authenticated/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/_authenticated/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/_authenticated/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
   '/_authenticated/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/apps'
     | '/help-center'
     | '/system-setting'
+    | '/general/session/$sessionId'
     | '/general/subscribe/$subscribeId'
     | '/general/topic/$topicId'
     | '/general/client/$clientId'
@@ -579,6 +590,7 @@ export interface FileRouteTypes {
     | '/apps'
     | '/help-center'
     | '/system-setting'
+    | '/general/session/$sessionId'
     | '/general/subscribe/$subscribeId'
     | '/general/topic/$topicId'
     | '/general/client/$clientId'
@@ -619,6 +631,7 @@ export interface FileRouteTypes {
     | '/_authenticated/apps/'
     | '/_authenticated/help-center/'
     | '/_authenticated/system-setting/'
+    | '/_authenticated/general/session/$sessionId'
     | '/_authenticated/general/subscribe/$subscribeId'
     | '/_authenticated/general/topic/$topicId'
     | '/_authenticated/general/client/$clientId'
@@ -922,6 +935,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGeneralSubscribeSubscribeIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/general/session/$sessionId': {
+      id: '/_authenticated/general/session/$sessionId'
+      path: '/general/session/$sessionId'
+      fullPath: '/general/session/$sessionId'
+      preLoaderRoute: typeof AuthenticatedGeneralSessionSessionIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -934,6 +954,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppsIndexLazyRoute: typeof AuthenticatedAppsIndexLazyRoute
   AuthenticatedHelpCenterIndexLazyRoute: typeof AuthenticatedHelpCenterIndexLazyRoute
   AuthenticatedSystemSettingIndexLazyRoute: typeof AuthenticatedSystemSettingIndexLazyRoute
+  AuthenticatedGeneralSessionSessionIdRoute: typeof AuthenticatedGeneralSessionSessionIdRoute
   AuthenticatedGeneralSubscribeSubscribeIdRoute: typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   AuthenticatedGeneralTopicTopicIdRoute: typeof AuthenticatedGeneralTopicTopicIdRoute
   AuthenticatedGeneralClientClientIdLazyRoute: typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -965,6 +986,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHelpCenterIndexLazyRoute: AuthenticatedHelpCenterIndexLazyRoute,
   AuthenticatedSystemSettingIndexLazyRoute:
     AuthenticatedSystemSettingIndexLazyRoute,
+  AuthenticatedGeneralSessionSessionIdRoute:
+    AuthenticatedGeneralSessionSessionIdRoute,
   AuthenticatedGeneralSubscribeSubscribeIdRoute:
     AuthenticatedGeneralSubscribeSubscribeIdRoute,
   AuthenticatedGeneralTopicTopicIdRoute: AuthenticatedGeneralTopicTopicIdRoute,

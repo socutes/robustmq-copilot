@@ -465,6 +465,73 @@ export const getSubscribeListHttp = async (
   };
 };
 
+// 订阅详情相关类型定义
+export interface PushThreadInfo {
+  push_success_record_num: number;
+  push_error_record_num: number;
+  last_push_time: number; // 秒级时间戳
+  last_run_time: number; // 秒级时间戳
+  create_time: number; // 秒级时间戳
+}
+
+export interface ExclusivePushData {
+  protocol: string;
+  client_id: string;
+  sub_path: string;
+  rewrite_sub_path: string | null;
+  topic_name: string;
+  group_name: string | null;
+  qos: string;
+  nolocal: boolean;
+  preserve_retain: boolean;
+  retain_forward_rule: string;
+  subscription_identifier: number | null;
+  create_time: number; // 秒级时间戳
+}
+
+export interface SharePushData {
+  path: string;
+  group_name: string;
+  sub_name: string;
+  topic_name: string;
+  sub_list: Record<string, ExclusivePushData>;
+}
+
+export interface TopicListItem {
+  client_id: string;
+  path: string;
+  topic_name: string;
+  exclusive_push_data: ExclusivePushData | null;
+  share_push_data: SharePushData | null;
+  push_thread: PushThreadInfo | null;
+}
+
+export interface GroupLeaderInfo {
+  broker_id: number;
+  broker_addr: string;
+  extend_info: string;
+}
+
+export interface SubscribeDetail {
+  share_sub: boolean;
+  group_leader_info: GroupLeaderInfo | null;
+  topic_list: TopicListItem[];
+}
+
+export interface GetSubscribeDetailRequest {
+  client_id: string;
+  path: string;
+}
+
+export const getSubscribeDetail = async (data: GetSubscribeDetailRequest): Promise<SubscribeDetail> => {
+  const response = await requestApi('/api/mqtt/subscribe/detail', data);
+  return {
+    share_sub: response.share_sub,
+    group_leader_info: response.group_leader_info,
+    topic_list: response.topic_list || [],
+  };
+};
+
 // -------- User APIs --------
 export interface UserRaw {
   username: string;
