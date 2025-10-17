@@ -38,43 +38,82 @@ export interface OverviewMetricsData {
   messageDropNum: OverviewMetricsDataItem[];
 }
 
-export interface OverviewMetricsDataParam {
-  start_time: number;
-  end_time: number;
+export interface MonitorDataRequest {
+  data_type: string;
+  topic_name?: string;
+  client_id?: string;
+  path?: string;
 }
 
-export const getOverviewMetricsData = async (param: OverviewMetricsDataParam): Promise<OverviewMetricsData> => {
-  const response = await requestApi('/api/mqtt/overview/metrics', param);
+// 获取单个监控数据类型的数据
+export const getMonitorData = async (
+  data_type: string,
+  topic_name?: string,
+  client_id?: string,
+  path?: string,
+): Promise<OverviewMetricsDataItem[]> => {
+  const request: MonitorDataRequest = { data_type };
+  if (topic_name) {
+    request.topic_name = topic_name;
+  }
+  if (client_id) {
+    request.client_id = client_id;
+  }
+  if (path) {
+    request.path = path;
+  }
+
+  const response = await requestApi('/api/mqtt/monitor/data', request);
 
   // 转换 API 返回的数据格式：{date, value} → {date, count}
-  const transformData = (rawData: { date: number; value: number }[]): OverviewMetricsDataItem[] => {
-    try {
-      if (!Array.isArray(rawData)) {
-        console.warn('Invalid data format, expected array:', rawData);
-        return [];
-      }
-      return rawData
-        .map((item: { date: number; value: number }) => ({
-          date: item.date * 1000, // 转换为毫秒时间戳
-          count: item.value,
-        }))
-        .sort((a, b) => a.date - b.date); // 根据 date 进行升序排列
-    } catch (error) {
-      console.warn('Failed to transform metrics data:', error);
+  try {
+    if (!Array.isArray(response)) {
+      console.warn('Invalid data format, expected array:', response);
       return [];
     }
-  };
+    return response
+      .map((item: { date: number; value: number }) => ({
+        date: item.date * 1000, // 转换为毫秒时间戳
+        count: item.value,
+      }))
+      .sort((a, b) => a.date - b.date); // 根据 date 进行升序排列
+  } catch (error) {
+    console.warn('Failed to transform monitor data:', error);
+    return [];
+  }
+};
 
-  const data: OverviewMetricsData = {
-    connectionNum: transformData(response.connection_num || []),
-    topicNum: transformData(response.topic_num || []),
-    subscribeNum: transformData(response.subscribe_num || []),
-    messageInNum: transformData(response.message_in_num || []),
-    messageOutNum: transformData(response.message_out_num || []),
-    messageDropNum: transformData(response.message_drop_num || []),
-  };
+// 获取所有监控数据（并行请求）
+export const getOverviewMetricsData = async (): Promise<OverviewMetricsData> => {
+  try {
+    const [connectionNum, topicNum, subscribeNum, messageInNum, messageOutNum, messageDropNum] = await Promise.all([
+      getMonitorData('connection_num'),
+      getMonitorData('topic_num'),
+      getMonitorData('subscribe_num'),
+      getMonitorData('message_in_num'),
+      getMonitorData('message_out_num'),
+      getMonitorData('message_drop_num'),
+    ]);
 
-  return data;
+    return {
+      connectionNum,
+      topicNum,
+      subscribeNum,
+      messageInNum,
+      messageOutNum,
+      messageDropNum,
+    };
+  } catch (error) {
+    console.error('Failed to fetch overview metrics data:', error);
+    return {
+      connectionNum: [],
+      topicNum: [],
+      subscribeNum: [],
+      messageInNum: [],
+      messageOutNum: [],
+      messageDropNum: [],
+    };
+  }
 };
 
 export interface BrokerNodeRaw {

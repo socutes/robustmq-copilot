@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, Info, MessageCircle, Clock, Users, User, FileText } from 'lucide-react';
-import { getTopicDetail } from '@/services/mqtt';
+import { getTopicDetail, getMonitorData } from '@/services/mqtt';
 import { format } from 'date-fns';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
@@ -22,6 +22,20 @@ export default function TopicDetail() {
       console.log('[Topic Detail] API Response:', result);
       return result;
     },
+  });
+
+  // 获取 Topic Message In 数据
+  const { data: topicInData } = useQuery({
+    queryKey: ['topicMonitorData', 'topic_in_num', topicId],
+    queryFn: () => getMonitorData('topic_in_num', topicId),
+    enabled: !!topicId,
+  });
+
+  // 获取 Topic Message Out 数据
+  const { data: topicOutData } = useQuery({
+    queryKey: ['topicMonitorData', 'topic_out_num', topicId],
+    queryFn: () => getMonitorData('topic_out_num', topicId),
+    enabled: !!topicId,
   });
 
   if (isLoading) {
@@ -211,8 +225,8 @@ export default function TopicDetail() {
 
         {/* 消息统计图表 */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <SimpleLineChart title="Topic Message In (Count)" data={[]} />
-          <SimpleLineChart title="Topic Message Out (Count)" data={[]} />
+          <SimpleLineChart title="Topic Message In (Count/Sec)" data={topicInData || []} color="cyan" />
+          <SimpleLineChart title="Topic Message Out (Count/Sec)" data={topicOutData || []} color="blue" />
         </div>
 
         {/* 订阅列表 */}
