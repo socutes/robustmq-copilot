@@ -21,6 +21,7 @@ import {
   Settings,
   Users,
   Layers,
+  BarChart3,
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { useQuery } from '@tanstack/react-query';
@@ -85,14 +86,60 @@ export default function SubscribeDetail() {
     enabled: !!clientId && !!path,
   });
 
-  // Sheet 状态管理
+  // Sheet 状态管理 - Detail
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicListItem | null>(null);
+
+  // Sheet 状态管理 - Metrics
+  const [isMetricsSheetOpen, setIsMetricsSheetOpen] = useState(false);
+  const [selectedMetricsTopic, setSelectedMetricsTopic] = useState<TopicListItem | null>(null);
 
   const handleViewDetail = (topic: TopicListItem) => {
     setSelectedTopic(topic);
     setIsSheetOpen(true);
   };
+
+  const handleViewMetrics = (topic: TopicListItem) => {
+    setSelectedMetricsTopic(topic);
+    setIsMetricsSheetOpen(true);
+  };
+
+  // 获取选中主题的监控数据
+  const { data: topicSuccessData } = useQuery({
+    queryKey: [
+      'subscribeTopicMonitorData',
+      'subscribe_topic_send_success_num',
+      selectedMetricsTopic?.client_id,
+      selectedMetricsTopic?.path,
+      selectedMetricsTopic?.topic_name,
+    ],
+    queryFn: () =>
+      getMonitorData(
+        'subscribe_topic_send_success_num',
+        selectedMetricsTopic?.topic_name,
+        selectedMetricsTopic?.client_id,
+        selectedMetricsTopic?.path,
+      ),
+    enabled: !!selectedMetricsTopic && isMetricsSheetOpen,
+  });
+
+  const { data: topicFailureData } = useQuery({
+    queryKey: [
+      'subscribeTopicMonitorData',
+      'subscribe_topic_send_failure_num',
+      selectedMetricsTopic?.client_id,
+      selectedMetricsTopic?.path,
+      selectedMetricsTopic?.topic_name,
+    ],
+    queryFn: () =>
+      getMonitorData(
+        'subscribe_topic_send_failure_num',
+        selectedMetricsTopic?.topic_name,
+        selectedMetricsTopic?.client_id,
+        selectedMetricsTopic?.path,
+      ),
+    enabled: !!selectedMetricsTopic && isMetricsSheetOpen,
+  });
 
   if (!clientId || !path) {
     return (
@@ -441,14 +488,24 @@ export default function SubscribeDetail() {
                             </TableCell>
                             <TableCell className="text-sm">{formatTimestamp(topic.push_thread?.create_time)}</TableCell>
                             <TableCell>
-                              <Button
-                                size="sm"
-                                className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
-                                onClick={() => handleViewDetail(topic)}
-                              >
-                                <Eye className="mr-0.5 h-2.5 w-2.5" />
-                                Details
-                              </Button>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
+                                  onClick={() => handleViewDetail(topic)}
+                                >
+                                  <Eye className="mr-0.5 h-2.5 w-2.5" />
+                                  Details
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:from-purple-600 hover:to-pink-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
+                                  onClick={() => handleViewMetrics(topic)}
+                                >
+                                  <BarChart3 className="mr-0.5 h-2.5 w-2.5" />
+                                  Metrics
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -757,6 +814,127 @@ export default function SubscribeDetail() {
                     </CardContent>
                   </Card>
                 )}
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
+
+        {/* Metrics 面板 */}
+        <Sheet open={isMetricsSheetOpen} onOpenChange={setIsMetricsSheetOpen}>
+          <SheetContent className="w-[700px] sm:max-w-[700px] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="flex items-center space-x-2">
+                <BarChart3 className="h-5 w-5 text-purple-600" />
+                <span>Topic Metrics</span>
+              </SheetTitle>
+              <SheetDescription className="space-y-1">
+                <div className="font-mono text-sm">
+                  <span className="text-gray-500">Topic:</span> {selectedMetricsTopic?.topic_name}
+                </div>
+                <div className="font-mono text-xs text-gray-500">
+                  {selectedMetricsTopic?.client_id} • {selectedMetricsTopic?.path}
+                </div>
+              </SheetDescription>
+            </SheetHeader>
+
+            {selectedMetricsTopic && (
+              <div className="mt-6 space-y-6">
+                {/* 统计信息 */}
+                {selectedMetricsTopic.push_thread && (
+                  <Card className="shadow-md">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center space-x-2">
+                        <Hash className="h-4 w-4 text-purple-500" />
+                        <span>Statistics Summary</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            <label className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase">
+                              Total Success
+                            </label>
+                          </div>
+                          <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                            {selectedMetricsTopic.push_thread.push_success_record_num?.toLocaleString() || 0}
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <XCircle className="h-5 w-5 text-red-500" />
+                            <label className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase">
+                              Total Errors
+                            </label>
+                          </div>
+                          <div className="text-2xl font-bold text-red-700 dark:text-red-300">
+                            {selectedMetricsTopic.push_thread.push_error_record_num?.toLocaleString() || 0}
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Clock className="h-5 w-5 text-blue-500" />
+                            <label className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase">
+                              Last Push Time
+                            </label>
+                          </div>
+                          <div className="text-sm font-mono text-blue-700 dark:text-blue-300">
+                            {formatTimestamp(selectedMetricsTopic.push_thread.last_push_time)}
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Clock className="h-5 w-5 text-purple-500" />
+                            <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase">
+                              Last Run Time
+                            </label>
+                          </div>
+                          <div className="text-sm font-mono text-purple-700 dark:text-purple-300">
+                            {formatTimestamp(selectedMetricsTopic.push_thread.last_run_time)}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Success Chart */}
+                <Card className="shadow-md">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center space-x-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span>Send Success</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SimpleLineChart
+                      title="Subscribe Topic Send Success (Count/Sec)"
+                      data={topicSuccessData || []}
+                      color="green"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Failure Chart */}
+                <Card className="shadow-md">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center space-x-2">
+                      <XCircle className="h-4 w-4 text-orange-500" />
+                      <span>Send Failure</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SimpleLineChart
+                      title="Subscribe Topic Send Failure (Count/Sec)"
+                      data={topicFailureData || []}
+                      color="orange"
+                    />
+                  </CardContent>
+                </Card>
               </div>
             )}
           </SheetContent>

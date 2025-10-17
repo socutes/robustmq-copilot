@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { format } from 'date-fns';
+import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
 
 // 根据字段名返回对应的图标
 const getFieldIcon = (key: string) => {
@@ -251,6 +252,12 @@ export default function SessionDetail() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Session Message Statistics Charts */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <SimpleLineChart title="Session Message In (Count/Sec)" data={[]} color="cyan" />
+          <SimpleLineChart title="Session Message Out (Count/Sec)" data={[]} color="blue" />
+        </div>
 
         {/* Last Will 信息 */}
         <Card className="border-l-4 border-orange-500">

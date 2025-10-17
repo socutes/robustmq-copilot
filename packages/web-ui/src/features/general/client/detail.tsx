@@ -25,6 +25,7 @@ import { getClientListHttp } from '@/services/mqtt';
 import { format } from 'date-fns';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { useEffect } from 'react';
+import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
 
 // 根据字段名返回对应的图标
 const getFieldIcon = (key: string) => {
@@ -259,6 +260,12 @@ export default function ClientDetail() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Client Message Statistics Charts */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <SimpleLineChart title="Client Message In (Count/Sec)" data={[]} color="cyan" />
+          <SimpleLineChart title="Client Message Out (Count/Sec)" data={[]} color="blue" />
+        </div>
 
         {/* 三个面板 */}
         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
