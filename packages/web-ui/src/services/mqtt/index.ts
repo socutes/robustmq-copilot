@@ -574,7 +574,8 @@ export const getSubscribeDetail = async (data: GetSubscribeDetailRequest): Promi
 // -------- User APIs --------
 export interface UserRaw {
   username: string;
-  isSuperuser: boolean;
+  is_superuser: boolean;
+  create_time?: number; // Unix timestamp in seconds
 }
 
 export const getUserList = async (
@@ -583,7 +584,7 @@ export const getUserList = async (
   usersList: UserRaw[];
   totalCount: number;
 }> => {
-  const response = await requestApi('/api/mqtt/user/list', query);
+  const response = await requestApi('/api/mqtt/user/list', query || {});
   return {
     usersList: response.data,
     totalCount: response.total_count,
@@ -667,7 +668,7 @@ export interface BlacklistRaw {
   blacklist_type: string;
   resource_name: string;
   desc: string;
-  end_time: number;
+  end_time: string; // String format: "yyyy-MM-dd HH:mm:ss"
 }
 
 export const getBlacklistListHttp = async (
@@ -714,6 +715,7 @@ export interface ConnectorRaw {
   connector_type: string;
   config: string;
   topic_id: string;
+  topic_name: string;
   status: string;
   broker_id: string;
   create_time: string;
@@ -734,6 +736,27 @@ export const getConnectorListHttp = async (
   };
 };
 
+export interface CreateConnectorRequest {
+  connector_name: string;
+  connector_type: string;
+  config: string; // JSON string
+  topic_name: string;
+}
+
+export const createConnector = async (data: CreateConnectorRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/connector/create', data);
+  return response;
+};
+
+export interface DeleteConnectorRequest {
+  connector_name: string;
+}
+
+export const deleteConnector = async (data: DeleteConnectorRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/connector/delete', data);
+  return response;
+};
+
 // -------- Schema APIs --------
 export interface SchemaRaw {
   name: string;
@@ -748,7 +771,7 @@ export const getSchemaListHttp = async (
   schemasList: SchemaRaw[];
   totalCount: number;
 }> => {
-  const httpQuery = convertPaginationForHttpApi(query);
+  const httpQuery = convertPaginationForHttpApi(query) || {};
   const response = await requestApi('/api/mqtt/schema/list', httpQuery);
   return {
     schemasList: response.data,
@@ -774,6 +797,60 @@ export interface DeleteSchemaRequest {
 
 export const deleteSchema = async (data: DeleteSchemaRequest): Promise<string> => {
   const response = await requestApi('/api/mqtt/schema/delete', data);
+  return response;
+};
+
+// -------- Schema Bind APIs --------
+export interface SchemaBindItem {
+  data_type: string;
+  data: string[];
+}
+
+export interface GetSchemaBindListRequest {
+  resource_name?: string;
+  schema_name?: string;
+  limit?: number;
+  page?: number;
+  sort_field?: string;
+  sort_by?: string;
+  filter_field?: string;
+  filter_values?: string[];
+  exact_match?: string;
+}
+
+export const getSchemaBindList = async (
+  resource_name: string,
+): Promise<{
+  schemaBindList: SchemaBindItem[];
+  totalCount: number;
+}> => {
+  const request: GetSchemaBindListRequest = {
+    resource_name,
+  };
+  const response = await requestApi('/api/mqtt/schema-bind/list', request);
+  return {
+    schemaBindList: response.data || [],
+    totalCount: response.total_count || 0,
+  };
+};
+
+export interface CreateSchemaBindRequest {
+  schema_name: string;
+  resource_name: string;
+}
+
+export const createSchemaBind = async (data: CreateSchemaBindRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema-bind/create', data);
+  return response;
+};
+
+export interface DeleteSchemaBindRequest {
+  schema_name: string;
+  resource_name: string;
+}
+
+export const deleteSchemaBind = async (data: DeleteSchemaBindRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema-bind/delete', data);
   return response;
 };
 

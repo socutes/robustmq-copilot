@@ -21,6 +21,9 @@ const getApiBaseUrl = () => {
 
 const requestInstance = axios.create({
   baseURL: getApiBaseUrl(),
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 interface ApiResponse<T = any> {

@@ -1,8 +1,23 @@
 import { CommonLayout } from '@/components/layout/common-layout';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from '@tanstack/react-router';
 import ConnectorList from './list';
-import { Plug } from 'lucide-react';
+import { Plug, Plus } from 'lucide-react';
 
 export default function Connector() {
+  const navigate = useNavigate();
+
+  const extraActions = (
+    <Button
+      onClick={() => navigate({ to: '/data-integration/connector/create' })}
+      size="sm"
+      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
+    >
+      <Plus className="mr-2 h-4 w-4" />
+      Create Connector
+    </Button>
+  );
+
   return (
     <CommonLayout>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4">
@@ -13,7 +28,7 @@ export default function Connector() {
           <h2 className="text-lg font-bold text-purple-600">Connector Management</h2>
         </div>
       </div>
-      <ConnectorList />
+      <ConnectorList extraActions={extraActions} />
     </CommonLayout>
   );
 }

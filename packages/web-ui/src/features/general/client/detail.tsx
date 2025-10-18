@@ -21,7 +21,7 @@ import {
   Timer,
   User,
 } from 'lucide-react';
-import { getClientListHttp } from '@/services/mqtt';
+import { getClientListHttp, getMonitorData } from '@/services/mqtt';
 import { format } from 'date-fns';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { useEffect } from 'react';
@@ -99,6 +99,20 @@ export default function ClientDetail() {
         throw err;
       }
     },
+  });
+
+  // 获取 Session Message In 数据
+  const { data: sessionInData } = useQuery({
+    queryKey: ['sessionMonitorData', 'session_in_num', clientId],
+    queryFn: () => getMonitorData('session_in_num', undefined, clientId),
+    enabled: !!clientId,
+  });
+
+  // 获取 Session Message Out 数据
+  const { data: sessionOutData } = useQuery({
+    queryKey: ['sessionMonitorData', 'session_out_num', clientId],
+    queryFn: () => getMonitorData('session_out_num', undefined, clientId),
+    enabled: !!clientId,
   });
 
   // 每5秒自动刷新数据
@@ -263,8 +277,8 @@ export default function ClientDetail() {
 
         {/* Client Message Statistics Charts */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <SimpleLineChart title="Client Message In (Count/Sec)" data={[]} color="cyan" />
-          <SimpleLineChart title="Client Message Out (Count/Sec)" data={[]} color="blue" />
+          <SimpleLineChart title="Client Message In (Count/Sec)" data={sessionInData} color="cyan" />
+          <SimpleLineChart title="Client Message Out (Count/Sec)" data={sessionOutData} color="blue" />
         </div>
 
         {/* 三个面板 */}

@@ -1,4 +1,5 @@
 import { useParams, useLocation } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +19,7 @@ import {
 import { CommonLayout } from '@/components/layout/common-layout';
 import { format } from 'date-fns';
 import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
+import { getMonitorData } from '@/services/mqtt';
 
 // 根据字段名返回对应的图标
 const getFieldIcon = (key: string) => {
@@ -88,6 +90,20 @@ export default function SessionDetail() {
   }
 
   const clientId = sessionData.client_id || sessionId;
+
+  // 获取 Session Message In 数据
+  const { data: sessionInData } = useQuery({
+    queryKey: ['sessionMonitorData', 'session_in_num', clientId],
+    queryFn: () => getMonitorData('session_in_num', undefined, clientId),
+    enabled: !!clientId,
+  });
+
+  // 获取 Session Message Out 数据
+  const { data: sessionOutData } = useQuery({
+    queryKey: ['sessionMonitorData', 'session_out_num', clientId],
+    queryFn: () => getMonitorData('session_out_num', undefined, clientId),
+    enabled: !!clientId,
+  });
 
   return (
     <CommonLayout>
@@ -255,8 +271,8 @@ export default function SessionDetail() {
 
         {/* Session Message Statistics Charts */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <SimpleLineChart title="Session Message In (Count/Sec)" data={[]} color="cyan" />
-          <SimpleLineChart title="Session Message Out (Count/Sec)" data={[]} color="blue" />
+          <SimpleLineChart title="Session Message In (Count/Sec)" data={sessionInData} color="cyan" />
+          <SimpleLineChart title="Session Message Out (Count/Sec)" data={sessionOutData} color="blue" />
         </div>
 
         {/* Last Will 信息 */}

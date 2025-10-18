@@ -3,11 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Info, MessageCircle, Clock, Users, User, FileText } from 'lucide-react';
-import { getTopicDetail, getMonitorData } from '@/services/mqtt';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Info, MessageCircle, Clock, Users, User, FileText, Link2 } from 'lucide-react';
+import { getTopicDetail, getMonitorData, getSchemaBindList } from '@/services/mqtt';
 import { format } from 'date-fns';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
+import { BindSchemaButton } from './components/bind-schema-button';
 
 export default function TopicDetail() {
   const { topicId } = useParams({ from: '/_authenticated/general/topic/$topicId' });
@@ -35,6 +37,13 @@ export default function TopicDetail() {
   const { data: topicOutData } = useQuery({
     queryKey: ['topicMonitorData', 'topic_out_num', topicId],
     queryFn: () => getMonitorData('topic_out_num', topicId),
+    enabled: !!topicId,
+  });
+
+  // 获取 Schema Bind 数据
+  const { data: schemaBindData } = useQuery({
+    queryKey: ['schemaBindList', topicId],
+    queryFn: () => getSchemaBindList(topicId),
     enabled: !!topicId,
   });
 
@@ -228,6 +237,60 @@ export default function TopicDetail() {
           <SimpleLineChart title="Topic Message In (Count/Sec)" data={topicInData || []} color="cyan" />
           <SimpleLineChart title="Topic Message Out (Count/Sec)" data={topicOutData || []} color="blue" />
         </div>
+
+        {/* Schema Bindings */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Link2 className="h-5 w-5 text-green-600" />
+                <span>Schema Bindings</span>
+                <span className="ml-2 text-sm text-muted-foreground">
+                  ({schemaBindData?.schemaBindList?.[0]?.data?.length || 0})
+                </span>
+              </CardTitle>
+              <BindSchemaButton resourceName={topicId} />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!schemaBindData?.schemaBindList?.length || !schemaBindData.schemaBindList[0]?.data?.length ? (
+              <div className="text-center py-8 text-muted-foreground">No schema bindings found</div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px]">#</TableHead>
+                      <TableHead>Schema Name</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {schemaBindData.schemaBindList[0].data.map((schemaName, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800"
+                          >
+                            {index + 1}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                              <FileText className="h-3 w-3 text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="font-medium font-mono">{schemaName}</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* 订阅列表 */}
         <Card>

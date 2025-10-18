@@ -88,6 +88,10 @@ const AuthenticatedAclAclManagementIndexLazyRouteImport = createFileRoute(
 const AuthenticatedGeneralClientClientIdLazyRouteImport = createFileRoute(
   '/_authenticated/general/client/$clientId',
 )()
+const AuthenticatedDataIntegrationConnectorCreateLazyRouteImport =
+  createFileRoute('/_authenticated/data-integration/connector/create')()
+const AuthenticatedDataIntegrationConnectorConnectorNameLazyRouteImport =
+  createFileRoute('/_authenticated/data-integration/connector/$connectorName')()
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -388,6 +392,26 @@ const AuthenticatedGeneralClientClientIdLazyRoute =
       (d) => d.Route,
     ),
   )
+const AuthenticatedDataIntegrationConnectorCreateLazyRoute =
+  AuthenticatedDataIntegrationConnectorCreateLazyRouteImport.update({
+    id: '/data-integration/connector/create',
+    path: '/data-integration/connector/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import(
+      './routes/_authenticated/data-integration/connector/create.lazy'
+    ).then((d) => d.Route),
+  )
+const AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute =
+  AuthenticatedDataIntegrationConnectorConnectorNameLazyRouteImport.update({
+    id: '/data-integration/connector/$connectorName',
+    path: '/data-integration/connector/$connectorName',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import(
+      './routes/_authenticated/data-integration/connector/$connectorName.lazy'
+    ).then((d) => d.Route),
+  )
 const AuthenticatedGeneralTopicTopicIdRoute =
   AuthenticatedGeneralTopicTopicIdRouteImport.update({
     id: '/general/topic/$topicId',
@@ -429,6 +453,8 @@ export interface FileRoutesByFullPath {
   '/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
+  '/data-integration/connector/$connectorName': typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
+  '/data-integration/connector/create': typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/acl/acl-management': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/acl/blacklist-management': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -469,6 +495,8 @@ export interface FileRoutesByTo {
   '/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
+  '/data-integration/connector/$connectorName': typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
+  '/data-integration/connector/create': typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/acl/acl-management': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/acl/blacklist-management': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -511,6 +539,8 @@ export interface FileRoutesById {
   '/_authenticated/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/_authenticated/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/_authenticated/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
+  '/_authenticated/data-integration/connector/$connectorName': typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
+  '/_authenticated/data-integration/connector/create': typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   '/_authenticated/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
   '/_authenticated/acl/acl-management/': typeof AuthenticatedAclAclManagementIndexLazyRoute
   '/_authenticated/acl/blacklist-management/': typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -553,6 +583,8 @@ export interface FileRouteTypes {
     | '/general/session/$sessionId'
     | '/general/subscribe/$subscribeId'
     | '/general/topic/$topicId'
+    | '/data-integration/connector/$connectorName'
+    | '/data-integration/connector/create'
     | '/general/client/$clientId'
     | '/acl/acl-management'
     | '/acl/blacklist-management'
@@ -593,6 +625,8 @@ export interface FileRouteTypes {
     | '/general/session/$sessionId'
     | '/general/subscribe/$subscribeId'
     | '/general/topic/$topicId'
+    | '/data-integration/connector/$connectorName'
+    | '/data-integration/connector/create'
     | '/general/client/$clientId'
     | '/acl/acl-management'
     | '/acl/blacklist-management'
@@ -634,6 +668,8 @@ export interface FileRouteTypes {
     | '/_authenticated/general/session/$sessionId'
     | '/_authenticated/general/subscribe/$subscribeId'
     | '/_authenticated/general/topic/$topicId'
+    | '/_authenticated/data-integration/connector/$connectorName'
+    | '/_authenticated/data-integration/connector/create'
     | '/_authenticated/general/client/$clientId'
     | '/_authenticated/acl/acl-management/'
     | '/_authenticated/acl/blacklist-management/'
@@ -921,6 +957,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGeneralClientClientIdLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/data-integration/connector/create': {
+      id: '/_authenticated/data-integration/connector/create'
+      path: '/data-integration/connector/create'
+      fullPath: '/data-integration/connector/create'
+      preLoaderRoute: typeof AuthenticatedDataIntegrationConnectorCreateLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/data-integration/connector/$connectorName': {
+      id: '/_authenticated/data-integration/connector/$connectorName'
+      path: '/data-integration/connector/$connectorName'
+      fullPath: '/data-integration/connector/$connectorName'
+      preLoaderRoute: typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/general/topic/$topicId': {
       id: '/_authenticated/general/topic/$topicId'
       path: '/general/topic/$topicId'
@@ -957,6 +1007,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGeneralSessionSessionIdRoute: typeof AuthenticatedGeneralSessionSessionIdRoute
   AuthenticatedGeneralSubscribeSubscribeIdRoute: typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   AuthenticatedGeneralTopicTopicIdRoute: typeof AuthenticatedGeneralTopicTopicIdRoute
+  AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute: typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
+  AuthenticatedDataIntegrationConnectorCreateLazyRoute: typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   AuthenticatedGeneralClientClientIdLazyRoute: typeof AuthenticatedGeneralClientClientIdLazyRoute
   AuthenticatedAclAclManagementIndexLazyRoute: typeof AuthenticatedAclAclManagementIndexLazyRoute
   AuthenticatedAclBlacklistManagementIndexLazyRoute: typeof AuthenticatedAclBlacklistManagementIndexLazyRoute
@@ -991,6 +1043,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGeneralSubscribeSubscribeIdRoute:
     AuthenticatedGeneralSubscribeSubscribeIdRoute,
   AuthenticatedGeneralTopicTopicIdRoute: AuthenticatedGeneralTopicTopicIdRoute,
+  AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute:
+    AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute,
+  AuthenticatedDataIntegrationConnectorCreateLazyRoute:
+    AuthenticatedDataIntegrationConnectorCreateLazyRoute,
   AuthenticatedGeneralClientClientIdLazyRoute:
     AuthenticatedGeneralClientClientIdLazyRoute,
   AuthenticatedAclAclManagementIndexLazyRoute:
