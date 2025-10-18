@@ -11,8 +11,8 @@ const defaultConfig = {
 
   // 应用配置
   app: {
-    title: 'RobustMQ Admin',
-    description: 'RobustMQ Admin',
+    title: 'RobustMQ: New generation of cloud-native and AI-native messaging infrastructure',
+    description: 'RobustMQ: New generation of cloud-native and AI-native messaging infrastructure',
     themeColor: '#fff',
   },
 
