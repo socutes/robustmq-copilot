@@ -1046,14 +1046,15 @@ export interface ClusterConfig {
   broker_id: number;
   roles: string[];
   grpc_port: number;
+  http_port: number;
   meta_addrs: Record<string, string>;
   prometheus: {
     enable: boolean;
     port: number;
   };
   log: {
-    level: string;
-    path: string;
+    log_config: string;
+    log_path: string;
   };
   runtime: {
     runtime_worker_threads: number;
