@@ -3,9 +3,35 @@ import { CommonLayout } from '@/components/layout/common-layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Server, Wifi, Database, BarChart3, Shield, Zap } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Settings, Server, Wifi, Database, BarChart3, Shield, Zap, HardDrive } from 'lucide-react';
 import { getClusterConfig, ClusterConfig } from '@/services/mqtt';
 import { Skeleton } from '@/components/ui/skeleton';
+
+// 统一的配置项显示组件
+function ConfigItem({
+  label,
+  value,
+  title,
+  mono = true,
+}: {
+  label: string;
+  value: string | number;
+  title?: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">{label}</label>
+      <div
+        className={`p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm ${mono ? 'font-mono' : ''} ${title ? 'truncate' : ''}`}
+        title={title}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
 
 export default function Configuration() {
   const {
@@ -60,36 +86,54 @@ export default function Configuration() {
 
   return (
     <CommonLayout>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 space-y-2">
-        <div className="flex items-center space-x-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-md">
-            <Settings className="h-5 w-5 text-white" />
+      <div className="mb-8">
+        <div className="flex items-center space-x-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 shadow-lg">
+            <Settings className="h-6 w-6 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-purple-600">Cluster Configuration</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Cluster Configuration</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">View and manage cluster configuration settings</p>
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue="cluster" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="cluster" className="flex items-center space-x-2">
+      <Tabs defaultValue="cluster" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 dark:bg-gray-900">
+          <TabsTrigger
+            value="cluster"
+            className="flex items-center space-x-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm py-3"
+          >
             <Server className="h-4 w-4" />
-            <span>Cluster</span>
+            <span className="font-medium">Cluster</span>
           </TabsTrigger>
-          <TabsTrigger value="meta" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="meta"
+            className="flex items-center space-x-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm py-3"
+          >
             <Settings className="h-4 w-4" />
-            <span>Meta</span>
+            <span className="font-medium">Meta</span>
           </TabsTrigger>
-          <TabsTrigger value="mqtt" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="mqtt"
+            className="flex items-center space-x-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm py-3"
+          >
             <Zap className="h-4 w-4" />
-            <span>MQTT</span>
+            <span className="font-medium">MQTT</span>
           </TabsTrigger>
-          <TabsTrigger value="journal" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="journal"
+            className="flex items-center space-x-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm py-3"
+          >
             <Database className="h-4 w-4" />
-            <span>Journal</span>
+            <span className="font-medium">Journal</span>
           </TabsTrigger>
-          <TabsTrigger value="storage" className="flex items-center space-x-2">
-            <Database className="h-4 w-4" />
-            <span>Storage</span>
+          <TabsTrigger
+            value="storage"
+            className="flex items-center space-x-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-sm py-3"
+          >
+            <HardDrive className="h-4 w-4" />
+            <span className="font-medium">Storage</span>
           </TabsTrigger>
         </TabsList>
 
@@ -122,182 +166,141 @@ function ClusterConfigPanel({ config }: { config?: ClusterConfig }) {
   if (!config) return null;
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Server className="h-5 w-5" />
+    <div className="space-y-6">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="border-purple-200 dark:border-purple-800 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                <Server className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
               <span>Cluster Information</span>
             </CardTitle>
             <CardDescription>Basic cluster identification and node configuration</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Cluster Name</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.cluster_name}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Broker ID</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">{config.broker_id}</div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Roles</label>
-              <div className="mt-1 flex flex-wrap gap-1">
+          <CardContent className="space-y-4">
+            <ConfigItem label="Cluster Name" value={config.cluster_name} />
+            <ConfigItem label="Broker ID" value={config.broker_id} />
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Roles
+              </label>
+              <div className="flex flex-wrap gap-2">
                 {config.roles.map((role, index) => (
-                  <Badge key={index} variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border-purple-300 dark:from-purple-950 dark:to-indigo-950 dark:text-purple-300 dark:border-purple-700 px-3 py-1"
+                  >
                     {role}
                   </Badge>
                 ))}
               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">GRPC Port</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">{config.grpc_port}</div>
+            <Separator className="my-4" />
+            <div className="grid grid-cols-2 gap-4">
+              <ConfigItem label="GRPC Port" value={config.grpc_port} />
+              <ConfigItem label="HTTP Port" value={config.http_port} />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Wifi className="h-5 w-5" />
+        <Card className="border-blue-200 dark:border-blue-800 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                <Wifi className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
               <span>Network Configuration</span>
             </CardTitle>
             <CardDescription>Network threading and connection settings</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Accept Threads</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.network.accept_thread_num}
-              </div>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <ConfigItem label="Accept Threads" value={config.network?.accept_thread_num || '-'} />
+              <ConfigItem label="Handler Threads" value={config.network?.handler_thread_num || '-'} />
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Handler Threads</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.network.handler_thread_num}
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <ConfigItem label="Response Threads" value={config.network?.response_thread_num || '-'} />
+              <ConfigItem label="Queue Size" value={config.network?.queue_size?.toLocaleString() || '-'} />
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Response Threads</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.network.response_thread_num}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Queue Size</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.network.queue_size.toLocaleString()}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Lock Max Try Times</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.network.lock_max_try_mut_times}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Lock Sleep Time</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.network.lock_try_mut_sleep_time_ms}ms
-              </div>
+            <Separator className="my-4" />
+            <div className="grid grid-cols-2 gap-4">
+              <ConfigItem label="Lock Max Try" value={config.network?.lock_max_try_mut_times || '-'} />
+              <ConfigItem label="Lock Sleep (ms)" value={config.network?.lock_try_mut_sleep_time_ms || '-'} />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Settings className="h-5 w-5" />
-              <span>Runtime Configuration</span>
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-base">
+              <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800">
+                <Settings className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              </div>
+              <span>Runtime</span>
             </CardTitle>
-            <CardDescription>Runtime worker threads and TLS configuration</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Worker Threads</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.runtime.runtime_worker_threads}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">TLS Certificate</label>
-              <div
-                className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono truncate"
-                title={config.runtime.tls_cert}
-              >
-                {config.runtime.tls_cert || 'Not configured'}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">TLS Key</label>
-              <div
-                className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono truncate"
-                title={config.runtime.tls_key}
-              >
-                {config.runtime.tls_key || 'Not configured'}
-              </div>
-            </div>
+          <CardContent className="space-y-4">
+            <ConfigItem label="Worker Threads" value={config.runtime?.runtime_worker_threads || '-'} />
+            <ConfigItem
+              label="TLS Certificate"
+              value={config.runtime?.tls_cert || 'Not configured'}
+              title={config.runtime?.tls_cert}
+            />
+            <ConfigItem
+              label="TLS Key"
+              value={config.runtime?.tls_key || 'Not configured'}
+              title={config.runtime?.tls_key}
+            />
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5" />
-              <span>Prometheus Configuration</span>
+        <Card className="border-green-200 dark:border-green-800 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-base">
+              <div className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900">
+                <BarChart3 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+              <span>Prometheus</span>
             </CardTitle>
-            <CardDescription>Prometheus metrics collection settings</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Prometheus</label>
-              <div className="mt-1">
-                <Badge variant={config.prometheus.enable ? 'default' : 'secondary'}>
-                  {config.prometheus.enable ? 'Enabled' : 'Disabled'}
-                </Badge>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Status
+              </label>
+              <Badge variant={config.prometheus?.enable ? 'default' : 'secondary'} className="text-sm px-3 py-1">
+                {config.prometheus?.enable ? 'Enabled' : 'Disabled'}
+              </Badge>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Prometheus Port</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.prometheus.port}
-              </div>
-            </div>
+            <ConfigItem label="Port" value={config.prometheus?.port || '-'} />
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5" />
-              <span>PProf Configuration</span>
+        <Card className="border-orange-200 dark:border-orange-800 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-2 text-base">
+              <div className="p-1.5 rounded-lg bg-orange-100 dark:bg-orange-900">
+                <BarChart3 className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+              </div>
+              <span>PProf</span>
             </CardTitle>
-            <CardDescription>Performance profiling and debugging settings</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">PProf</label>
-              <div className="mt-1">
-                <Badge variant={config.p_prof.enable ? 'default' : 'secondary'}>
-                  {config.p_prof.enable ? 'Enabled' : 'Disabled'}
-                </Badge>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Status
+              </label>
+              <Badge variant={config.p_prof?.enable ? 'default' : 'secondary'} className="text-sm px-3 py-1">
+                {config.p_prof?.enable ? 'Enabled' : 'Disabled'}
+              </Badge>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">PProf Port</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">{config.p_prof.port}</div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">PProf Frequency</label>
-              <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.p_prof.frequency}
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <ConfigItem label="Port" value={config.p_prof?.port || '-'} />
+              <ConfigItem label="Frequency" value={config.p_prof?.frequency || '-'} />
             </div>
           </CardContent>
         </Card>
@@ -322,11 +325,12 @@ function MetaConfigPanel({ config }: { config?: ClusterConfig }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-1">
-            {Object.entries(config.meta_addrs).map(([key, value]) => (
-              <div key={key} className="p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                Node {key}: {value}
-              </div>
-            ))}
+            {config.meta_addrs &&
+              Object.entries(config.meta_addrs).map(([key, value]) => (
+                <div key={key} className="p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
+                  Node {key}: {value}
+                </div>
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -344,13 +348,15 @@ function MetaConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Heartbeat Timeout</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.meta_runtime.heartbeat_timeout_ms}ms
+                {config.meta_runtime?.heartbeat_timeout_ms ? `${config.meta_runtime.heartbeat_timeout_ms}ms` : '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Heartbeat Check Time</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.meta_runtime.heartbeat_check_time_ms}ms
+                {config.meta_runtime?.heartbeat_check_time_ms
+                  ? `${config.meta_runtime.heartbeat_check_time_ms}ms`
+                  : '-'}
               </div>
             </div>
           </div>
@@ -363,6 +369,9 @@ function MetaConfigPanel({ config }: { config?: ClusterConfig }) {
 // MQTT配置面板
 function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
   if (!config) return null;
+  if (!config.mqtt_server) {
+    return <div className="text-center py-8 text-muted-foreground">MQTT configuration not available</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -379,31 +388,31 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">TCP Port</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_server.tcp_port}
+                {config.mqtt_server?.tcp_port || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">TLS Port</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_server.tls_port}
+                {config.mqtt_server?.tls_port || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">WebSocket Port</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_server.websocket_port}
+                {config.mqtt_server?.websocket_port || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">WebSockets Port</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_server.websockets_port}
+                {config.mqtt_server?.websockets_port || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">QUIC Port</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_server.quic_port}
+                {config.mqtt_server?.quic_port || '-'}
               </div>
             </div>
           </div>
@@ -423,19 +432,19 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default User</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_runtime.default_user}
+                {config.mqtt_runtime?.default_user || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Password</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_runtime.default_password}
+                {config.mqtt_runtime?.default_password || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Connections</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_runtime.max_connection_num.toLocaleString()}
+                {config.mqtt_runtime?.max_connection_num?.toLocaleString() || '-'}
               </div>
             </div>
           </div>
@@ -455,55 +464,67 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max QoS</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.max_qos}
+                {config.mqtt_protocol_config?.max_qos ?? '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Packet Size</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {(config.mqtt_protocol_config.max_packet_size / 1024 / 1024).toFixed(1)} MB
+                {config.mqtt_protocol_config?.max_packet_size
+                  ? `${(config.mqtt_protocol_config.max_packet_size / 1024 / 1024).toFixed(1)} MB`
+                  : '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Keep Alive (Default)</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.default_server_keep_alive}s
+                {config.mqtt_protocol_config?.default_server_keep_alive
+                  ? `${config.mqtt_protocol_config.default_server_keep_alive}s`
+                  : '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Keep Alive (Max)</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.max_server_keep_alive}s
+                {config.mqtt_protocol_config?.max_server_keep_alive
+                  ? `${config.mqtt_protocol_config.max_server_keep_alive}s`
+                  : '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Session Expiry (Default)</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.default_session_expiry_interval}s
+                {config.mqtt_protocol_config?.default_session_expiry_interval
+                  ? `${config.mqtt_protocol_config.default_session_expiry_interval}s`
+                  : '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Session Expiry (Max)</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.max_session_expiry_interval}s
+                {config.mqtt_protocol_config?.max_session_expiry_interval
+                  ? `${config.mqtt_protocol_config.max_session_expiry_interval}s`
+                  : '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Topic Alias Max</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.topic_alias_max.toLocaleString()}
+                {config.mqtt_protocol_config?.topic_alias_max?.toLocaleString() || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Receive Max</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.receive_max.toLocaleString()}
+                {config.mqtt_protocol_config?.receive_max?.toLocaleString() || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message Expiry Max</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_protocol_config.max_message_expiry_interval}s
+                {config.mqtt_protocol_config?.max_message_expiry_interval
+                  ? `${config.mqtt_protocol_config.max_message_expiry_interval}s`
+                  : '-'}
               </div>
             </div>
           </div>
@@ -523,16 +544,16 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Self Protection</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_security.is_self_protection_status ? 'default' : 'secondary'}>
-                  {config.mqtt_security.is_self_protection_status ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_security?.is_self_protection_status ? 'default' : 'secondary'}>
+                  {config.mqtt_security?.is_self_protection_status ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Secret Free Login</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_security.secret_free_login ? 'destructive' : 'default'}>
-                  {config.mqtt_security.secret_free_login ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_security?.secret_free_login ? 'destructive' : 'default'}>
+                  {config.mqtt_security?.secret_free_login ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
@@ -553,19 +574,19 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Storage Type</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_auth_storage.storage_type}
+                {config.mqtt_auth_storage?.storage_type || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Journal Address</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_auth_storage.journal_addr || 'Not configured'}
+                {config.mqtt_auth_storage?.journal_addr || 'Not configured'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">MySQL Address</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_auth_storage.mysql_addr || 'Not configured'}
+                {config.mqtt_auth_storage?.mysql_addr || 'Not configured'}
               </div>
             </div>
           </div>
@@ -585,7 +606,7 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Storage Type</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_message_storage.storage_type}
+                {config.mqtt_message_storage?.storage_type || '-'}
               </div>
             </div>
           </div>
@@ -605,15 +626,15 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_offline_message.enable ? 'default' : 'secondary'}>
-                  {config.mqtt_offline_message.enable ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_offline_message?.enable ? 'default' : 'secondary'}>
+                  {config.mqtt_offline_message?.enable ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Messages</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_offline_message.max_messages_num.toLocaleString()}
+                {config.mqtt_offline_message?.max_messages_num?.toLocaleString() || '-'}
               </div>
             </div>
           </div>
@@ -633,27 +654,27 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_schema.enable ? 'default' : 'secondary'}>
-                  {config.mqtt_schema.enable ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_schema?.enable ? 'default' : 'secondary'}>
+                  {config.mqtt_schema?.enable ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Strategy</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_schema.strategy}
+                {config.mqtt_schema?.strategy || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Failed Operation</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_schema.failed_operation}
+                {config.mqtt_schema?.failed_operation || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Log Level</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_schema.log_level}
+                {config.mqtt_schema?.log_level || '-'}
               </div>
             </div>
           </div>
@@ -673,15 +694,17 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_slow_subscribe_config.enable ? 'default' : 'secondary'}>
-                  {config.mqtt_slow_subscribe_config.enable ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_slow_subscribe_config?.enable ? 'default' : 'secondary'}>
+                  {config.mqtt_slow_subscribe_config?.enable ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Record Time</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_slow_subscribe_config.record_time}ms
+                {config.mqtt_slow_subscribe_config?.record_time
+                  ? `${config.mqtt_slow_subscribe_config.record_time}ms`
+                  : '-'}
               </div>
             </div>
           </div>
@@ -701,15 +724,15 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_flapping_detect.enable ? 'default' : 'secondary'}>
-                  {config.mqtt_flapping_detect.enable ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_flapping_detect?.enable ? 'default' : 'secondary'}>
+                  {config.mqtt_flapping_detect?.enable ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Window Time</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_flapping_detect.window_time}s
+                {config.mqtt_flapping_detect?.window_time ? `${config.mqtt_flapping_detect.window_time}s` : '-'}
               </div>
             </div>
           </div>
@@ -729,15 +752,17 @@ function MqttConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</label>
               <div className="mt-1">
-                <Badge variant={config.mqtt_system_monitor.enable ? 'default' : 'secondary'}>
-                  {config.mqtt_system_monitor.enable ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.mqtt_system_monitor?.enable ? 'default' : 'secondary'}>
+                  {config.mqtt_system_monitor?.enable ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">CPU High Watermark</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.mqtt_system_monitor.os_cpu_high_watermark.toFixed(1)}%
+                {config.mqtt_system_monitor?.os_cpu_high_watermark
+                  ? `${config.mqtt_system_monitor.os_cpu_high_watermark.toFixed(1)}%`
+                  : '-'}
               </div>
             </div>
           </div>
@@ -766,7 +791,7 @@ function JournalConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">TCP Port</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.journal_server.tcp_port}
+                {config.journal_server?.tcp_port || '-'}
               </div>
             </div>
           </div>
@@ -786,21 +811,23 @@ function JournalConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Auto Create Shard</label>
               <div className="mt-1">
-                <Badge variant={config.journal_runtime.enable_auto_create_shard ? 'default' : 'secondary'}>
-                  {config.journal_runtime.enable_auto_create_shard ? 'Enabled' : 'Disabled'}
+                <Badge variant={config.journal_runtime?.enable_auto_create_shard ? 'default' : 'secondary'}>
+                  {config.journal_runtime?.enable_auto_create_shard ? 'Enabled' : 'Disabled'}
                 </Badge>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Shard Replica Number</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.journal_runtime.shard_replica_num}
+                {config.journal_runtime?.shard_replica_num || '-'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Segment Size</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {(config.journal_runtime.max_segment_size / 1024 / 1024 / 1024).toFixed(1)} GB
+                {config.journal_runtime?.max_segment_size
+                  ? `${(config.journal_runtime.max_segment_size / 1024 / 1024 / 1024).toFixed(1)} GB`
+                  : '-'}
               </div>
             </div>
           </div>
@@ -820,17 +847,17 @@ function JournalConfigPanel({ config }: { config?: ClusterConfig }) {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Data Paths</label>
               <div className="mt-1 space-y-1">
-                {config.journal_storage.data_path.map((path, index) => (
+                {config.journal_storage?.data_path?.map((path, index) => (
                   <div key={index} className="p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
                     {path}
                   </div>
-                ))}
+                )) || <div className="text-sm text-muted-foreground">No data paths configured</div>}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">RocksDB Max Open Files</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.journal_storage.rocksdb_max_open_files.toLocaleString()}
+                {config.journal_storage?.rocksdb_max_open_files?.toLocaleString() || '-'}
               </div>
             </div>
           </div>
@@ -860,15 +887,15 @@ function StorageConfigPanel({ config }: { config?: ClusterConfig }) {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Data Path</label>
               <div
                 className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono truncate"
-                title={config.rocksdb.data_path}
+                title={config.rocksdb?.data_path}
               >
-                {config.rocksdb.data_path}
+                {config.rocksdb?.data_path || 'Not configured'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Max Open Files</label>
               <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono">
-                {config.rocksdb.max_open_files.toLocaleString()}
+                {config.rocksdb?.max_open_files?.toLocaleString() || '-'}
               </div>
             </div>
           </div>
@@ -889,18 +916,18 @@ function StorageConfigPanel({ config }: { config?: ClusterConfig }) {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Log Config</label>
               <div
                 className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono truncate"
-                title={config.log.log_config}
+                title={config.log?.log_config}
               >
-                {config.log.log_config || 'Not configured'}
+                {config.log?.log_config || 'Not configured'}
               </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Log Path</label>
               <div
                 className="mt-1 p-2 bg-gray-50 dark:bg-gray-900 rounded text-sm font-mono truncate"
-                title={config.log.log_path}
+                title={config.log?.log_path}
               >
-                {config.log.log_path}
+                {config.log?.log_path || 'Not configured'}
               </div>
             </div>
           </div>

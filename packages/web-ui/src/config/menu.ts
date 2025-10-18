@@ -140,14 +140,14 @@ export const sidebarData: SidebarData = {
       title: 'System',
       items: [
         {
-          title: 'Configuration',
-          url: '/system/configuration',
-          icon: Settings,
-        },
-        {
           title: 'Pub Sub',
           url: '/system/pub-sub',
           icon: MessageSquare,
+        },
+        {
+          title: 'Configuration',
+          url: '/system/configuration',
+          icon: Settings,
         },
       ],
     },
