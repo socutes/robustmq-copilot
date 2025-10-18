@@ -819,14 +819,19 @@ export interface GetSchemaBindListRequest {
 }
 
 export const getSchemaBindList = async (
-  resource_name: string,
+  resource_name?: string,
+  schema_name?: string,
 ): Promise<{
   schemaBindList: SchemaBindItem[];
   totalCount: number;
 }> => {
-  const request: GetSchemaBindListRequest = {
-    resource_name,
-  };
+  const request: GetSchemaBindListRequest = {};
+  if (resource_name) {
+    request.resource_name = resource_name;
+  }
+  if (schema_name) {
+    request.schema_name = schema_name;
+  }
   const response = await requestApi('/api/mqtt/schema-bind/list', request);
   return {
     schemaBindList: response.data || [],
@@ -943,6 +948,28 @@ export const getTopicRewriteListHttp = async (
     topicRewritesList: response.data,
     totalCount: response.total_count,
   };
+};
+
+export interface CreateTopicRewriteRequest {
+  action: string;
+  source_topic: string;
+  dest_topic: string;
+  regex: string;
+}
+
+export const createTopicRewrite = async (data: CreateTopicRewriteRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/topic-rewrite/create', data);
+  return response;
+};
+
+export interface DeleteTopicRewriteRequest {
+  action: string;
+  source_topic: string;
+}
+
+export const deleteTopicRewrite = async (data: DeleteTopicRewriteRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/topic-rewrite/delete', data);
+  return response;
 };
 
 // -------- System Alarm APIs --------

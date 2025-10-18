@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Plus, FileText, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,15 +12,18 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
 import { createSchemaBind, getSchemaListHttp } from '@/services/mqtt';
 
 interface BindSchemaButtonProps {
   resourceName: string;
+  boundSchemas?: string[];
 }
 
-export function BindSchemaButton({ resourceName }: BindSchemaButtonProps) {
+export function BindSchemaButton({ resourceName, boundSchemas = [] }: BindSchemaButtonProps) {
   const [open, setOpen] = useState(false);
   const [selectedSchema, setSelectedSchema] = useState<string>('');
   const queryClient = useQueryClient();
@@ -80,42 +83,99 @@ export function BindSchemaButton({ resourceName }: BindSchemaButtonProps) {
           type="button"
           size="sm"
           className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
-          onClick={e => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
         >
           <Plus className="mr-1 h-4 w-4" />
           Bind Schema
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]" onOpenAutoFocus={e => e.preventDefault()}>
+      <DialogContent
+        className="sm:max-w-[600px]"
+        onOpenAutoFocus={e => e.preventDefault()}
+        onCloseAutoFocus={e => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Bind Schema to Topic</DialogTitle>
           <DialogDescription>
-            Create a binding between a schema and the topic <strong>{resourceName}</strong>.
+            Select a schema to bind with topic <strong className="text-primary">{resourceName}</strong>.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="schema_name">Schema Name</Label>
-            <Select value={selectedSchema} onValueChange={setSelectedSchema}>
-              <SelectTrigger id="schema_name">
-                <SelectValue placeholder="Select a schema" />
-              </SelectTrigger>
-              <SelectContent>
-                {schemaData?.schemasList?.map(schema => (
-                  <SelectItem key={schema.name} value={schema.name}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{schema.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {schema.schema_type} {schema.desc && `- ${schema.desc}`}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Available Schemas</Label>
+            {!schemaData?.schemasList?.length ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No schemas available</p>
+                <p className="text-sm mt-1">Please create a schema first</p>
+              </div>
+            ) : (
+              <ScrollArea className="h-[300px] pr-4">
+                <RadioGroup value={selectedSchema} onValueChange={setSelectedSchema}>
+                  <div className="space-y-2">
+                    {schemaData.schemasList.map(schema => {
+                      const isBound = boundSchemas.includes(schema.name);
+                      return (
+                        <label
+                          key={schema.name}
+                          htmlFor={schema.name}
+                          className={`
+                            flex items-start space-x-3 p-4 rounded-lg border-2 transition-all
+                            ${isBound ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-900' : 'cursor-pointer'}
+                            ${
+                              !isBound && selectedSchema === schema.name
+                                ? 'border-green-500 bg-green-50 dark:bg-green-950'
+                                : 'border-gray-200 dark:border-gray-800'
+                            }
+                            ${
+                              !isBound && selectedSchema !== schema.name
+                                ? 'hover:border-green-300 dark:hover:border-green-700 hover:bg-gray-50 dark:hover:bg-gray-900'
+                                : ''
+                            }
+                          `}
+                        >
+                          <RadioGroupItem value={schema.name} id={schema.name} className="mt-1" disabled={isBound} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <FileText
+                                className={`h-4 w-4 flex-shrink-0 ${isBound ? 'text-gray-400' : 'text-green-600 dark:text-green-400'}`}
+                              />
+                              <span className={`font-semibold text-sm ${isBound ? 'text-gray-500' : ''}`}>
+                                {schema.name}
+                              </span>
+                              {isBound && (
+                                <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
+                                  Already Bound
+                                </Badge>
+                              )}
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isBound
+                                    ? 'ml-auto bg-gray-100 text-gray-500 border-gray-300'
+                                    : 'ml-auto bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
+                                }
+                              >
+                                {schema.schema_type}
+                              </Badge>
+                            </div>
+                            {schema.desc && (
+                              <p
+                                className={`text-xs mt-1 line-clamp-2 ${isBound ? 'text-gray-400' : 'text-muted-foreground'}`}
+                              >
+                                {schema.desc}
+                              </p>
+                            )}
+                          </div>
+                          {!isBound && selectedSchema === schema.name && (
+                            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </RadioGroup>
+              </ScrollArea>
+            )}
           </div>
 
           <DialogFooter>
@@ -131,7 +191,7 @@ export function BindSchemaButton({ resourceName }: BindSchemaButtonProps) {
             </Button>
             <Button
               type="submit"
-              disabled={createBindMutation.isPending}
+              disabled={createBindMutation.isPending || !selectedSchema}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
             >
               {createBindMutation.isPending ? 'Binding...' : 'Bind Schema'}

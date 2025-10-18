@@ -1,9 +1,23 @@
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
-import { getTopicRewriteListHttp, TopicRewriteRaw } from '@/services/mqtt';
+import { getTopicRewriteListHttp, TopicRewriteRaw, deleteTopicRewrite } from '@/services/mqtt';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Code, Target, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { ArrowRight, Code, Target, Settings, Trash2 } from 'lucide-react';
 import { ViewTopicRewriteButton } from './components/view-topic-rewrite-button';
+import { toast } from '@/hooks/use-toast';
 
 const ACTION_MAP = {
   All: 'All',
@@ -29,6 +43,46 @@ interface TopicRewriteListProps {
 }
 
 export default function TopicRewriteList({ extraActions }: TopicRewriteListProps) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<TopicRewriteRaw | null>(null);
+  const queryClient = useQueryClient();
+
+  // 删除规则 mutation
+  const deleteRuleMutation = useMutation({
+    mutationFn: (rule: TopicRewriteRaw) =>
+      deleteTopicRewrite({
+        action: rule.action,
+        source_topic: rule.source_topic,
+      }),
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Topic rewrite rule deleted successfully',
+      });
+      queryClient.invalidateQueries({ queryKey: ['QueryTopicRewriteListData'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to delete topic rewrite rule',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleDeleteClick = (rule: TopicRewriteRaw) => {
+    setRuleToDelete(rule);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (ruleToDelete) {
+      deleteRuleMutation.mutate(ruleToDelete);
+      setDeleteDialogOpen(false);
+      setRuleToDelete(null);
+    }
+  };
+
   const columns: ColumnDef<TopicRewriteRaw>[] = [
     {
       accessorKey: 'source_topic',
@@ -86,6 +140,25 @@ export default function TopicRewriteList({ extraActions }: TopicRewriteListProps
       header: 'Details',
       cell: ({ row }) => <ViewTopicRewriteButton topicRewrite={row.original} />,
     },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-all duration-200 rounded-md"
+            onClick={() => handleDeleteClick(row.original)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+      size: 80,
+      minSize: 60,
+      maxSize: 100,
+    },
   ];
 
   const fetchDataFn = async (pageIndex: number, pageSize: number) => {
@@ -110,14 +183,48 @@ export default function TopicRewriteList({ extraActions }: TopicRewriteListProps
   };
 
   return (
-    <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
-      <DataTable
-        columns={columns}
-        fetchDataFn={fetchDataFn}
-        queryKey="QueryTopicRewriteListData"
-        headerClassName="bg-purple-600 text-white"
-        extraActions={extraActions}
-      />
-    </div>
+    <>
+      <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
+        <DataTable
+          columns={columns}
+          fetchDataFn={fetchDataFn}
+          queryKey="QueryTopicRewriteListData"
+          headerClassName="bg-purple-600 text-white"
+          extraActions={extraActions}
+        />
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Topic Rewrite Rule</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this topic rewrite rule?
+              <br />
+              <br />
+              <strong>Source Topic:</strong> {ruleToDelete?.source_topic}
+              <br />
+              <strong>Destination Topic:</strong> {ruleToDelete?.dest_topic}
+              <br />
+              <strong>Action:</strong> {ruleToDelete?.action}
+              <br />
+              <br />
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleteRuleMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteRuleMutation.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
