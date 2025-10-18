@@ -11,7 +11,6 @@ import {
   Cable,
   Database,
   BarChart2,
-  LineChart,
   Zap,
   Clock,
   FileEdit,
@@ -106,14 +105,19 @@ export const sidebarData: SidebarData = {
           icon: Zap,
         },
         {
-          title: 'Slow Subscription',
-          url: '/advanced/slow-subscription',
-          icon: Clock,
-        },
-        {
           title: 'Topic Rewrite',
           url: '/advanced/topic-rewrite',
           icon: FileEdit,
+        },
+      ],
+    },
+    {
+      title: 'Monitor',
+      items: [
+        {
+          title: 'Slow Subscription',
+          url: '/advanced/slow-subscription',
+          icon: Clock,
         },
         {
           title: 'Connection Jitter',
@@ -125,20 +129,20 @@ export const sidebarData: SidebarData = {
           url: '/advanced/system-alarm',
           icon: Timer,
         },
-      ],
-    },
-    {
-      title: 'SYSTEM',
-      items: [
         {
           title: 'Ban Log',
           url: '/system/ban-log',
-          icon: Timer,
+          icon: BarChart2,
         },
+      ],
+    },
+    {
+      title: 'System',
+      items: [
         {
           title: 'Configuration',
           url: '/system/configuration',
-          icon: Timer,
+          icon: Settings,
         },
         {
           title: 'Pub Sub',

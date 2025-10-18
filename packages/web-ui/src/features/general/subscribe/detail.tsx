@@ -21,14 +21,16 @@ import {
   Settings,
   Users,
   Layers,
+  BarChart3,
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { useQuery } from '@tanstack/react-query';
-import { getSubscribeDetail, type TopicListItem } from '@/services/mqtt';
+import { getSubscribeDetail, getMonitorData, type TopicListItem } from '@/services/mqtt';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
 import { useState } from 'react';
 
 // 格式化时间戳（秒级）为可读时间
@@ -70,14 +72,74 @@ export default function SubscribeDetail() {
     refetchInterval: 5000, // 每5秒自动刷新
   });
 
-  // Sheet 状态管理
+  // 获取订阅发送成功数据
+  const { data: subscribeSuccessData } = useQuery({
+    queryKey: ['subscribeMonitorData', 'subscribe_send_success_num', clientId, path],
+    queryFn: () => getMonitorData('subscribe_send_success_num', undefined, clientId, path),
+    enabled: !!clientId && !!path,
+  });
+
+  // 获取订阅发送失败数据
+  const { data: subscribeFailureData } = useQuery({
+    queryKey: ['subscribeMonitorData', 'subscribe_send_failure_num', clientId, path],
+    queryFn: () => getMonitorData('subscribe_send_failure_num', undefined, clientId, path),
+    enabled: !!clientId && !!path,
+  });
+
+  // Sheet 状态管理 - Detail
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicListItem | null>(null);
+
+  // Sheet 状态管理 - Metrics
+  const [isMetricsSheetOpen, setIsMetricsSheetOpen] = useState(false);
+  const [selectedMetricsTopic, setSelectedMetricsTopic] = useState<TopicListItem | null>(null);
 
   const handleViewDetail = (topic: TopicListItem) => {
     setSelectedTopic(topic);
     setIsSheetOpen(true);
   };
+
+  const handleViewMetrics = (topic: TopicListItem) => {
+    setSelectedMetricsTopic(topic);
+    setIsMetricsSheetOpen(true);
+  };
+
+  // 获取选中主题的监控数据
+  const { data: topicSuccessData } = useQuery({
+    queryKey: [
+      'subscribeTopicMonitorData',
+      'subscribe_topic_send_success_num',
+      selectedMetricsTopic?.client_id,
+      selectedMetricsTopic?.path,
+      selectedMetricsTopic?.topic_name,
+    ],
+    queryFn: () =>
+      getMonitorData(
+        'subscribe_topic_send_success_num',
+        selectedMetricsTopic?.topic_name,
+        selectedMetricsTopic?.client_id,
+        selectedMetricsTopic?.path,
+      ),
+    enabled: !!selectedMetricsTopic && isMetricsSheetOpen,
+  });
+
+  const { data: topicFailureData } = useQuery({
+    queryKey: [
+      'subscribeTopicMonitorData',
+      'subscribe_topic_send_failure_num',
+      selectedMetricsTopic?.client_id,
+      selectedMetricsTopic?.path,
+      selectedMetricsTopic?.topic_name,
+    ],
+    queryFn: () =>
+      getMonitorData(
+        'subscribe_topic_send_failure_num',
+        selectedMetricsTopic?.topic_name,
+        selectedMetricsTopic?.client_id,
+        selectedMetricsTopic?.path,
+      ),
+    enabled: !!selectedMetricsTopic && isMetricsSheetOpen,
+  });
 
   if (!clientId || !path) {
     return (
@@ -150,79 +212,181 @@ export default function SubscribeDetail() {
 
         {/* 基本信息 */}
         {subscribeData && (
-          <Card>
+          <Card className="border-l-4 border-purple-500 shadow-md hover:shadow-xl transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Info className="h-5 w-5 text-purple-600" />
+                <Info className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 <span>Basic Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Client ID</label>
-                  <span className="font-mono text-sm text-gray-900 dark:text-gray-100">{subscribeData.client_id}</span>
+                {/* Client ID */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-shadow">
+                  <User className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide">
+                      Client ID
+                    </label>
+                    <div className="mt-1 font-mono text-sm break-all text-gray-900 dark:text-gray-100">
+                      {subscribeData.client_id}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Path</label>
-                  <span className="font-mono text-sm text-gray-900 dark:text-gray-100">{subscribeData.path}</span>
+                {/* Path */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 hover:shadow-md transition-shadow">
+                  <Route className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
+                      Path
+                    </label>
+                    <div className="mt-1 font-mono text-sm break-all text-gray-900 dark:text-gray-100">
+                      {subscribeData.path}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Protocol</label>
-                  <span className="text-sm text-gray-900 dark:text-gray-100">{subscribeData.protocol || '-'}</span>
+                {/* Protocol */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 hover:shadow-md transition-shadow">
+                  <Wifi className="h-4 w-4 text-cyan-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-cyan-700 dark:text-cyan-400 uppercase tracking-wide">
+                      Protocol
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">{subscribeData.protocol || '-'}</div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">QoS</label>
-                  <span className="text-sm text-gray-900 dark:text-gray-100">{subscribeData.qos || '-'}</span>
+                {/* QoS */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 hover:shadow-md transition-shadow">
+                  <Shield className="h-4 w-4 text-orange-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">
+                      QoS
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">{subscribeData.qos || '-'}</div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Broker ID</label>
-                  <span className="text-sm text-gray-900 dark:text-gray-100">{subscribeData.broker_id || '-'}</span>
+                {/* Broker ID */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 hover:shadow-md transition-shadow">
+                  <Network className="h-4 w-4 text-purple-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
+                      Broker ID
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {subscribeData.broker_id || '-'}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                    Create Time
-                  </label>
-                  <span className="text-sm text-gray-900 dark:text-gray-100">{subscribeData.create_time || '-'}</span>
+                {/* Create Time */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 hover:shadow-md transition-shadow">
+                  <Clock className="h-4 w-4 text-pink-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-pink-700 dark:text-pink-400 uppercase tracking-wide">
+                      Create Time
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {subscribeData.create_time || '-'}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">No Local</label>
-                  <Badge variant={subscribeData.no_local ? 'default' : 'secondary'}>
-                    {subscribeData.no_local ? 'Yes' : 'No'}
-                  </Badge>
+                {/* No Local */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+                  <Settings className="h-4 w-4 text-gray-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">
+                      No Local
+                    </label>
+                    <div className="mt-1">
+                      <Badge variant={subscribeData.no_local ? 'default' : 'secondary'}>
+                        {subscribeData.no_local ? 'Yes' : 'No'}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                    Preserve Retain
-                  </label>
-                  <Badge variant={subscribeData.preserve_retain ? 'default' : 'secondary'}>
-                    {subscribeData.preserve_retain ? 'Yes' : 'No'}
-                  </Badge>
+                {/* Preserve Retain */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+                  <Settings className="h-4 w-4 text-gray-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">
+                      Preserve Retain
+                    </label>
+                    <div className="mt-1">
+                      <Badge variant={subscribeData.preserve_retain ? 'default' : 'secondary'}>
+                        {subscribeData.preserve_retain ? 'Yes' : 'No'}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                    Retain Handling
-                  </label>
-                  <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {subscribeData.retain_handling || '-'}
-                  </span>
+                {/* Retain Handling */}
+                <div className="flex items-start space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+                  <Settings className="h-4 w-4 text-gray-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">
+                      Retain Handling
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {subscribeData.retain_handling || '-'}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col space-y-1.5 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                    Share Subscribe
-                  </label>
-                  <Badge variant={subscribeData.is_share_sub ? 'default' : 'secondary'}>
-                    {subscribeData.is_share_sub ? 'Yes' : 'No'}
-                  </Badge>
+                {/* Share Subscribe - 突出显示 */}
+                <div className="flex items-start space-x-3 p-5 rounded-xl bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 border-2 border-indigo-300 dark:border-indigo-700 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 relative overflow-hidden">
+                  {/* 背景装饰 */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-400/5 to-purple-400/5 dark:from-indigo-400/10 dark:to-purple-400/10" />
+
+                  {/* 图标容器 */}
+                  <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg ring-2 ring-indigo-200 dark:ring-indigo-800">
+                    <Share2 className="h-6 w-6 text-white" />
+                  </div>
+
+                  <div className="flex-1 min-w-0 relative">
+                    <label className="text-sm font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider flex items-center space-x-2">
+                      <span>Subscription Type</span>
+                      {subscribeData.is_share_sub && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 animate-pulse">
+                          Shared
+                        </span>
+                      )}
+                    </label>
+                    <div className="mt-2 flex items-center space-x-2">
+                      <Badge
+                        variant={subscribeData.is_share_sub ? 'default' : 'secondary'}
+                        className={
+                          subscribeData.is_share_sub
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-4 py-1 text-sm shadow-md'
+                            : 'bg-gray-300 dark:bg-gray-700 font-semibold px-4 py-1 text-sm'
+                        }
+                      >
+                        {subscribeData.is_share_sub ? '✓ Share Subscribe Enabled' : 'Exclusive Subscribe'}
+                      </Badge>
+                      {detailData?.share_sub && detailData.group_leader_info && (
+                        <>
+                          <span className="text-gray-400">•</span>
+                          <Badge
+                            variant="outline"
+                            className="font-mono text-xs border-indigo-300 dark:border-indigo-700"
+                          >
+                            Broker {detailData.group_leader_info.broker_id}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="font-mono text-xs border-indigo-300 dark:border-indigo-700"
+                          >
+                            {detailData.group_leader_info.broker_addr}
+                          </Badge>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -232,52 +396,46 @@ export default function SubscribeDetail() {
         {/* 订阅详情 */}
         {detailData && (
           <>
-            {/* 订阅类型信息 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Share2 className="h-5 w-5 text-purple-600" />
-                  <span>Subscription Type</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Share2 className="h-5 w-5 text-blue-500" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Share Subscription:</span>
-                    <Badge variant={detailData.share_sub ? 'default' : 'secondary'}>
-                      {detailData.share_sub ? 'Yes' : 'No'}
-                    </Badge>
-                  </div>
-                  {detailData.share_sub && detailData.group_leader_info && (
-                    <div className="flex items-center space-x-2 ml-8">
-                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Group Leader:</span>
-                      <Badge variant="outline">
-                        Broker {detailData.group_leader_info.broker_id} ({detailData.group_leader_info.broker_addr})
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            {/* 订阅消息统计图表 */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <SimpleLineChart
+                title="Subscribe Send Success (Count/Sec)"
+                data={subscribeSuccessData || []}
+                color="green"
+              />
+              <SimpleLineChart
+                title="Subscribe Send Failure (Count/Sec)"
+                data={subscribeFailureData || []}
+                color="orange"
+              />
+            </div>
 
             {/* 主题列表 */}
-            <Card>
-              <CardHeader>
+            <Card className="border-l-4 border-green-500 shadow-md hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center space-x-2">
-                    <List className="h-5 w-5 text-purple-600" />
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg">
+                      <List className="h-4 w-4 text-white" />
+                    </div>
                     <span>Topic List</span>
-                    <Badge variant="secondary">{detailData.topic_list.length}</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
+                    >
+                      {detailData.topic_list.length}
+                    </Badge>
                   </CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => refetch()}
                     disabled={isFetching}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/30"
                   >
-                    <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                    <RefreshCw
+                      className={`h-4 w-4 text-green-600 dark:text-green-400 ${isFetching ? 'animate-spin' : ''}`}
+                    />
                   </Button>
                 </div>
               </CardHeader>
@@ -330,14 +488,24 @@ export default function SubscribeDetail() {
                             </TableCell>
                             <TableCell className="text-sm">{formatTimestamp(topic.push_thread?.create_time)}</TableCell>
                             <TableCell>
-                              <Button
-                                size="sm"
-                                className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
-                                onClick={() => handleViewDetail(topic)}
-                              >
-                                <Eye className="mr-0.5 h-2.5 w-2.5" />
-                                Details
-                              </Button>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
+                                  onClick={() => handleViewDetail(topic)}
+                                >
+                                  <Eye className="mr-0.5 h-2.5 w-2.5" />
+                                  Details
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:from-purple-600 hover:to-pink-600 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-1.5 py-0.5 h-6 text-[11px]"
+                                  onClick={() => handleViewMetrics(topic)}
+                                >
+                                  <BarChart3 className="mr-0.5 h-2.5 w-2.5" />
+                                  Metrics
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -646,6 +814,127 @@ export default function SubscribeDetail() {
                     </CardContent>
                   </Card>
                 )}
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
+
+        {/* Metrics 面板 */}
+        <Sheet open={isMetricsSheetOpen} onOpenChange={setIsMetricsSheetOpen}>
+          <SheetContent className="w-[700px] sm:max-w-[700px] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="flex items-center space-x-2">
+                <BarChart3 className="h-5 w-5 text-purple-600" />
+                <span>Topic Metrics</span>
+              </SheetTitle>
+              <SheetDescription className="space-y-1">
+                <div className="font-mono text-sm">
+                  <span className="text-gray-500">Topic:</span> {selectedMetricsTopic?.topic_name}
+                </div>
+                <div className="font-mono text-xs text-gray-500">
+                  {selectedMetricsTopic?.client_id} • {selectedMetricsTopic?.path}
+                </div>
+              </SheetDescription>
+            </SheetHeader>
+
+            {selectedMetricsTopic && (
+              <div className="mt-6 space-y-6">
+                {/* 统计信息 */}
+                {selectedMetricsTopic.push_thread && (
+                  <Card className="shadow-md">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center space-x-2">
+                        <Hash className="h-4 w-4 text-purple-500" />
+                        <span>Statistics Summary</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            <label className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase">
+                              Total Success
+                            </label>
+                          </div>
+                          <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                            {selectedMetricsTopic.push_thread.push_success_record_num?.toLocaleString() || 0}
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <XCircle className="h-5 w-5 text-red-500" />
+                            <label className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase">
+                              Total Errors
+                            </label>
+                          </div>
+                          <div className="text-2xl font-bold text-red-700 dark:text-red-300">
+                            {selectedMetricsTopic.push_thread.push_error_record_num?.toLocaleString() || 0}
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Clock className="h-5 w-5 text-blue-500" />
+                            <label className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase">
+                              Last Push Time
+                            </label>
+                          </div>
+                          <div className="text-sm font-mono text-blue-700 dark:text-blue-300">
+                            {formatTimestamp(selectedMetricsTopic.push_thread.last_push_time)}
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Clock className="h-5 w-5 text-purple-500" />
+                            <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase">
+                              Last Run Time
+                            </label>
+                          </div>
+                          <div className="text-sm font-mono text-purple-700 dark:text-purple-300">
+                            {formatTimestamp(selectedMetricsTopic.push_thread.last_run_time)}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Success Chart */}
+                <Card className="shadow-md">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center space-x-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span>Send Success</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SimpleLineChart
+                      title="Subscribe Topic Send Success (Count/Sec)"
+                      data={topicSuccessData || []}
+                      color="green"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Failure Chart */}
+                <Card className="shadow-md">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center space-x-2">
+                      <XCircle className="h-4 w-4 text-orange-500" />
+                      <span>Send Failure</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SimpleLineChart
+                      title="Subscribe Topic Send Failure (Count/Sec)"
+                      data={topicFailureData || []}
+                      color="orange"
+                    />
+                  </CardContent>
+                </Card>
               </div>
             )}
           </SheetContent>

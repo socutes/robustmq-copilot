@@ -1,17 +1,73 @@
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Info, MessageCircle, Clock, Users, User, FileText } from 'lucide-react';
-import { getTopicDetail } from '@/services/mqtt';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { ArrowLeft, Info, MessageCircle, Clock, Users, User, FileText, Link2, RefreshCw, Trash2 } from 'lucide-react';
+import { getTopicDetail, getMonitorData, getSchemaBindList, deleteSchemaBind } from '@/services/mqtt';
 import { format } from 'date-fns';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
+import { BindSchemaButton } from './components/bind-schema-button';
+import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function TopicDetail() {
   const { topicId } = useParams({ from: '/_authenticated/general/topic/$topicId' });
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [schemaToDelete, setSchemaToDelete] = useState<string | null>(null);
+  const [isSchemaRefreshing, setIsSchemaRefreshing] = useState(false);
+  const [isSubscriptionRefreshing, setIsSubscriptionRefreshing] = useState(false);
+
+  // 删除 schema 绑定的 mutation
+  const deleteBindMutation = useMutation({
+    mutationFn: deleteSchemaBind,
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Schema binding deleted successfully!',
+      });
+      queryClient.invalidateQueries({ queryKey: ['schemaBindList', topicId] });
+      setDeleteDialogOpen(false);
+      setSchemaToDelete(null);
+    },
+    onError: (error: any) => {
+      console.error('Failed to delete schema binding:', error);
+      const errorMessage = error?.message || error?.toString() || 'Failed to delete schema binding';
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleDeleteClick = (schemaName: string) => {
+    setSchemaToDelete(schemaName);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (schemaToDelete) {
+      deleteBindMutation.mutate({
+        schema_name: schemaToDelete,
+        resource_name: topicId,
+      });
+    }
+  };
 
   // 调用 topic/detail 接口获取详细信息（topicId 参数实际传的是 topic_name）
   const { data, isLoading, error } = useQuery({
@@ -22,6 +78,27 @@ export default function TopicDetail() {
       console.log('[Topic Detail] API Response:', result);
       return result;
     },
+  });
+
+  // 获取 Topic Message In 数据
+  const { data: topicInData } = useQuery({
+    queryKey: ['topicMonitorData', 'topic_in_num', topicId],
+    queryFn: () => getMonitorData('topic_in_num', topicId),
+    enabled: !!topicId,
+  });
+
+  // 获取 Topic Message Out 数据
+  const { data: topicOutData } = useQuery({
+    queryKey: ['topicMonitorData', 'topic_out_num', topicId],
+    queryFn: () => getMonitorData('topic_out_num', topicId),
+    enabled: !!topicId,
+  });
+
+  // 获取 Schema Bind 数据
+  const { data: schemaBindData } = useQuery({
+    queryKey: ['schemaBindList', topicId],
+    queryFn: () => getSchemaBindList(topicId, undefined),
+    enabled: !!topicId,
   });
 
   if (isLoading) {
@@ -211,18 +288,146 @@ export default function TopicDetail() {
 
         {/* 消息统计图表 */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <SimpleLineChart title="Topic Message In (Count)" data={[]} />
-          <SimpleLineChart title="Topic Message Out (Count)" data={[]} />
+          <SimpleLineChart title="Topic Message In (Count/Sec)" data={topicInData || []} color="cyan" />
+          <SimpleLineChart title="Topic Message Out (Count/Sec)" data={topicOutData || []} color="blue" />
         </div>
+
+        {/* Schema Bindings */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Link2 className="h-5 w-5 text-green-600" />
+                <span>Schema Bindings</span>
+                <span className="ml-2 text-sm text-muted-foreground">
+                  ({schemaBindData?.schemaBindList?.[0]?.data?.length || 0})
+                </span>
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <BindSchemaButton
+                  resourceName={topicId}
+                  boundSchemas={schemaBindData?.schemaBindList?.[0]?.data || []}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsSchemaRefreshing(true);
+                    queryClient.invalidateQueries({ queryKey: ['schemaBindList', topicId] });
+                    setTimeout(() => setIsSchemaRefreshing(false), 800);
+                  }}
+                  disabled={isSchemaRefreshing}
+                  className="h-8"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isSchemaRefreshing ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!schemaBindData?.schemaBindList?.length || !schemaBindData.schemaBindList[0]?.data?.length ? (
+              <div className="text-center py-8 text-muted-foreground">No schema bindings found</div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px]">#</TableHead>
+                      <TableHead>Schema Name</TableHead>
+                      <TableHead className="w-[100px] text-center">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {schemaBindData.schemaBindList[0].data.map((schemaName, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800"
+                          >
+                            {index + 1}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                              <FileText className="h-3 w-3 text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="font-medium font-mono">{schemaName}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-all duration-200 rounded-md"
+                              onClick={() => handleDeleteClick(schemaName)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Schema Binding</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to unbind schema <strong>"{schemaToDelete}"</strong> from topic{' '}
+                <strong>"{topicId}"</strong>?
+                <br />
+                <br />
+                This action will remove the binding relationship between the schema and the topic.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                disabled={deleteBindMutation.isPending}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleteBindMutation.isPending ? 'Deleting...' : 'Delete Binding'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* 订阅列表 */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-blue-600" />
-              <span>Subscriptions</span>
-              <span className="ml-2 text-sm text-muted-foreground">({subscriptions.length})</span>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                <span>Subscriptions</span>
+                <span className="ml-2 text-sm text-muted-foreground">({subscriptions.length})</span>
+              </CardTitle>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsSubscriptionRefreshing(true);
+                  queryClient.invalidateQueries({ queryKey: ['topicDetail', topicId] });
+                  setTimeout(() => setIsSubscriptionRefreshing(false), 800);
+                }}
+                disabled={isSubscriptionRefreshing}
+                className="h-8"
+              >
+                <RefreshCw className={`h-4 w-4 ${isSubscriptionRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {subscriptions.length === 0 ? (

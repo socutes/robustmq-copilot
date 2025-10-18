@@ -1,7 +1,6 @@
 import { DataTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
 import { getBlacklistListHttp, BlacklistRaw } from '@/services/mqtt';
-import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Shield, User, Hash, Globe, Clock, FileText } from 'lucide-react';
 import { DeleteBlacklistButton } from './components/delete-blacklist-button';
@@ -77,18 +76,7 @@ export default function BlackList({ extraActions }: BlackListProps) {
       header: 'End Time',
       cell: ({ row }) => {
         const endTime = row.original.end_time;
-        let timeDisplay = '-';
-
-        if (endTime) {
-          try {
-            const date = new Date(endTime * 1000);
-            if (!isNaN(date.getTime())) {
-              timeDisplay = format(date, 'yyyy-MM-dd HH:mm:ss');
-            }
-          } catch (error) {
-            console.warn('Invalid date format:', endTime, error);
-          }
-        }
+        const timeDisplay = endTime || '-';
 
         return (
           <div className="flex items-center space-x-2">

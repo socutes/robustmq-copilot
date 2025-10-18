@@ -38,43 +38,82 @@ export interface OverviewMetricsData {
   messageDropNum: OverviewMetricsDataItem[];
 }
 
-export interface OverviewMetricsDataParam {
-  start_time: number;
-  end_time: number;
+export interface MonitorDataRequest {
+  data_type: string;
+  topic_name?: string;
+  client_id?: string;
+  path?: string;
 }
 
-export const getOverviewMetricsData = async (param: OverviewMetricsDataParam): Promise<OverviewMetricsData> => {
-  const response = await requestApi('/api/mqtt/overview/metrics', param);
+// 获取单个监控数据类型的数据
+export const getMonitorData = async (
+  data_type: string,
+  topic_name?: string,
+  client_id?: string,
+  path?: string,
+): Promise<OverviewMetricsDataItem[]> => {
+  const request: MonitorDataRequest = { data_type };
+  if (topic_name) {
+    request.topic_name = topic_name;
+  }
+  if (client_id) {
+    request.client_id = client_id;
+  }
+  if (path) {
+    request.path = path;
+  }
+
+  const response = await requestApi('/api/mqtt/monitor/data', request);
 
   // 转换 API 返回的数据格式：{date, value} → {date, count}
-  const transformData = (rawData: { date: number; value: number }[]): OverviewMetricsDataItem[] => {
-    try {
-      if (!Array.isArray(rawData)) {
-        console.warn('Invalid data format, expected array:', rawData);
-        return [];
-      }
-      return rawData
-        .map((item: { date: number; value: number }) => ({
-          date: item.date * 1000, // 转换为毫秒时间戳
-          count: item.value,
-        }))
-        .sort((a, b) => a.date - b.date); // 根据 date 进行升序排列
-    } catch (error) {
-      console.warn('Failed to transform metrics data:', error);
+  try {
+    if (!Array.isArray(response)) {
+      console.warn('Invalid data format, expected array:', response);
       return [];
     }
-  };
+    return response
+      .map((item: { date: number; value: number }) => ({
+        date: item.date * 1000, // 转换为毫秒时间戳
+        count: item.value,
+      }))
+      .sort((a, b) => a.date - b.date); // 根据 date 进行升序排列
+  } catch (error) {
+    console.warn('Failed to transform monitor data:', error);
+    return [];
+  }
+};
 
-  const data: OverviewMetricsData = {
-    connectionNum: transformData(response.connection_num || []),
-    topicNum: transformData(response.topic_num || []),
-    subscribeNum: transformData(response.subscribe_num || []),
-    messageInNum: transformData(response.message_in_num || []),
-    messageOutNum: transformData(response.message_out_num || []),
-    messageDropNum: transformData(response.message_drop_num || []),
-  };
+// 获取所有监控数据（并行请求）
+export const getOverviewMetricsData = async (): Promise<OverviewMetricsData> => {
+  try {
+    const [connectionNum, topicNum, subscribeNum, messageInNum, messageOutNum, messageDropNum] = await Promise.all([
+      getMonitorData('connection_num'),
+      getMonitorData('topic_num'),
+      getMonitorData('subscribe_num'),
+      getMonitorData('message_in_num'),
+      getMonitorData('message_out_num'),
+      getMonitorData('message_drop_num'),
+    ]);
 
-  return data;
+    return {
+      connectionNum,
+      topicNum,
+      subscribeNum,
+      messageInNum,
+      messageOutNum,
+      messageDropNum,
+    };
+  } catch (error) {
+    console.error('Failed to fetch overview metrics data:', error);
+    return {
+      connectionNum: [],
+      topicNum: [],
+      subscribeNum: [],
+      messageInNum: [],
+      messageOutNum: [],
+      messageDropNum: [],
+    };
+  }
 };
 
 export interface BrokerNodeRaw {
@@ -535,7 +574,8 @@ export const getSubscribeDetail = async (data: GetSubscribeDetailRequest): Promi
 // -------- User APIs --------
 export interface UserRaw {
   username: string;
-  isSuperuser: boolean;
+  is_superuser: boolean;
+  create_time?: number; // Unix timestamp in seconds
 }
 
 export const getUserList = async (
@@ -544,7 +584,7 @@ export const getUserList = async (
   usersList: UserRaw[];
   totalCount: number;
 }> => {
-  const response = await requestApi('/api/mqtt/user/list', query);
+  const response = await requestApi('/api/mqtt/user/list', query || {});
   return {
     usersList: response.data,
     totalCount: response.total_count,
@@ -628,7 +668,7 @@ export interface BlacklistRaw {
   blacklist_type: string;
   resource_name: string;
   desc: string;
-  end_time: number;
+  end_time: string; // String format: "yyyy-MM-dd HH:mm:ss"
 }
 
 export const getBlacklistListHttp = async (
@@ -675,6 +715,7 @@ export interface ConnectorRaw {
   connector_type: string;
   config: string;
   topic_id: string;
+  topic_name: string;
   status: string;
   broker_id: string;
   create_time: string;
@@ -695,6 +736,27 @@ export const getConnectorListHttp = async (
   };
 };
 
+export interface CreateConnectorRequest {
+  connector_name: string;
+  connector_type: string;
+  config: string; // JSON string
+  topic_name: string;
+}
+
+export const createConnector = async (data: CreateConnectorRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/connector/create', data);
+  return response;
+};
+
+export interface DeleteConnectorRequest {
+  connector_name: string;
+}
+
+export const deleteConnector = async (data: DeleteConnectorRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/connector/delete', data);
+  return response;
+};
+
 // -------- Schema APIs --------
 export interface SchemaRaw {
   name: string;
@@ -709,7 +771,7 @@ export const getSchemaListHttp = async (
   schemasList: SchemaRaw[];
   totalCount: number;
 }> => {
-  const httpQuery = convertPaginationForHttpApi(query);
+  const httpQuery = convertPaginationForHttpApi(query) || {};
   const response = await requestApi('/api/mqtt/schema/list', httpQuery);
   return {
     schemasList: response.data,
@@ -735,6 +797,65 @@ export interface DeleteSchemaRequest {
 
 export const deleteSchema = async (data: DeleteSchemaRequest): Promise<string> => {
   const response = await requestApi('/api/mqtt/schema/delete', data);
+  return response;
+};
+
+// -------- Schema Bind APIs --------
+export interface SchemaBindItem {
+  data_type: string;
+  data: string[];
+}
+
+export interface GetSchemaBindListRequest {
+  resource_name?: string;
+  schema_name?: string;
+  limit?: number;
+  page?: number;
+  sort_field?: string;
+  sort_by?: string;
+  filter_field?: string;
+  filter_values?: string[];
+  exact_match?: string;
+}
+
+export const getSchemaBindList = async (
+  resource_name?: string,
+  schema_name?: string,
+): Promise<{
+  schemaBindList: SchemaBindItem[];
+  totalCount: number;
+}> => {
+  const request: GetSchemaBindListRequest = {};
+  if (resource_name) {
+    request.resource_name = resource_name;
+  }
+  if (schema_name) {
+    request.schema_name = schema_name;
+  }
+  const response = await requestApi('/api/mqtt/schema-bind/list', request);
+  return {
+    schemaBindList: response.data || [],
+    totalCount: response.total_count || 0,
+  };
+};
+
+export interface CreateSchemaBindRequest {
+  schema_name: string;
+  resource_name: string;
+}
+
+export const createSchemaBind = async (data: CreateSchemaBindRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema-bind/create', data);
+  return response;
+};
+
+export interface DeleteSchemaBindRequest {
+  schema_name: string;
+  resource_name: string;
+}
+
+export const deleteSchemaBind = async (data: DeleteSchemaBindRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/schema-bind/delete', data);
   return response;
 };
 
@@ -827,6 +948,28 @@ export const getTopicRewriteListHttp = async (
     topicRewritesList: response.data,
     totalCount: response.total_count,
   };
+};
+
+export interface CreateTopicRewriteRequest {
+  action: string;
+  source_topic: string;
+  dest_topic: string;
+  regex: string;
+}
+
+export const createTopicRewrite = async (data: CreateTopicRewriteRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/topic-rewrite/create', data);
+  return response;
+};
+
+export interface DeleteTopicRewriteRequest {
+  action: string;
+  source_topic: string;
+}
+
+export const deleteTopicRewrite = async (data: DeleteTopicRewriteRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/topic-rewrite/delete', data);
+  return response;
 };
 
 // -------- System Alarm APIs --------

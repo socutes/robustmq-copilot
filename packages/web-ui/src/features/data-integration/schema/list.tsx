@@ -4,7 +4,7 @@ import { getSchemaListHttp, SchemaRaw } from '@/services/mqtt';
 import { Badge } from '@/components/ui/badge';
 import { FileCode, FileJson, Database, Code, FileText, MessageSquare } from 'lucide-react';
 import { DeleteSchemaButton } from './components/delete-schema-button';
-import { ViewSchemaButton } from './components/view-schema-button';
+import { DetailSchemaButton } from './components/detail-schema-button';
 
 const SCHEMA_TYPE_MAP = {
   json: 'JSON',
@@ -90,13 +90,31 @@ export default function SchemaList({ extraActions }: SchemaListProps) {
     {
       id: 'schema_definition',
       header: 'Schema Definition',
-      cell: ({ row }) => <ViewSchemaButton schema={row.original} />,
+      cell: ({ row }) => {
+        const schema = row.original.schema || '';
+        const truncated = schema.length > 50 ? schema.substring(0, 50) + '...' : schema;
+        return (
+          <div className="flex items-center space-x-2">
+            <Code className="h-4 w-4 text-gray-500" />
+            <span className="text-sm text-muted-foreground max-w-64 truncate font-mono" title={schema}>
+              {truncated || '-'}
+            </span>
+          </div>
+        );
+      },
     },
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => <DeleteSchemaButton schema={row.original} />,
-      size: 100,
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center space-x-2">
+          <DetailSchemaButton schema={row.original} />
+          <DeleteSchemaButton schema={row.original} />
+        </div>
+      ),
+      size: 140,
+      minSize: 120,
+      maxSize: 160,
     },
   ];
 

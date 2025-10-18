@@ -1,8 +1,23 @@
+import { useState } from 'react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import TopicRewriteList from './list';
-import { FileEdit } from 'lucide-react';
+import { FileEdit, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CreateTopicRewriteForm } from './components/create-topic-rewrite-form';
 
 export default function TopicRewrite() {
+  const [createTopicRewriteOpen, setCreateTopicRewriteOpen] = useState(false);
+
+  const extraActions = (
+    <Button
+      onClick={() => setCreateTopicRewriteOpen(true)}
+      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+    >
+      <Plus className="mr-2 h-4 w-4" />
+      Create Topic Rewrite
+    </Button>
+  );
+
   return (
     <CommonLayout>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4">
@@ -13,7 +28,8 @@ export default function TopicRewrite() {
           <h2 className="text-lg font-bold text-purple-600">Topic Rewrite Management</h2>
         </div>
       </div>
-      <TopicRewriteList />
+      <TopicRewriteList extraActions={extraActions} />
+      <CreateTopicRewriteForm open={createTopicRewriteOpen} onOpenChange={setCreateTopicRewriteOpen} />
     </CommonLayout>
   );
 }

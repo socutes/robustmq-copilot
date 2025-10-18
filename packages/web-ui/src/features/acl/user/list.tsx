@@ -4,6 +4,7 @@ import { getUserList } from '@/services/mqtt';
 import { DeleteUserButton } from './components/delete-user-button';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface UserListProps {
   extraActions?: React.ReactNode;
@@ -25,30 +26,49 @@ export default function UserList({ extraActions }: UserListProps) {
       ),
     },
     {
-      accessorKey: 'isSuperUser',
+      accessorKey: 'is_superuser',
       header: 'Role',
       cell: ({ row }) => (
         <Badge
-          variant={row.original.isSuperUser ? 'default' : 'secondary'}
+          variant={row.original.is_superuser ? 'default' : 'secondary'}
           className={
-            row.original.isSuperUser
+            row.original.is_superuser
               ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-sm'
               : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
           }
         >
-          {row.original.isSuperUser ? 'Super User' : 'Normal User'}
+          {row.original.is_superuser ? 'Super User' : 'Normal User'}
         </Badge>
       ),
+    },
+    {
+      accessorKey: 'create_time',
+      header: 'Create Time',
+      cell: ({ row }) => {
+        const createTime = row.original.create_time;
+        if (!createTime) return <span className="text-gray-500">-</span>;
+        try {
+          return (
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {format(new Date(createTime * 1000), 'yyyy-MM-dd HH:mm:ss')}
+            </span>
+          );
+        } catch {
+          return <span className="text-gray-500">-</span>;
+        }
+      },
     },
     {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <div className="flex items-center justify-end space-x-2">
-          <DeleteUserButton username={row.original.username} isSuperUser={row.original.isSuperUser} />
+        <div className="flex items-center justify-center">
+          <DeleteUserButton username={row.original.username} isSuperUser={row.original.is_superuser} />
         </div>
       ),
-      size: 100,
+      size: 60,
+      minSize: 50,
+      maxSize: 80,
     },
   ];
 

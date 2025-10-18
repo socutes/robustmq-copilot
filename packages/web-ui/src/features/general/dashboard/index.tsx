@@ -22,13 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 export default function Dashboard() {
   const { data } = useQuery({
     queryKey: ['overview-metrics'],
-    queryFn: () => {
-      const now = Math.floor(Date.now() / 1000);
-      return getOverviewMetricsData({
-        start_time: now - 60 * 60,
-        end_time: now,
-      });
-    },
+    queryFn: getOverviewMetricsData,
     initialData: {
       connectionNum: [],
       topicNum: [],
@@ -84,22 +78,21 @@ export default function Dashboard() {
           <HeaderCard
             title="Connection"
             value={statusData.connectionNum}
-            icon={<Network className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
+            icon={<Network className="h-4 w-4" />}
+            color="blue"
           />
           <HeaderCard
             title="Session"
             value={statusData.sessionNum}
-            icon={<Monitor className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
+            icon={<Monitor className="h-4 w-4" />}
+            color="green"
           />
-          <HeaderCard
-            title="Topic"
-            value={statusData.topicNum}
-            icon={<Hash className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
-          />
+          <HeaderCard title="Topic" value={statusData.topicNum} icon={<Hash className="h-4 w-4" />} color="orange" />
           <HeaderCard
             title="Subscription"
             value={statusData.subscribeNum}
-            icon={<Bell className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
+            icon={<Bell className="h-4 w-4" />}
+            color="purple"
           />
         </div>
 
@@ -107,61 +100,65 @@ export default function Dashboard() {
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           <CombinedCard
             title="Message Rate"
+            color="cyan"
             items={[
               {
                 label: 'In Rate',
                 value: statusData.messageInRate,
-                icon: <Download className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <Download className="h-3 w-3" />,
               },
               {
                 label: 'Out Rate',
                 value: statusData.messageOutRate,
-                icon: <Upload className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <Upload className="h-3 w-3" />,
               },
             ]}
           />
           <CombinedCard
             title="Exclusive Subscribe"
+            color="pink"
             items={[
               {
                 label: 'Subscriptions',
                 value: statusData.exclusiveSubscribeNum,
-                icon: <User className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <User className="h-3 w-3" />,
               },
               {
                 label: 'Threads',
                 value: statusData.exclusiveSubscribeThreadNum,
-                icon: <Settings className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <Settings className="h-3 w-3" />,
               },
             ]}
           />
           <CombinedCard
             title="Share Subscribe Leader"
+            color="green"
             items={[
               {
                 label: 'Leaders',
                 value: statusData.shareSubscribeLeaderNum,
-                icon: <Crown className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <Crown className="h-3 w-3" />,
               },
               {
                 label: 'Leader Threads',
                 value: statusData.shareSubscribeLeaderThreadNum,
-                icon: <Activity className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <Activity className="h-3 w-3" />,
               },
             ]}
           />
           <CombinedCard
             title="Share Subscribe Follower"
+            color="orange"
             items={[
               {
                 label: 'Resub',
                 value: statusData.shareSubscribeResubNum,
-                icon: <RefreshCw className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <RefreshCw className="h-3 w-3" />,
               },
               {
                 label: 'Follower Threads',
                 value: statusData.shareSubscribeFollowerThreadNum,
-                icon: <Users className="h-3 w-3 text-purple-600 dark:text-purple-400" />,
+                icon: <Users className="h-3 w-3" />,
               },
             ]}
           />
@@ -171,12 +168,12 @@ export default function Dashboard() {
         <div className="border-t border-purple-200 dark:border-purple-800"></div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-          <SimpleLineChart title="Message In (Count/Sec)" data={data?.messageInNum || []} />
-          <SimpleLineChart title="Message Out (Count/Sec)" data={data?.messageOutNum || []} />
-          <SimpleLineChart title="Message Drop (Count/Sec)" data={data?.messageDropNum || []} />
-          <SimpleLineChart title="Connection (Count)" data={data?.connectionNum || []} />
-          <SimpleLineChart title="Topic (Count)" data={data?.topicNum || []} />
-          <SimpleLineChart title="Subscription (Count)" data={data?.subscribeNum || []} />
+          <SimpleLineChart title="Message In (Count/Sec)" data={data?.messageInNum || []} color="cyan" />
+          <SimpleLineChart title="Message Out (Count/Sec)" data={data?.messageOutNum || []} color="blue" />
+          <SimpleLineChart title="Message Drop (Count/Sec)" data={data?.messageDropNum || []} color="orange" />
+          <SimpleLineChart title="Connection (Count)" data={data?.connectionNum || []} color="green" />
+          <SimpleLineChart title="Topic (Count)" data={data?.topicNum || []} color="purple" />
+          <SimpleLineChart title="Subscription (Count)" data={data?.subscribeNum || []} color="pink" />
         </div>
       </div>
     </CommonLayout>
