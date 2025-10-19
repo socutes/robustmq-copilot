@@ -49,27 +49,6 @@ export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Pr
         variant: 'destructive',
         title: (
           <div className="flex items-center space-x-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-3.5 w-3.5 text-red-600 dark:text-red-400"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-              </svg>
-            </div>
-            <span>API Request Failed</span>
-          </div>
-        ),
-        description: (
-          <div className="flex items-start space-x-2 mt-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -78,18 +57,16 @@ export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Pr
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0"
+              className="h-4 w-4"
             >
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
             </svg>
-            <div className="flex-1">
-              <div className="text-sm font-mono break-all">{errorMessage}</div>
-              {apiResponse.code && <div className="text-xs text-gray-400 mt-1">Error Code: {apiResponse.code}</div>}
-            </div>
+            <span>Request Failed</span>
           </div>
         ),
+        description: <div className="text-sm">{errorMessage}</div>,
       });
 
       // 抛出错误以便调用方可以处理
@@ -110,27 +87,6 @@ export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Pr
         variant: 'destructive',
         title: (
           <div className="flex items-center space-x-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-3.5 w-3.5 text-red-600 dark:text-red-400"
-              >
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-            <span>Network Error</span>
-          </div>
-        ),
-        description: (
-          <div className="flex items-start space-x-2 mt-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -139,18 +95,16 @@ export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Pr
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0"
+              className="h-4 w-4"
             >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
-            <div className="flex-1">
-              <div className="text-sm">{errorMessage}</div>
-              <div className="text-xs text-gray-400 mt-1">Please check your network connection and try again</div>
-            </div>
+            <span>Network Error</span>
           </div>
         ),
+        description: <div className="text-sm">{errorMessage}</div>,
       });
       throw new Error(errorMessage);
     }
@@ -161,27 +115,6 @@ export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Pr
       variant: 'destructive',
       title: (
         <div className="flex items-center space-x-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5 text-red-600 dark:text-red-400"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8v4" />
-              <path d="M12 16h.01" />
-            </svg>
-          </div>
-          <span>Error</span>
-        </div>
-      ),
-      description: (
-        <div className="flex items-start space-x-2 mt-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -190,18 +123,16 @@ export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Pr
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0"
+            className="h-4 w-4"
           >
-            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-            <path d="M12 9v4" />
-            <path d="M12 17h.01" />
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4" />
+            <path d="M12 16h.01" />
           </svg>
-          <div className="flex-1">
-            <div className="text-sm">{errorMessage}</div>
-            <div className="text-xs text-gray-400 mt-1">An unexpected error occurred</div>
-          </div>
+          <span>Error</span>
         </div>
       ),
+      description: <div className="text-sm">{errorMessage}</div>,
     });
     throw error;
   }

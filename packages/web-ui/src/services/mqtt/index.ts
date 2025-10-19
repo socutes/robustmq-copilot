@@ -474,6 +474,15 @@ export const getTopicDetail = async (topicName: string): Promise<TopicDetail> =>
   };
 };
 
+export interface DeleteTopicRequest {
+  topic_name: string;
+}
+
+export const deleteTopic = async (data: DeleteTopicRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/topic/delete', data);
+  return response;
+};
+
 // -------- Subscribe APIs --------
 export interface SubscribeRaw {
   client_id: string;
