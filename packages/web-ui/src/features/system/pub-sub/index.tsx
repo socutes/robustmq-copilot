@@ -62,6 +62,8 @@ export default function PubSub() {
   });
 
   const topicMode = form.watch('topicMode');
+  const existingTopic = form.watch('existingTopic');
+  const customTopic = form.watch('customTopic');
 
   // Fetch available topics
   const { data: topicsData, isLoading: isLoadingTopics } = useQuery({
@@ -81,6 +83,15 @@ export default function PubSub() {
       form.setValue('existingTopic', topicsData[0].topic_name);
     }
   }, [topicsData, form]);
+
+  // Sync selected topic from left panel to right panel
+  useEffect(() => {
+    if (topicMode === 'existing' && existingTopic) {
+      setSelectedTopic(existingTopic);
+    } else if (topicMode === 'custom' && customTopic) {
+      setSelectedTopic(customTopic);
+    }
+  }, [topicMode, existingTopic, customTopic]);
 
   // Send message mutation
   const sendMutation = useMutation({
