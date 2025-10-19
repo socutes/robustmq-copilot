@@ -1040,6 +1040,34 @@ export const getBanLogListHttp = async (
   };
 };
 
+// -------- Pub/Sub APIs --------
+export interface SendMessageRequest {
+  topic: string;
+  payload: string;
+  retain: boolean;
+}
+
+export const sendMessage = async (data: SendMessageRequest): Promise<{ offsets: number[] }> => {
+  const response = await requestApi('/api/mqtt/message/send', data);
+  return response;
+};
+
+export interface MessageItem {
+  offset: number;
+  content: string;
+  timestamp: number;
+}
+
+export interface ReadMessageRequest {
+  topic: string;
+  offset: number;
+}
+
+export const readMessages = async (data: ReadMessageRequest): Promise<MessageItem[]> => {
+  const response = await requestApi('/api/mqtt/message/read', data);
+  return response.messages || [];
+};
+
 // -------- Configuration APIs --------
 export interface ClusterConfig {
   cluster_name: string;
@@ -1166,5 +1194,38 @@ export interface ClusterConfig {
 
 export const getClusterConfig = async (): Promise<ClusterConfig> => {
   const response = await requestApi('/api/cluster/config/get', {});
+  return response;
+};
+
+// -------- Cluster Status APIs --------
+export interface BrokerNode {
+  cluster_name: string;
+  cluster_type: string;
+  extend_info: string;
+  node_id: number;
+  node_ip: string;
+  node_inner_addr: string;
+  start_time: string;
+  register_time: string;
+  roles: string[];
+  [key: string]: any;
+}
+
+export interface ClusterStatus {
+  cluster_name: string;
+  version: string;
+  start_time: string;
+  broker_node_list: BrokerNode[];
+  meta: {
+    replication: {
+      [key: string]: any;
+    };
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+export const getClusterStatus = async (): Promise<ClusterStatus> => {
+  const response = await requestApi('/api/status', {});
   return response;
 };
