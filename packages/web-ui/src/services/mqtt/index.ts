@@ -43,6 +43,7 @@ export interface MonitorDataRequest {
   topic_name?: string;
   client_id?: string;
   path?: string;
+  connector_name?: string;
 }
 
 // 获取单个监控数据类型的数据
@@ -51,6 +52,7 @@ export const getMonitorData = async (
   topic_name?: string,
   client_id?: string,
   path?: string,
+  connector_name?: string,
 ): Promise<OverviewMetricsDataItem[]> => {
   const request: MonitorDataRequest = { data_type };
   if (topic_name) {
@@ -61,6 +63,9 @@ export const getMonitorData = async (
   }
   if (path) {
     request.path = path;
+  }
+  if (connector_name) {
+    request.connector_name = connector_name;
   }
 
   const response = await requestApi('/api/mqtt/monitor/data', request);
@@ -146,6 +151,8 @@ export interface OverviewStatusData {
   exclusiveSubscribeThreadNum: number;
   shareSubscribeLeaderThreadNum: number;
   shareSubscribeFollowerThreadNum: number;
+  connectorNum: number;
+  connectorThreadNum: number;
 }
 
 export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
@@ -170,6 +177,8 @@ export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
     exclusiveSubscribeThreadNum: response.exclusive_subscribe_thread_num,
     shareSubscribeLeaderThreadNum: response.share_subscribe_leader_thread_num,
     shareSubscribeFollowerThreadNum: response.share_subscribe_follower_thread_num,
+    connectorNum: response.connector_num || 0,
+    connectorThreadNum: response.connector_thread_num || 0,
   };
 
   return data;
@@ -372,18 +381,27 @@ export interface ClientRaw {
 
 // 将前端的 offset/limit 分页参数转换为 HTTP API 的 page/limit 格式
 const convertPaginationForHttpApi = (query?: QueryOption) => {
-  if (!query || !query.pagination) {
+  if (!query) {
     return query;
   }
 
-  const { pagination, ...rest } = query;
-  const page = Math.floor(pagination.offset / pagination.limit) + 1; // 计算页码，从1开始
+  const { pagination, sort, ...rest } = query;
+  const result: any = { ...rest };
 
-  return {
-    ...rest,
-    limit: pagination.limit,
-    page: page,
-  };
+  // 转换分页参数
+  if (pagination) {
+    const page = Math.floor(pagination.offset / pagination.limit) + 1; // 计算页码，从1开始
+    result.limit = pagination.limit;
+    result.page = page;
+  }
+
+  // 转换排序参数
+  if (sort) {
+    result.sort_field = sort.orderBy;
+    result.sort_by = sort.direction === 0 ? 'asc' : 'desc'; // 0=asc, 1=desc
+  }
+
+  return result;
 };
 
 export const getClientListHttp = async (
@@ -474,6 +492,15 @@ export const getTopicDetail = async (topicName: string): Promise<TopicDetail> =>
   };
 };
 
+export interface DeleteTopicRequest {
+  topic_name: string;
+}
+
+export const deleteTopic = async (data: DeleteTopicRequest): Promise<string> => {
+  const response = await requestApi('/api/mqtt/topic/delete', data);
+  return response;
+};
+
 // -------- Subscribe APIs --------
 export interface SubscribeRaw {
   client_id: string;
@@ -543,6 +570,9 @@ export interface TopicListItem {
   exclusive_push_data: ExclusivePushData | null;
   share_push_data: SharePushData | null;
   push_thread: PushThreadInfo | null;
+  connector_name?: string;
+  connector_type?: string;
+  connector_config?: string; // JSON string
 }
 
 export interface GroupLeaderInfo {
@@ -754,6 +784,22 @@ export interface DeleteConnectorRequest {
 
 export const deleteConnector = async (data: DeleteConnectorRequest): Promise<string> => {
   const response = await requestApi('/api/mqtt/connector/delete', data);
+  return response;
+};
+
+export interface ConnectorDetailRequest {
+  connector_name: string;
+}
+
+export interface ConnectorDetailResponse {
+  last_send_time: number; // Unix 时间戳（秒）
+  send_success_total: number; // 累计发送成功消息数
+  send_fail_total: number; // 累计发送失败消息数
+  last_msg: string | null; // 最后一条消息
+}
+
+export const getConnectorDetail = async (data: ConnectorDetailRequest): Promise<ConnectorDetailResponse> => {
+  const response = await requestApi('/api/mqtt/connector/detail', data);
   return response;
 };
 
@@ -1040,6 +1086,34 @@ export const getBanLogListHttp = async (
   };
 };
 
+// -------- Pub/Sub APIs --------
+export interface SendMessageRequest {
+  topic: string;
+  payload: string;
+  retain: boolean;
+}
+
+export const sendMessage = async (data: SendMessageRequest): Promise<{ offsets: number[] }> => {
+  const response = await requestApi('/api/mqtt/message/send', data);
+  return response;
+};
+
+export interface MessageItem {
+  offset: number;
+  content: string;
+  timestamp: number;
+}
+
+export interface ReadMessageRequest {
+  topic: string;
+  offset: number;
+}
+
+export const readMessages = async (data: ReadMessageRequest): Promise<MessageItem[]> => {
+  const response = await requestApi('/api/mqtt/message/read', data);
+  return response.messages || [];
+};
+
 // -------- Configuration APIs --------
 export interface ClusterConfig {
   cluster_name: string;
@@ -1166,5 +1240,38 @@ export interface ClusterConfig {
 
 export const getClusterConfig = async (): Promise<ClusterConfig> => {
   const response = await requestApi('/api/cluster/config/get', {});
+  return response;
+};
+
+// -------- Cluster Status APIs --------
+export interface BrokerNode {
+  cluster_name: string;
+  cluster_type: string;
+  extend_info: string;
+  node_id: number;
+  node_ip: string;
+  node_inner_addr: string;
+  start_time: string;
+  register_time: string;
+  roles: string[];
+  [key: string]: any;
+}
+
+export interface ClusterStatus {
+  cluster_name: string;
+  version: string;
+  start_time: string;
+  broker_node_list: BrokerNode[];
+  meta: {
+    replication: {
+      [key: string]: any;
+    };
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+export const getClusterStatus = async (): Promise<ClusterStatus> => {
+  const response = await requestApi('/api/status', {});
   return response;
 };

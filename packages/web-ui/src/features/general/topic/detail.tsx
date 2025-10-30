@@ -173,18 +173,8 @@ export default function TopicDetail() {
     return '-';
   })();
 
-  // Base64 解码 Retain Message
-  const decodedRetainMessage = (() => {
-    try {
-      if (data?.retain_message) {
-        return atob(data.retain_message);
-      }
-    } catch (error) {
-      console.error('Error decoding retain message:', error);
-      return data?.retain_message || '-';
-    }
-    return '-';
-  })();
+  // 直接显示 Retain Message 原始内容
+  const retainMessage = data?.retain_message || '-';
 
   return (
     <CommonLayout>
@@ -276,11 +266,11 @@ export default function TopicDetail() {
             <div className="mt-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900">
               <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide block mb-2 flex items-center">
                 <FileText className="h-4 w-4 mr-2 text-yellow-600 dark:text-yellow-500" />
-                Retain Message (Decoded)
+                Retain Message
               </label>
               <div className="text-sm font-mono break-all text-gray-900 dark:text-gray-100 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded border border-yellow-200 dark:border-yellow-700 max-h-40 overflow-y-auto relative">
                 <FileText className="h-5 w-5 absolute top-2 right-2 text-yellow-400/30 dark:text-yellow-600/30" />
-                {decodedRetainMessage}
+                {retainMessage}
               </div>
             </div>
           </CardContent>

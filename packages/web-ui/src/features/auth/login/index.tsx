@@ -16,6 +16,7 @@ interface FallingQ {
   delay: number;
   rotation: number;
   fontSize: number;
+  letter: string;
 }
 
 export default function Login() {
@@ -27,12 +28,13 @@ export default function Login() {
   const [fallingQs, setFallingQs] = useState<FallingQ[]>([]);
   const qIdRef = useRef(0);
 
-  // 生成飘落的 Q 字母
+  // 生成飘落的字母
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
     if (isHovering) {
       interval = setInterval(() => {
+        const letters = ['1', '1', '3', '0', 'Q']; // 可选的掉落元素
         const newQ: FallingQ = {
           id: qIdRef.current++,
           left: Math.random() * 100, // 随机水平位置 (0-100%)
@@ -40,6 +42,7 @@ export default function Login() {
           delay: 0,
           rotation: Math.random() * 720 - 360, // 随机旋转 (-360 到 360 度)
           fontSize: 20 + Math.random() * 20, // 随机字体大小 (20-40px)，全屏飘落可以更大
+          letter: letters[Math.floor(Math.random() * letters.length)], // 随机选择一个字母
         };
 
         setFallingQs(prev => [...prev, newQ]);
@@ -51,7 +54,7 @@ export default function Login() {
           },
           (newQ.duration + newQ.delay) * 1000,
         );
-      }, 120); // 每120ms生成一个新的Q，全屏需要更多
+      }, 120); // 每120ms生成一个新的字母，全屏需要更多
     } else {
       setFallingQs([]); // 鼠标离开时清除所有
     }
@@ -83,7 +86,7 @@ export default function Login() {
       <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
       <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
 
-      {/* 全屏飘落的 Q 字母 */}
+      {/* 全屏飘落的字母 */}
       {fallingQs.map(q => (
         <div
           key={q.id}
@@ -108,7 +111,7 @@ export default function Login() {
               }
             }
           `}</style>
-          Q
+          {q.letter}
         </div>
       ))}
 
