@@ -20,6 +20,7 @@ import {
   Server,
   BarChart3,
   Eye,
+  Plug,
 } from 'lucide-react';
 import { getOverviewMetricsData, getOverviewStatusData, getClusterStatus } from '@/services/mqtt';
 import { useQuery } from '@tanstack/react-query';
@@ -74,6 +75,8 @@ export default function Dashboard() {
       exclusiveSubscribeThreadNum: 0,
       shareSubscribeLeaderThreadNum: 0,
       shareSubscribeFollowerThreadNum: 0,
+      connectorNum: 0,
+      connectorThreadNum: 0,
     },
     refetchInterval: 5000,
   });
@@ -155,8 +158,24 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* 第二行：高级指标 */}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+          {/* 第二行：Connector + 其他高级指标（5个panel）*/}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            <CombinedCard
+              title="Connector"
+              color="purple"
+              items={[
+                {
+                  label: 'Connector Num',
+                  value: statusData.connectorNum,
+                  icon: <Plug className="h-3 w-3" />,
+                },
+                {
+                  label: 'Thread Num',
+                  value: statusData.connectorThreadNum,
+                  icon: <Activity className="h-3 w-3" />,
+                },
+              ]}
+            />
             <CombinedCard
               title="Message Rate"
               color="cyan"

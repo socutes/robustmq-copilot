@@ -18,6 +18,9 @@ import {
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { DeleteConnectorButton } from './components/delete-connector-button';
+import { DataTableColumnHeader } from '@/components/table/data-table-column-header';
+import { format } from 'date-fns';
+import { SortDirection } from '@/services/common/sort';
 
 const CONNECTOR_TYPE_MAP = {
   kafka: 'Kafka',
@@ -99,7 +102,7 @@ export default function ConnectorList({ extraActions }: ConnectorListProps) {
   const columns: ColumnDef<ConnectorRaw>[] = [
     {
       accessorKey: 'connector_name',
-      header: 'Connector Name',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Connector Name" />,
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
@@ -108,6 +111,7 @@ export default function ConnectorList({ extraActions }: ConnectorListProps) {
           <span className="font-medium">{row.original.connector_name}</span>
         </div>
       ),
+      enableSorting: true,
     },
     {
       accessorKey: 'connector_type',
@@ -167,13 +171,33 @@ export default function ConnectorList({ extraActions }: ConnectorListProps) {
     },
     {
       accessorKey: 'create_time',
-      header: 'Created At',
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <Clock className="h-4 w-4 text-gray-500" />
-          <span className="font-mono text-sm">{row.original.create_time || '-'}</span>
-        </div>
-      ),
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
+      cell: ({ row }) => {
+        const createTime = row.original.create_time;
+        if (!createTime) return '-';
+
+        try {
+          // 尝试解析时间字符串 (格式: "2024-01-01 12:00:00")
+          const formattedTime = createTime.includes('-')
+            ? createTime // 已经是格式化的字符串
+            : format(new Date(parseInt(createTime) * 1000), 'yyyy-MM-dd HH:mm:ss'); // Unix 时间戳
+
+          return (
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-mono">{formattedTime}</span>
+            </div>
+          );
+        } catch {
+          return (
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-mono">{createTime}</span>
+            </div>
+          );
+        }
+      },
+      enableSorting: true,
     },
     {
       id: 'actions',
@@ -210,6 +234,10 @@ export default function ConnectorList({ extraActions }: ConnectorListProps) {
           offset: pageIndex * pageSize,
           limit: pageSize,
         },
+        sort: {
+          orderBy: 'create_time',
+          direction: SortDirection.desc, // 默认倒序
+        },
       });
       return {
         data: ret.connectorsList || [],
@@ -230,6 +258,8 @@ export default function ConnectorList({ extraActions }: ConnectorListProps) {
         columns={columns}
         fetchDataFn={fetchDataFn}
         queryKey="QueryConnectorListData"
+        defaultPageSize={20}
+        defaultSorting={[{ id: 'create_time', desc: true }]}
         headerClassName="bg-purple-600 text-white"
         extraActions={extraActions}
       />

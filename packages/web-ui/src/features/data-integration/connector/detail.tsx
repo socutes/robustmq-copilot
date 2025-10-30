@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +22,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
-import type { ConnectorRaw } from '@/services/mqtt';
+import { getMonitorData, getConnectorDetail, type ConnectorRaw } from '@/services/mqtt';
 import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
 
 // 类型映射
@@ -210,6 +211,33 @@ export default function ConnectorDetail() {
 
   // 从路由 state 中获取 connector 数据
   const connectorData = (location.state as any)?.connectorData as ConnectorRaw | undefined;
+
+  // 获取 Connector Send Success 数据
+  const { data: connectorSuccessData } = useQuery({
+    queryKey: ['connectorMonitorData', 'connector_send_success_total', connectorData?.connector_name],
+    queryFn: () =>
+      getMonitorData('connector_send_success_total', undefined, undefined, undefined, connectorData?.connector_name),
+    enabled: !!connectorData?.connector_name,
+  });
+
+  // 获取 Connector Send Failure 数据
+  const { data: connectorFailureData } = useQuery({
+    queryKey: ['connectorMonitorData', 'connector_send_failure_total', connectorData?.connector_name],
+    queryFn: () =>
+      getMonitorData('connector_send_failure_total', undefined, undefined, undefined, connectorData?.connector_name),
+    enabled: !!connectorData?.connector_name,
+  });
+
+  // 获取 Connector Detail 运行时状态
+  const { data: connectorDetailData, isLoading: isDetailLoading } = useQuery({
+    queryKey: ['connectorDetail', connectorData?.connector_name],
+    queryFn: () =>
+      getConnectorDetail({
+        connector_name: connectorData?.connector_name || '',
+      }),
+    enabled: !!connectorData?.connector_name,
+    refetchInterval: 5000, // 每5秒刷新一次
+  });
 
   if (!connectorData) {
     return (
@@ -411,9 +439,105 @@ export default function ConnectorDetail() {
 
       {/* Data Statistics Charts */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-8">
-        <SimpleLineChart title="Send Success (Count/Sec)" data={[]} color="green" />
-        <SimpleLineChart title="Send Failure (Count/Sec)" data={[]} color="orange" />
+        <SimpleLineChart title="Send Success (Count/Sec)" data={connectorSuccessData || []} color="green" />
+        <SimpleLineChart title="Send Failure (Count/Sec)" data={connectorFailureData || []} color="orange" />
       </div>
+
+      {/* Runtime Status Panel */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Activity className="h-5 w-5 text-green-600" />
+            <span>Runtime Status</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isDetailLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
+                <span>Loading runtime status...</span>
+              </div>
+            </div>
+          ) : connectorDetailData ? (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {/* Last Send Time */}
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
+                <div className="flex-shrink-0 mt-1">
+                  <Clock className="h-4 w-4 text-blue-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Last Send Time
+                  </label>
+                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
+                    {connectorDetailData.last_send_time
+                      ? new Date(connectorDetailData.last_send_time * 1000).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                        })
+                      : '-'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Send Success Total */}
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
+                <div className="flex-shrink-0 mt-1">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">
+                    Send Success Total
+                  </label>
+                  <div className="mt-1 text-sm font-mono font-bold break-all text-green-900 dark:text-green-100">
+                    {connectorDetailData.send_success_total?.toLocaleString() || '0'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Send Fail Total */}
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
+                <div className="flex-shrink-0 mt-1">
+                  <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wide">
+                    Send Fail Total
+                  </label>
+                  <div className="mt-1 text-sm font-mono font-bold break-all text-red-900 dark:text-red-100">
+                    {connectorDetailData.send_fail_total?.toLocaleString() || '0'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Last Message */}
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
+                <div className="flex-shrink-0 mt-1">
+                  <MessageSquare className="h-4 w-4 text-purple-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Last Message
+                  </label>
+                  <div className="mt-1 text-sm break-all text-gray-900 dark:text-gray-100">
+                    {connectorDetailData.last_msg || '-'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Activity className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No runtime status available. The connector may not be running.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Configuration Panel */}
       <Card>

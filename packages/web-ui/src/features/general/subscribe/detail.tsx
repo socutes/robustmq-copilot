@@ -22,6 +22,9 @@ import {
   Users,
   Layers,
   BarChart3,
+  Plug,
+  Database,
+  FileText,
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { useQuery } from '@tanstack/react-query';
@@ -46,6 +49,88 @@ const formatTimestamp = (timestamp: number | null | undefined): string => {
     minute: '2-digit',
     second: '2-digit',
   });
+};
+
+// 格式化配置数据
+const formatConfig = (config: string | undefined) => {
+  if (!config) return {};
+  try {
+    return JSON.parse(config);
+  } catch {
+    return {};
+  }
+};
+
+// 获取不同 connector type 的配置字段
+const getConfigFields = (type: string | undefined): { label: string; key: string }[] => {
+  const lowerType = type?.toLowerCase() || '';
+  switch (lowerType) {
+    case 'file':
+    case 'localfile':
+      return [{ label: 'Local File Path', key: 'local_file_path' }];
+    case 'kafka':
+      return [
+        { label: 'Bootstrap Servers', key: 'bootstrap_servers' },
+        { label: 'Topic', key: 'topic' },
+        { label: 'Key', key: 'key' },
+      ];
+    case 'pulsar':
+      return [
+        { label: 'Server', key: 'server' },
+        { label: 'Topic', key: 'topic' },
+        { label: 'Token', key: 'token' },
+      ];
+    case 'rabbitmq':
+      return [
+        { label: 'Server', key: 'server' },
+        { label: 'Port', key: 'port' },
+        { label: 'Username', key: 'username' },
+        { label: 'Password', key: 'password' },
+        { label: 'Virtual Host', key: 'virtual_host' },
+        { label: 'Exchange', key: 'exchange' },
+        { label: 'Routing Key', key: 'routing_key' },
+      ];
+    case 'mysql':
+      return [
+        { label: 'Host', key: 'host' },
+        { label: 'Port', key: 'port' },
+        { label: 'Database', key: 'database' },
+        { label: 'Username', key: 'username' },
+        { label: 'Password', key: 'password' },
+        { label: 'Table', key: 'table' },
+      ];
+    case 'postgres':
+      return [
+        { label: 'Host', key: 'host' },
+        { label: 'Port', key: 'port' },
+        { label: 'Database', key: 'database' },
+        { label: 'Username', key: 'username' },
+        { label: 'Password', key: 'password' },
+        { label: 'Table', key: 'table' },
+      ];
+    default:
+      return [];
+  }
+};
+
+// 获取连接器类型图标
+const getConnectorTypeIcon = (type: string | undefined) => {
+  const lowerType = type?.toLowerCase() || '';
+  switch (lowerType) {
+    case 'file':
+    case 'localfile':
+      return FileText;
+    case 'kafka':
+    case 'pulsar':
+    case 'rabbitmq':
+      return Share2;
+    case 'mysql':
+    case 'postgres':
+    case 'mongodb':
+      return Database;
+    default:
+      return Plug;
+  }
 };
 
 export default function SubscribeDetail() {
@@ -811,6 +896,104 @@ export default function SubscribeDetail() {
                           <p className="text-sm">{formatTimestamp(selectedTopic.push_thread.create_time)}</p>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Connector 配置信息 */}
+                {selectedTopic.connector_config && (
+                  <Card className="border-l-4 border-amber-500">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center space-x-2">
+                        {(() => {
+                          const ConnectorIcon = getConnectorTypeIcon(selectedTopic.connector_type);
+                          return <ConnectorIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />;
+                        })()}
+                        <span>
+                          {selectedTopic.connector_type
+                            ? `${selectedTopic.connector_type} Configuration`
+                            : 'Connector Configuration'}
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {(() => {
+                        const configData = formatConfig(selectedTopic.connector_config);
+                        const configFields = getConfigFields(selectedTopic.connector_type);
+
+                        // 如果有预定义的配置字段，使用预定义的
+                        const fieldsToDisplay =
+                          configFields.length > 0
+                            ? configFields
+                            : // 否则，从 configData 中自动提取所有字段
+                              Object.keys(configData).map(key => ({
+                                label: key
+                                  .split('_')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' '),
+                                key: key,
+                              }));
+
+                        if (fieldsToDisplay.length === 0) {
+                          return (
+                            <div className="text-center py-6">
+                              <Settings className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                              <p className="text-sm text-muted-foreground">No configuration data available.</p>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="space-y-2">
+                            {selectedTopic.connector_name && (
+                              <div className="flex items-start space-x-2 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/50 dark:to-yellow-950/50 border border-amber-200 dark:border-amber-800">
+                                <Plug className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                                <div className="space-y-1 flex-1">
+                                  <label className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase">
+                                    Connector Name
+                                  </label>
+                                  <p className="text-sm font-mono break-all text-amber-900 dark:text-amber-100">
+                                    {selectedTopic.connector_name}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-1 gap-2">
+                              {fieldsToDisplay.map(field => {
+                                const value = configData[field.key];
+                                const isSensitive =
+                                  field.key.toLowerCase().includes('password') ||
+                                  field.key.toLowerCase().includes('token');
+                                const displayValue = value
+                                  ? isSensitive
+                                    ? '••••••••'
+                                    : typeof value === 'object'
+                                      ? JSON.stringify(value)
+                                      : String(value)
+                                  : '-';
+
+                                return (
+                                  <div
+                                    key={field.key}
+                                    className="flex items-start space-x-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                  >
+                                    <Hash className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                    <div className="space-y-1 flex-1 min-w-0">
+                                      <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                        {field.label}
+                                      </label>
+                                      <p className="text-sm font-mono break-all text-gray-900 dark:text-gray-100">
+                                        {displayValue}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </CardContent>
                   </Card>
                 )}

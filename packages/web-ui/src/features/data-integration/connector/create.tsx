@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { createConnector } from '@/services/mqtt';
 import { ArrowLeft, Plug, Save, Database, MessageSquare, Share2, Clock, FileText, Server } from 'lucide-react';
@@ -33,6 +34,9 @@ export default function CreateConnector() {
   const [connectorType, setConnectorType] = useState('');
   const [topicName, setTopicName] = useState('');
   const [configFields, setConfigFields] = useState<ConfigFields>({});
+  // File connector specific state
+  const [rollingStrategy, setRollingStrategy] = useState<'size' | 'time'>('size');
+  const [rollingTimeUnit, setRollingTimeUnit] = useState<'day' | 'hour'>('day');
 
   const createMutation = useMutation({
     mutationFn: createConnector,
@@ -226,6 +230,11 @@ export default function CreateConnector() {
   const handleConnectorTypeChange = (value: string) => {
     setConnectorType(value);
     setConfigFields({});
+    // Reset file connector specific state
+    if (value === 'file') {
+      setRollingStrategy('size');
+      setRollingTimeUnit('day');
+    }
   };
 
   const handleConfigFieldChange = (field: string, value: string) => {
@@ -247,6 +256,26 @@ export default function CreateConnector() {
       return;
     }
 
+    // File connector 特殊验证
+    if (connectorType === 'file') {
+      if (!configFields.local_file_path) {
+        toast({
+          title: 'Error',
+          description: 'Please fill in the local file path',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (rollingStrategy === 'size' && !configFields.rolling_size) {
+        toast({
+          title: 'Error',
+          description: 'Please fill in the file size limit',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     // 获取所有应该存在的字段
     const allFields = getFieldsForConnectorType(connectorType);
 
@@ -255,6 +284,16 @@ export default function CreateConnector() {
     allFields.forEach(field => {
       completeConfigFields[field] = configFields[field] || '';
     });
+
+    // File connector 特殊处理：添加滚动策略配置
+    if (connectorType === 'file') {
+      completeConfigFields.rolling_strategy = rollingStrategy;
+      if (rollingStrategy === 'size') {
+        completeConfigFields.rolling_size = configFields.rolling_size || '';
+      } else if (rollingStrategy === 'time') {
+        completeConfigFields.rolling_time_unit = rollingTimeUnit;
+      }
+    }
 
     // Convert config fields to JSON string
     const config = JSON.stringify(completeConfigFields);
@@ -357,7 +396,95 @@ export default function CreateConnector() {
           </div>
 
           {/* Type-Specific Configuration */}
-          {connectorType && fields.length > 0 ? (
+          {connectorType === 'file' ? (
+            <div className="space-y-4 pt-6 border-t">
+              <div className="flex items-center space-x-2">
+                <FileText className="h-5 w-5 text-purple-600" />
+                <h3 className="text-sm font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                  File Configuration
+                </h3>
+              </div>
+
+              {/* Local File Path */}
+              <div className="space-y-2">
+                <Label htmlFor="local_file_path">
+                  Local File Path <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="local_file_path"
+                  placeholder="/tmp/mqtt_messages.log"
+                  value={configFields.local_file_path || ''}
+                  onChange={e => handleConfigFieldChange('local_file_path', e.target.value)}
+                  required
+                  className="transition-all duration-200 focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {/* Rolling Strategy Selection */}
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <Label className="text-base font-semibold">
+                  File Rolling Strategy <span className="text-red-500">*</span>
+                </Label>
+                <RadioGroup
+                  value={rollingStrategy}
+                  onValueChange={value => setRollingStrategy(value as 'size' | 'time')}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="size" id="rolling_size" />
+                    <Label htmlFor="rolling_size" className="cursor-pointer font-normal">
+                      By Size
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="time" id="rolling_time" />
+                    <Label htmlFor="rolling_time" className="cursor-pointer font-normal">
+                      By Time
+                    </Label>
+                  </div>
+                </RadioGroup>
+
+                {/* Conditional Fields Based on Rolling Strategy */}
+                {rollingStrategy === 'size' ? (
+                  <div className="space-y-2 pt-2">
+                    <Label htmlFor="rolling_size_value">
+                      File Size Limit <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="rolling_size_value"
+                      placeholder="10GB"
+                      value={configFields.rolling_size || ''}
+                      onChange={e => handleConfigFieldChange('rolling_size', e.target.value)}
+                      required
+                      className="transition-all duration-200 focus:ring-2 focus:ring-purple-500"
+                    />
+                    <p className="text-xs text-muted-foreground">Examples: 1GB, 10GB, 100GB</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-2">
+                    <Label htmlFor="rolling_time_unit">
+                      Rolling Time Unit <span className="text-red-500">*</span>
+                    </Label>
+                    <Select
+                      value={rollingTimeUnit}
+                      onValueChange={value => setRollingTimeUnit(value as 'day' | 'hour')}
+                    >
+                      <SelectTrigger id="rolling_time_unit">
+                        <SelectValue placeholder="Select time unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="day">Daily</SelectItem>
+                        <SelectItem value="hour">Hourly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Files will be rotated based on the selected time unit
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : connectorType && fields.length > 0 ? (
             <div className="space-y-4 pt-6 border-t">
               <div className="flex items-center space-x-2">
                 <Server className="h-5 w-5 text-purple-600" />
