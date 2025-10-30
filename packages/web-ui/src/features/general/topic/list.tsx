@@ -354,7 +354,7 @@ export default function TopicList() {
           </div>
 
           {/* Load Next Button */}
-          {messagesData && messagesData.length === 10 && (
+          {messagesData && messagesData.length > 0 && (
             <div className="mt-4 pt-4 border-t">
               <Button
                 onClick={handleLoadNext}
