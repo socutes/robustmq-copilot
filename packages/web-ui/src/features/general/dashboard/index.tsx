@@ -10,8 +10,6 @@ import {
   Download,
   Upload,
   User,
-  Users,
-  Crown,
   RefreshCw,
   Settings,
   Activity,
@@ -158,8 +156,8 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* 第二行：Connector + 其他高级指标（5个panel）*/}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          {/* 第二行：Connector + 其他高级指标（4个panel）*/}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
             <CombinedCard
               title="Connector"
               color="purple"
@@ -209,34 +207,18 @@ export default function Dashboard() {
               ]}
             />
             <CombinedCard
-              title="Share Subscribe Leader"
+              title="Share Subscribe"
               color="green"
               items={[
                 {
-                  label: 'Leaders',
+                  label: 'Subscriptions',
                   value: statusData.shareSubscribeLeaderNum,
-                  icon: <Crown className="h-3 w-3" />,
+                  icon: <User className="h-3 w-3" />,
                 },
                 {
-                  label: 'Leader Threads',
+                  label: 'Threads',
                   value: statusData.shareSubscribeLeaderThreadNum,
-                  icon: <Activity className="h-3 w-3" />,
-                },
-              ]}
-            />
-            <CombinedCard
-              title="Share Subscribe Follower"
-              color="orange"
-              items={[
-                {
-                  label: 'Resub',
-                  value: statusData.shareSubscribeResubNum,
-                  icon: <RefreshCw className="h-3 w-3" />,
-                },
-                {
-                  label: 'Follower Threads',
-                  value: statusData.shareSubscribeFollowerThreadNum,
-                  icon: <Users className="h-3 w-3" />,
+                  icon: <Settings className="h-3 w-3" />,
                 },
               ]}
             />

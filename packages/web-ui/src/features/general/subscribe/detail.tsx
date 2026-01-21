@@ -25,6 +25,7 @@ import {
   Plug,
   Database,
   FileText,
+  Search,
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { useQuery } from '@tanstack/react-query';
@@ -108,6 +109,16 @@ const getConfigFields = (type: string | undefined): { label: string; key: string
         { label: 'Password', key: 'password' },
         { label: 'Table', key: 'table' },
       ];
+    case 'elasticsearch':
+      return [
+        { label: 'URL', key: 'url' },
+        { label: 'Index', key: 'index' },
+        { label: 'Username', key: 'username' },
+        { label: 'Password', key: 'password' },
+        { label: 'Enable TLS', key: 'enable_tls' },
+        { label: 'API Key', key: 'api_key' },
+        { label: 'Cloud ID', key: 'cloud_id' },
+      ];
     default:
       return [];
   }
@@ -128,6 +139,8 @@ const getConnectorTypeIcon = (type: string | undefined) => {
     case 'postgres':
     case 'mongodb':
       return Database;
+    case 'elasticsearch':
+      return Search;
     default:
       return Plug;
   }
