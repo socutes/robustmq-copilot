@@ -68,7 +68,7 @@ export const getMonitorData = async (
     request.connector_name = connector_name;
   }
 
-  const response = await requestApi('/api/mqtt/monitor/data', request);
+  const response = await requestApi('/api/mqtt/monitor/data', request, 'GET');
 
   // 转换 API 返回的数据格式：{date, value} → {date, count}
   try {
@@ -156,7 +156,7 @@ export interface OverviewStatusData {
 }
 
 export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
-  const response = await requestApi('/api/mqtt/overview');
+  const response = await requestApi('/api/mqtt/overview', undefined, 'GET');
   const data: OverviewStatusData = {
     clusterName: response.cluster_name,
     messageInRate: response.message_in_rate,
@@ -411,7 +411,7 @@ export const getClientListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/client/list', httpQuery);
+  const response = await requestApi('/api/mqtt/client/list', httpQuery, 'GET');
   return {
     clientsList: response.data,
     totalCount: response.total_count,
@@ -438,7 +438,7 @@ export const getSessionListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/session/list', httpQuery);
+  const response = await requestApi('/api/mqtt/session/list', httpQuery, 'GET');
   return {
     sessionsList: response.data,
     totalCount: response.total_count,
@@ -1239,7 +1239,7 @@ export interface ClusterConfig {
 }
 
 export const getClusterConfig = async (): Promise<ClusterConfig> => {
-  const response = await requestApi('/api/cluster/config/get', {});
+  const response = await requestApi('/api/cluster/config/get', undefined, 'GET');
   return response;
 };
 
@@ -1272,6 +1272,6 @@ export interface ClusterStatus {
 }
 
 export const getClusterStatus = async (): Promise<ClusterStatus> => {
-  const response = await requestApi('/api/status', {});
+  const response = await requestApi('/api/status', undefined, 'GET');
   return response;
 };

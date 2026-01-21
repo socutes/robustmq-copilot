@@ -198,6 +198,16 @@ const getConfigFields = (type: string): { label: string; key: string }[] => {
         { label: 'Max Pool Size', key: 'max_pool_size' },
         { label: 'Min Pool Size', key: 'min_pool_size' },
       ];
+    case 'elasticsearch':
+      return [
+        { label: 'URL', key: 'url' },
+        { label: 'Index', key: 'index' },
+        { label: 'Username', key: 'username' },
+        { label: 'Password', key: 'password' },
+        { label: 'Enable TLS', key: 'enable_tls' },
+        { label: 'API Key', key: 'api_key' },
+        { label: 'Cloud ID', key: 'cloud_id' },
+      ];
     case 'file':
       return [{ label: 'Local File Path', key: 'local_file_path' }];
     default:

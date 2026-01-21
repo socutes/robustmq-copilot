@@ -33,9 +33,11 @@ interface ApiResponse<T = any> {
   message?: string;
 }
 
-export const requestApi: <T = QueryOption, R = any>(api: string, data?: T) => Promise<R> = async (api, data) => {
+export const requestApi: <T = QueryOption, R = any>(api: string, data?: T, method?: 'GET' | 'POST') => Promise<R> = async (api, data, method = 'POST') => {
   try {
-    const response = await requestInstance.post(api, data);
+    const response = method === 'GET' 
+      ? await requestInstance.get(api, { params: data })
+      : await requestInstance.post(api, data);
     const apiResponse: ApiResponse<R> = response.data;
 
     // 检查 API 返回的 code

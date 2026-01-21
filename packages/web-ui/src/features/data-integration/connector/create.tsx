@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { createConnector } from '@/services/mqtt';
-import { ArrowLeft, Plug, Save, Database, MessageSquare, Share2, Clock, FileText, Server } from 'lucide-react';
+import { ArrowLeft, Plug, Save, Database, MessageSquare, Share2, Clock, FileText, Server, Search } from 'lucide-react';
 
 // Connector type definitions with icons
 const CONNECTOR_TYPES = [
@@ -20,6 +20,7 @@ const CONNECTOR_TYPES = [
   { value: 'postgres', label: 'PostgreSQL', icon: Database, description: 'Relational database' },
   { value: 'mysql', label: 'MySQL', icon: Database, description: 'Relational database' },
   { value: 'mongodb', label: 'MongoDB', icon: Database, description: 'Document database' },
+  { value: 'elasticsearch', label: 'Elasticsearch', icon: Search, description: 'Search and analytics' },
   { value: 'file', label: 'Local File', icon: FileText, description: 'File storage' },
 ];
 
@@ -118,6 +119,8 @@ export default function CreateConnector() {
           'max_pool_size',
           'min_pool_size',
         ];
+      case 'elasticsearch':
+        return ['url', 'index', 'username', 'password', 'enable_tls', 'api_key', 'cloud_id'];
       case 'file':
         return ['local_file_path'];
       default:
@@ -133,7 +136,8 @@ export default function CreateConnector() {
   };
 
   const getFieldType = (fieldName: string): string => {
-    if (fieldName.includes('password') || fieldName.includes('token')) return 'password';
+    if (fieldName.includes('password') || fieldName.includes('token') || fieldName.includes('api_key'))
+      return 'password';
     if (fieldName.includes('port')) return 'number';
     return 'text';
   };
@@ -147,6 +151,7 @@ export default function CreateConnector() {
       postgres: ['host', 'port', 'database', 'username', 'password', 'table'],
       mysql: ['host', 'port', 'database', 'username', 'password', 'table'],
       mongodb: ['host', 'port', 'database', 'collection'],
+      elasticsearch: ['url', 'index'],
       file: ['local_file_path'],
     };
     return requiredFields[connectorType]?.includes(fieldName) || false;
@@ -218,6 +223,15 @@ export default function CreateConnector() {
         enable_tls: 'false',
         max_pool_size: '10',
         min_pool_size: '2',
+      },
+      elasticsearch: {
+        url: 'http://localhost:9200',
+        index: 'mqtt_messages',
+        username: 'elastic',
+        password: 'elastic_password',
+        enable_tls: 'false',
+        api_key: 'your-api-key',
+        cloud_id: 'your-cloud-id',
       },
       file: {
         local_file_path: '/tmp/mqtt_messages.log',
