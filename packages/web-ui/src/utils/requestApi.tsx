@@ -22,9 +22,6 @@ const getApiBaseUrl = () => {
 
 const requestInstance = axios.create({
   baseURL: getApiBaseUrl(),
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 interface ApiResponse<T = any> {
@@ -33,11 +30,34 @@ interface ApiResponse<T = any> {
   message?: string;
 }
 
-export const requestApi: <T = QueryOption, R = any>(api: string, data?: T, method?: 'GET' | 'POST') => Promise<R> = async (api, data, method = 'POST') => {
+export const requestApi: <T = QueryOption, R = any>(
+  api: string,
+  data?: T,
+  method?: 'GET' | 'POST',
+) => Promise<R> = async (api, data, method = 'POST') => {
   try {
-    const response = method === 'GET' 
-      ? await requestInstance.get(api, { params: data })
-      : await requestInstance.post(api, data);
+    let response;
+    if (method === 'GET') {
+      // For GET requests, send parameters as query string
+      // Explicitly remove Content-Type header for GET requests
+      const config: any = {
+        params: data,
+        headers: {},
+      };
+
+      // Ensure no Content-Type header is sent
+      delete config.headers['Content-Type'];
+
+      response = await requestInstance.get(api, config);
+    } else {
+      // For POST requests, set Content-Type to application/json
+      response = await requestInstance.post(api, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
     const apiResponse: ApiResponse<R> = response.data;
 
     // 检查 API 返回的 code
