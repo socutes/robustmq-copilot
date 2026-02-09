@@ -945,6 +945,7 @@ export const readMessages = async (data: ReadMessageRequest): Promise<MessageIte
 export interface ClusterConfig {
   cluster_name: string;
   broker_id: number;
+  broker_ip: string;
   roles: string[];
   grpc_port: number;
   http_port: number;
@@ -975,25 +976,29 @@ export interface ClusterConfig {
     port: number;
     frequency: number;
   };
+  message_storage: {
+    storage_type: string;
+    engine_config: any;
+    memory_config: any;
+    minio_config: any;
+    mysql_config: any;
+    rocksdb_config: any;
+    s3_config: any;
+  };
   meta_runtime: {
     heartbeat_timeout_ms: number;
     heartbeat_check_time_ms: number;
+    raft_write_timeout_sec: number;
   };
   rocksdb: {
     data_path: string;
     max_open_files: number;
   };
-  journal_server: {
+  storage_runtime: {
     tcp_port: number;
-  };
-  journal_runtime: {
-    enable_auto_create_shard: boolean;
-    shard_replica_num: number;
     max_segment_size: number;
-  };
-  journal_storage: {
+    io_thread_num: number;
     data_path: string[];
-    rocksdb_max_open_files: number;
   };
   mqtt_server: {
     tcp_port: number;
@@ -1002,22 +1007,52 @@ export interface ClusterConfig {
     websockets_port: number;
     quic_port: number;
   };
-  mqtt_auth_storage: {
-    storage_type: string;
-    journal_addr: string;
-    mysql_addr: string;
+  mqtt_keep_alive: {
+    enable: boolean;
+    default_time: number;
+    max_time: number;
+    default_timeout: number;
   };
-  mqtt_message_storage: {
-    storage_type: string;
-    journal_addr: string;
-    mysql_addr: string;
-    rocksdb_data_path: string;
-    rocksdb_max_open_files: number;
+  mqtt_auth_config: {
+    authn_config: {
+      authn_type: string;
+      jwt_config: any;
+      password_based_config: {
+        storage_config: {
+          storage_type: string;
+          placement_config: { journal_addr: string } | null;
+          mysql_config: any;
+          postgres_config: any;
+          redis_config: any;
+          http_config: any;
+        };
+        password_config: {
+          credential_type: string;
+          algorithm: string;
+          salt_position: string;
+          salt_rounds: number | null;
+          mac_fun: string | null;
+          iterations: number | null;
+          dk_length: number | null;
+        };
+      } | null;
+    };
+    authz_config: {
+      storage_config: {
+        storage_type: string;
+        placement_config: { journal_addr: string } | null;
+        mysql_config: any;
+        postgres_config: any;
+        redis_config: any;
+        http_config: any;
+      };
+    };
   };
   mqtt_runtime: {
     default_user: string;
     default_password: string;
     max_connection_num: number;
+    durable_sessions_enable: boolean;
   };
   mqtt_offline_message: {
     enable: boolean;
@@ -1039,10 +1074,8 @@ export interface ClusterConfig {
     max_session_expiry_interval: number;
     default_session_expiry_interval: number;
     topic_alias_max: number;
-    max_qos: number;
+    max_qos_flight_message: number;
     max_packet_size: number;
-    max_server_keep_alive: number;
-    default_server_keep_alive: number;
     receive_max: number;
     max_message_expiry_interval: number;
     client_pkid_persistent: boolean;
@@ -1062,6 +1095,9 @@ export interface ClusterConfig {
     enable: boolean;
     os_cpu_high_watermark: number;
     os_memory_high_watermark: number;
+  };
+  storage_offset: {
+    enable_cache: boolean;
   };
 }
 

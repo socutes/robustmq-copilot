@@ -11,7 +11,6 @@ import {
   MessageSquare,
   Inbox,
   ChevronRight,
-  Hash,
   Database,
   GitFork,
   HardDrive,
@@ -139,18 +138,6 @@ export default function TopicList() {
   };
 
   const columns: ColumnDef<any>[] = [
-    {
-      accessorKey: 'topic_id',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Topic ID" />,
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <Hash className="h-4 w-4 text-gray-500" />
-          <span className="font-mono text-xs text-gray-600 dark:text-gray-400">{row.original.topic_id || '-'}</span>
-        </div>
-      ),
-      enableSorting: false,
-      size: 200,
-    },
     {
       accessorKey: 'topic_name',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Topic Name" />,

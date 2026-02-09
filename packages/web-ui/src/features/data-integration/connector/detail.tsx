@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ArrowLeft,
   Info,
@@ -20,6 +21,7 @@ import {
   XCircle,
   AlertCircle,
   Tag,
+  BarChart3,
 } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { getMonitorData, getConnectorDetail, type ConnectorRaw } from '@/services/mqtt';
@@ -40,8 +42,7 @@ const CONNECTOR_TYPE_MAP = {
 // 格式化配置数据
 const formatConfig = (config: string) => {
   try {
-    const configObj = JSON.parse(config);
-    return configObj;
+    return JSON.parse(config);
   } catch {
     return {};
   }
@@ -52,11 +53,10 @@ const getConnectorTypeIcon = (type: string) => {
   const lowerType = type?.toLowerCase() || '';
   switch (lowerType) {
     case 'kafka':
+    case 'rabbitmq':
       return MessageSquare;
     case 'pulsar':
       return Share2;
-    case 'rabbitmq':
-      return MessageSquare;
     case 'greptime':
       return Clock;
     case 'postgres':
@@ -246,7 +246,7 @@ export default function ConnectorDetail() {
         connector_name: connectorData?.connector_name || '',
       }),
     enabled: !!connectorData?.connector_name,
-    refetchInterval: 5000, // 每5秒刷新一次
+    refetchInterval: 5000,
   });
 
   if (!connectorData) {
@@ -277,348 +277,344 @@ export default function ConnectorDetail() {
 
   return (
     <CommonLayout>
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
+      <div className="container mx-auto p-6 space-y-6 pb-16">
+        {/* Header */}
+        <div className="flex items-center space-x-4">
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
+            size="sm"
             onClick={() => navigate({ to: '/data-integration/connector' })}
-            className="h-10 w-10"
+            className="hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
-                <Plug className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">{connectorData.connector_name}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="default" className={getConnectorTypeBadgeStyle(connectorData.connector_type || '')}>
-                    <TypeIcon className="mr-1 h-3 w-3" />
-                    {CONNECTOR_TYPE_MAP[
-                      connectorData.connector_type?.toLowerCase() as keyof typeof CONNECTOR_TYPE_MAP
-                    ] || connectorData.connector_type}
-                  </Badge>
-                  <Badge variant="default" className={statusInfo.className}>
-                    <StatusIcon className="mr-1 h-3 w-3" />
-                    {connectorData.status}
-                  </Badge>
-                </div>
-              </div>
+          <div className="flex items-center space-x-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 dark:bg-purple-500">
+              <Plug className="h-4 w-4 text-white" />
             </div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {connectorData.connector_name}
+            </h1>
           </div>
         </div>
-      </div>
 
-      {/* Basic Information Panel */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Info className="h-5 w-5 text-purple-600" />
-            <span>Basic Information</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            {/* Connector Name */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <div className="flex-shrink-0 mt-1">
-                <Plug className="h-4 w-4 text-purple-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                  Connector Name
-                </label>
-                <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                  {connectorData.connector_name}
-                </div>
-              </div>
-            </div>
+        {/* Tabs */}
+        <Tabs defaultValue="basic" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="basic" className="flex items-center gap-1.5">
+              <Info className="h-4 w-4" />
+              Basic Info
+            </TabsTrigger>
+            <TabsTrigger value="configure" className="flex items-center gap-1.5">
+              <Settings className="h-4 w-4" />
+              Configure
+            </TabsTrigger>
+            <TabsTrigger value="monitoring" className="flex items-center gap-1.5">
+              <BarChart3 className="h-4 w-4" />
+              Monitoring
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Connector Type */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <div className="flex-shrink-0 mt-1">
-                <TypeIcon className="h-4 w-4 text-blue-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                  Connector Type
-                </label>
-                <div className="mt-1">
-                  <Badge variant="default" className={getConnectorTypeBadgeStyle(connectorData.connector_type || '')}>
-                    <TypeIcon className="mr-1 h-3 w-3" />
-                    {CONNECTOR_TYPE_MAP[
-                      connectorData.connector_type?.toLowerCase() as keyof typeof CONNECTOR_TYPE_MAP
-                    ] || connectorData.connector_type}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <div className="flex-shrink-0 mt-1">
-                <Activity className="h-4 w-4 text-green-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                  Status
-                </label>
-                <div className="mt-1">
-                  <Badge variant="default" className={statusInfo.className}>
-                    <StatusIcon className="mr-1 h-3 w-3" />
-                    {connectorData.status}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Topic Name */}
-            {connectorData.topic_name && (
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                <div className="flex-shrink-0 mt-1">
-                  <Tag className="h-4 w-4 text-cyan-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                    Topic Name
-                  </label>
-                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                    {connectorData.topic_name}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Broker ID */}
-            {connectorData.broker_id && (
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                <div className="flex-shrink-0 mt-1">
-                  <Server className="h-4 w-4 text-indigo-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                    Broker ID
-                  </label>
-                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                    {connectorData.broker_id}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Create Time */}
-            {connectorData.create_time && (
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                <div className="flex-shrink-0 mt-1">
-                  <Clock className="h-4 w-4 text-green-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                    Created At
-                  </label>
-                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                    {connectorData.create_time}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Update Time */}
-            {connectorData.update_time && (
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                <div className="flex-shrink-0 mt-1">
-                  <Clock className="h-4 w-4 text-orange-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                    Updated At
-                  </label>
-                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                    {connectorData.update_time}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Data Statistics Charts */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-8">
-        <SimpleLineChart title="Send Success (Count/Sec)" data={connectorSuccessData || []} color="green" />
-        <SimpleLineChart title="Send Failure (Count/Sec)" data={connectorFailureData || []} color="orange" />
-      </div>
-
-      {/* Runtime Status Panel */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Activity className="h-5 w-5 text-green-600" />
-            <span>Runtime Status</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isDetailLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
-                <span>Loading runtime status...</span>
-              </div>
-            </div>
-          ) : connectorDetailData ? (
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              {/* Last Send Time */}
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                <div className="flex-shrink-0 mt-1">
-                  <Clock className="h-4 w-4 text-blue-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                    Last Send Time
-                  </label>
-                  <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                    {connectorDetailData.last_send_time
-                      ? new Date(connectorDetailData.last_send_time * 1000).toLocaleString('zh-CN', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                        })
-                      : '-'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Send Success Total */}
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
-                <div className="flex-shrink-0 mt-1">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">
-                    Send Success Total
-                  </label>
-                  <div className="mt-1 text-sm font-mono font-bold break-all text-green-900 dark:text-green-100">
-                    {connectorDetailData.send_success_total?.toLocaleString() || '0'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Send Fail Total */}
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
-                <div className="flex-shrink-0 mt-1">
-                  <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wide">
-                    Send Fail Total
-                  </label>
-                  <div className="mt-1 text-sm font-mono font-bold break-all text-red-900 dark:text-red-100">
-                    {connectorDetailData.send_fail_total?.toLocaleString() || '0'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Last Message */}
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                <div className="flex-shrink-0 mt-1">
-                  <MessageSquare className="h-4 w-4 text-purple-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                    Last Message
-                  </label>
-                  <div className="mt-1 text-sm break-all text-gray-900 dark:text-gray-100">
-                    {connectorDetailData.last_msg || '-'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Activity className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No runtime status available. The connector may not be running.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Configuration Panel */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Settings className="h-5 w-5 text-blue-600" />
-            <span>{connectorData.connector_type} Configuration</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {(() => {
-            // 如果有预定义的配置字段，使用预定义的
-            const fieldsToDisplay =
-              configFields.length > 0
-                ? configFields
-                : // 否则，从 configData 中自动提取所有字段
-                  Object.keys(configData).map(key => ({
-                    label: key
-                      .split('_')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' '),
-                    key: key,
-                  }));
-
-            if (fieldsToDisplay.length === 0) {
-              return (
-                <div className="text-center py-8">
-                  <Settings className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No configuration data available.</p>
-                </div>
-              );
-            }
-
-            return (
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                {fieldsToDisplay.map(field => {
-                  const value = configData[field.key];
-                  const isSensitive =
-                    field.key.toLowerCase().includes('password') || field.key.toLowerCase().includes('token');
-                  const displayValue = value
-                    ? isSensitive
-                      ? '••••••••'
-                      : typeof value === 'object'
-                        ? JSON.stringify(value)
-                        : String(value)
-                    : '-';
-
-                  return (
-                    <div
-                      key={field.key}
-                      className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
-                    >
-                      <div className="flex-shrink-0 mt-1">
-                        <Hash className="h-4 w-4 text-blue-500" />
+          {/* ==================== Tab 1: Basic Info ==================== */}
+          <TabsContent value="basic" className="space-y-6">
+            {/* Basic Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Info className="h-5 w-5 text-purple-600" />
+                  <span>Basic Information</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                    <Plug className="h-4 w-4 text-purple-500 mt-1 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
+                        Connector Name
+                      </label>
+                      <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
+                        {connectorData.connector_name}
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                    <TypeIcon className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <label className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide">
+                        Connector Type
+                      </label>
+                      <div className="mt-1">
+                        <Badge
+                          variant="default"
+                          className={getConnectorTypeBadgeStyle(connectorData.connector_type || '')}
+                        >
+                          <TypeIcon className="mr-1 h-3 w-3" />
+                          {CONNECTOR_TYPE_MAP[
+                            connectorData.connector_type?.toLowerCase() as keyof typeof CONNECTOR_TYPE_MAP
+                          ] || connectorData.connector_type}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <Activity className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <label className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
+                        Status
+                      </label>
+                      <div className="mt-1">
+                        <Badge variant="default" className={statusInfo.className}>
+                          <StatusIcon className="mr-1 h-3 w-3" />
+                          {connectorData.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {connectorData.topic_name && (
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800">
+                      <Tag className="h-4 w-4 text-cyan-500 mt-1 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                          {field.label}
+                        <label className="text-xs font-semibold text-cyan-700 dark:text-cyan-400 uppercase tracking-wide">
+                          Topic Name
                         </label>
                         <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
-                          {displayValue}
+                          {connectorData.topic_name}
                         </div>
                       </div>
                     </div>
+                  )}
+
+                  {connectorData.broker_id && (
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
+                      <Server className="h-4 w-4 text-indigo-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wide">
+                          Broker ID
+                        </label>
+                        <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
+                          {connectorData.broker_id}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {connectorData.create_time && (
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                      <Clock className="h-4 w-4 text-amber-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+                          Created At
+                        </label>
+                        <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-100">
+                          {connectorData.create_time}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {connectorData.update_time && (
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+                      <Clock className="h-4 w-4 text-orange-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">
+                          Updated At
+                        </label>
+                        <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-100">
+                          {connectorData.update_time}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Runtime Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5 text-green-600" />
+                  <span>Runtime Status</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isDetailLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex items-center space-x-2 text-muted-foreground">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
+                      <span>Loading runtime status...</span>
+                    </div>
+                  </div>
+                ) : connectorDetailData ? (
+                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                      <Clock className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                          Last Send Time
+                        </label>
+                        <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-100">
+                          {connectorDetailData.last_send_time
+                            ? new Date(connectorDetailData.last_send_time * 1000).toLocaleString('zh-CN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                              })
+                            : '-'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
+                          Send Success Total
+                        </label>
+                        <div className="mt-1 text-lg font-mono font-bold text-green-700 dark:text-green-300">
+                          {connectorDetailData.send_success_total?.toLocaleString() || '0'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                      <XCircle className="h-4 w-4 text-red-600 dark:text-red-400 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">
+                          Send Fail Total
+                        </label>
+                        <div className="mt-1 text-lg font-mono font-bold text-red-700 dark:text-red-300">
+                          {connectorDetailData.send_fail_total?.toLocaleString() || '0'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                      <MessageSquare className="h-4 w-4 text-purple-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                          Last Message
+                        </label>
+                        <div className="mt-1 text-sm break-all text-gray-900 dark:text-gray-100">
+                          {connectorDetailData.last_msg || '-'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Activity className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                    <p className="text-sm">No runtime status available</p>
+                    <p className="text-xs text-gray-400 mt-1">The connector may not be running</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ==================== Tab 2: Configure ==================== */}
+          <TabsContent value="configure" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="h-5 w-5 text-blue-600" />
+                  <span>
+                    {CONNECTOR_TYPE_MAP[
+                      connectorData.connector_type?.toLowerCase() as keyof typeof CONNECTOR_TYPE_MAP
+                    ] || connectorData.connector_type}{' '}
+                    Configuration
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const fieldsToDisplay =
+                    configFields.length > 0
+                      ? configFields
+                      : Object.keys(configData).map(key => ({
+                          label: key
+                            .split('_')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' '),
+                          key: key,
+                        }));
+
+                  if (fieldsToDisplay.length === 0) {
+                    return (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Settings className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                        <p className="text-sm">No configuration data available</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                      {fieldsToDisplay.map(field => {
+                        const value = configData[field.key];
+                        const isSensitive =
+                          field.key.toLowerCase().includes('password') || field.key.toLowerCase().includes('token');
+                        const isBooleanField =
+                          field.key.toLowerCase().includes('enable_') || typeof value === 'boolean';
+                        const displayValue = value !== undefined && value !== null
+                          ? isSensitive
+                            ? '••••••••'
+                            : typeof value === 'object'
+                              ? JSON.stringify(value)
+                              : String(value)
+                          : '-';
+
+                        return (
+                          <div
+                            key={field.key}
+                            className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors"
+                          >
+                            <Hash className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                                {field.label}
+                              </label>
+                              <div className="mt-1">
+                                {isBooleanField && (value === true || value === false || value === 'true' || value === 'false') ? (
+                                  <Badge variant={value === true || value === 'true' ? 'default' : 'secondary'}>
+                                    {value === true || value === 'true' ? 'Enabled' : 'Disabled'}
+                                  </Badge>
+                                ) : isSensitive ? (
+                                  <span className="text-sm text-gray-400 tracking-wider">{displayValue}</span>
+                                ) : (
+                                  <span className="text-sm font-mono break-all text-gray-900 dark:text-gray-100">
+                                    {displayValue}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   );
-                })}
-              </div>
-            );
-          })()}
-        </CardContent>
-      </Card>
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ==================== Tab 3: Monitoring ==================== */}
+          <TabsContent value="monitoring" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <SimpleLineChart title="Send Success (Count/Sec)" data={connectorSuccessData || []} color="green" />
+              <SimpleLineChart title="Send Failure (Count/Sec)" data={connectorFailureData || []} color="orange" />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </CommonLayout>
   );
 }
