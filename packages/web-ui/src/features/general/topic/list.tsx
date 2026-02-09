@@ -2,7 +2,20 @@ import { DataTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
 import { getTopicListHttp, deleteTopic, readMessages } from '@/services/mqtt';
 import { Button } from '@/components/ui/button';
-import { Clock, Eye, Copy, Trash2, MessageSquare, Inbox, ChevronRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import {
+  Clock,
+  Eye,
+  Copy,
+  Trash2,
+  MessageSquare,
+  Inbox,
+  ChevronRight,
+  Hash,
+  Database,
+  GitFork,
+  HardDrive,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -127,28 +140,99 @@ export default function TopicList() {
 
   const columns: ColumnDef<any>[] = [
     {
+      accessorKey: 'topic_id',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Topic ID" />,
+      cell: ({ row }) => (
+        <div className="flex items-center space-x-2">
+          <Hash className="h-4 w-4 text-gray-500" />
+          <span className="font-mono text-xs text-gray-600 dark:text-gray-400">{row.original.topic_id || '-'}</span>
+        </div>
+      ),
+      enableSorting: false,
+      size: 200,
+    },
+    {
       accessorKey: 'topic_name',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Topic Name" />,
+      cell: ({ row }) => {
+        const isSystemTopic = row.original.topic_name?.startsWith('$');
+        return (
+          <div className="flex items-center justify-between max-w-2xl group">
+            <div className="flex items-center space-x-2 flex-1 min-w-0">
+              {isSystemTopic && (
+                <Badge
+                  variant="outline"
+                  className="bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 flex-shrink-0"
+                >
+                  System
+                </Badge>
+              )}
+              <span className="font-medium text-sm truncate" title={row.original.topic_name}>
+                {row.original.topic_name || '-'}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-5 w-5 p-0 ml-1 flex-shrink-0 hover:bg-gray-200 dark:hover:bg-gray-700"
+              onClick={e => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(row.original.topic_name || '');
+                toast({
+                  title: 'Copied!',
+                  description: 'Topic name copied to clipboard',
+                  duration: 2000,
+                });
+              }}
+            >
+              <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+            </Button>
+          </div>
+        );
+      },
+      enableSorting: true,
+      size: 450,
+    },
+    {
+      accessorKey: 'storage_type',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Storage Type" />,
+      cell: ({ row }) => {
+        const storageType = row.original.storage_type;
+        return (
+          <div className="flex items-center space-x-2">
+            <Database className="h-4 w-4 text-blue-500" />
+            <Badge variant="outline" className="text-xs">
+              {storageType || '-'}
+            </Badge>
+          </div>
+        );
+      },
+      enableSorting: true,
+      size: 130,
+    },
+    {
+      accessorKey: 'partition',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Partition" />,
       cell: ({ row }) => (
-        <div className="flex items-center justify-between max-w-2xl group">
-          <span className="font-medium text-sm truncate" title={row.original.topic_name}>
-            {row.original.topic_name || '-'}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-5 w-5 p-0 ml-1 flex-shrink-0 hover:bg-gray-200 dark:hover:bg-gray-700"
-            onClick={e => {
-              e.stopPropagation();
-              navigator.clipboard.writeText(row.original.topic_name || '');
-            }}
-          >
-            <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
-          </Button>
+        <div className="flex items-center space-x-2">
+          <GitFork className="h-4 w-4 text-green-500" />
+          <span className="text-sm font-medium">{row.original.partition || 0}</span>
         </div>
       ),
       enableSorting: true,
-      size: 600,
+      size: 100,
+    },
+    {
+      accessorKey: 'replication',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Replication" />,
+      cell: ({ row }) => (
+        <div className="flex items-center space-x-2">
+          <HardDrive className="h-4 w-4 text-orange-500" />
+          <span className="text-sm font-medium">{row.original.replication || 0}</span>
+        </div>
+      ),
+      enableSorting: true,
+      size: 120,
     },
     {
       accessorKey: 'create_time',
@@ -172,6 +256,7 @@ export default function TopicList() {
         }
       },
       enableSorting: true,
+      size: 180,
     },
     {
       id: 'actions',

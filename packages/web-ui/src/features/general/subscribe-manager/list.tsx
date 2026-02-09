@@ -4,7 +4,7 @@ import { getSubscribeListHttp } from '@/services/mqtt';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { User, Route, Wifi, Shield, Clock, Eye, Copy } from 'lucide-react';
+import { User, Route, Wifi, Shield, Clock, Eye, Copy, Share2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useToast } from '@/hooks/use-toast';
 
@@ -112,6 +112,23 @@ export default function SubscribeList() {
           {row.original.qos || '-'}
         </Badge>
       ),
+    },
+    {
+      accessorKey: 'is_share_sub',
+      header: 'Sub Type',
+      cell: ({ row }) =>
+        row.original.is_share_sub ? (
+          <Badge className="bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800 hover:bg-orange-100">
+            <Share2 className="mr-1 h-3 w-3" />
+            Shared
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600">
+            <User className="mr-1 h-3 w-3" />
+            Exclusive
+          </Badge>
+        ),
+      size: 120,
     },
     {
       accessorKey: 'create_time',

@@ -31,7 +31,13 @@ export default function SessionList() {
         <div className="flex items-center space-x-2 max-w-xs">
           <div
             className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity flex-1 min-w-0"
-            onClick={() => navigate({ to: '/general/client/$clientId', params: { clientId: row.original.client_id } })}
+            onClick={() =>
+              navigate({
+                to: '/general/session/$sessionId',
+                params: { sessionId: row.original.client_id },
+                state: { sessionData: row.original },
+              })
+            }
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900 flex-shrink-0">
               <User className="h-4 w-4 text-purple-600 dark:text-purple-400" />

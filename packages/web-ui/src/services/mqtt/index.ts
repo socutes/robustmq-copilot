@@ -131,6 +131,9 @@ export interface OverviewStatusData {
   shareSubscribeFollowerThreadNum: number;
   connectorNum: number;
   connectorThreadNum: number;
+  shareGroupNum: number;
+  shareSubNum: number;
+  shareSubThreadNum: number;
 }
 
 export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
@@ -157,6 +160,9 @@ export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
     shareSubscribeFollowerThreadNum: response.share_subscribe_follower_thread_num,
     connectorNum: response.connector_num || 0,
     connectorThreadNum: response.connector_thread_num || 0,
+    shareGroupNum: response.share_group_num || 0,
+    shareSubNum: response.share_sub_num || 0,
+    shareSubThreadNum: response.share_sub_thread_num || 0,
   };
 
   return data;
@@ -255,7 +261,11 @@ export const getSessionListHttp = async (
 export interface TopicRaw {
   topic_id: string;
   topic_name: string;
-  is_contain_retain_message: boolean;
+  storage_type: string;
+  partition: number;
+  replication: number;
+  storage_name_list: string[];
+  create_time: number;
 }
 
 export const getTopicListHttp = async (
@@ -265,7 +275,7 @@ export const getTopicListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/topic/list', httpQuery);
+  const response = await requestApi('/api/mqtt/topic/list', httpQuery, 'GET');
   return {
     topicsList: response.data,
     totalCount: response.total_count,
@@ -277,24 +287,46 @@ export interface TopicSubscription {
   path: string;
 }
 
+export interface TopicStorageShard {
+  shard_uid: string;
+  shard_name: string;
+  start_segment_seq: number;
+  active_segment_seq: number;
+  last_segment_seq: number;
+  status: string;
+  config: {
+    replica_num: number;
+    storage_type: string;
+    max_segment_size: number;
+    retention_sec: number;
+  };
+  create_time: number;
+}
+
 export interface TopicDetail {
   topic_info: {
-    cluster_name: string;
+    topic_id: string;
     topic_name: string;
+    storage_type: string;
+    partition: number;
+    replication: number;
+    storage_name_list: Record<string, string>;
     create_time: number;
   };
-  retain_message: string | null; // Base64 编码的字符串或 null
-  retain_message_at: number | null; // 毫秒级时间戳或 null
+  retain_message: any | null;
+  retain_message_at: number | null;
   sub_list: TopicSubscription[];
+  storage_list: Record<string, TopicStorageShard> | null;
 }
 
 export const getTopicDetail = async (topicName: string): Promise<TopicDetail> => {
-  const response = await requestApi('/api/mqtt/topic/detail', { topic_name: topicName });
+  const response = await requestApi('/api/mqtt/topic/detail', { topic_name: topicName }, 'GET');
   return {
     topic_info: response.topic_info,
     retain_message: response.retain_message,
     retain_message_at: response.retain_message_at,
     sub_list: response.sub_list || [],
+    storage_list: response.storage_list || null,
   };
 };
 
@@ -330,7 +362,7 @@ export const getSubscribeListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/subscribe/list', httpQuery);
+  const response = await requestApi('/api/mqtt/subscribe/list', httpQuery, 'GET');
   return {
     subscriptionsList: response.data,
     totalCount: response.total_count,
@@ -338,47 +370,36 @@ export const getSubscribeListHttp = async (
 };
 
 // 订阅详情相关类型定义
-export interface PushThreadInfo {
-  push_success_record_num: number;
-  push_error_record_num: number;
-  last_push_time: number; // 秒级时间戳
-  last_run_time: number; // 秒级时间戳
-  create_time: number; // 秒级时间戳
-}
-
-export interface ExclusivePushData {
-  protocol: string;
+export interface PushSubscribeItem {
   client_id: string;
   sub_path: string;
   rewrite_sub_path: string | null;
   topic_name: string;
   group_name: string | null;
+  protocol: string;
   qos: string;
-  nolocal: boolean;
+  no_local: boolean;
   preserve_retain: boolean;
   retain_forward_rule: string;
   subscription_identifier: number | null;
   create_time: number; // 秒级时间戳
 }
 
-export interface SharePushData {
-  path: string;
-  group_name: string;
-  sub_name: string;
-  topic_name: string;
-  sub_list: Record<string, ExclusivePushData>;
+export interface PushThreadItem {
+  push_success_record_num: number;
+  push_error_record_num: number;
+  last_push_time: number; // 秒级时间戳
+  last_run_time: number; // 秒级时间戳
+  create_time: number; // 秒级时间戳
+  bucket_id: string;
 }
 
-export interface TopicListItem {
+export interface SubData {
   client_id: string;
   path: string;
-  topic_name: string;
-  exclusive_push_data: ExclusivePushData | null;
-  share_push_data: SharePushData | null;
-  push_thread: PushThreadInfo | null;
-  connector_name?: string;
-  connector_type?: string;
-  connector_config?: string; // JSON string
+  push_subscribe: Record<string, PushSubscribeItem>;
+  push_thread: Record<string, PushThreadItem>;
+  leader_id: string | null;
 }
 
 export interface GroupLeaderInfo {
@@ -390,7 +411,7 @@ export interface GroupLeaderInfo {
 export interface SubscribeDetail {
   share_sub: boolean;
   group_leader_info: GroupLeaderInfo | null;
-  topic_list: TopicListItem[];
+  sub_data: SubData;
 }
 
 export interface GetSubscribeDetailRequest {
@@ -399,11 +420,11 @@ export interface GetSubscribeDetailRequest {
 }
 
 export const getSubscribeDetail = async (data: GetSubscribeDetailRequest): Promise<SubscribeDetail> => {
-  const response = await requestApi('/api/mqtt/subscribe/detail', data);
+  const response = await requestApi('/api/mqtt/subscribe/detail', data, 'GET');
   return {
     share_sub: response.share_sub,
     group_leader_info: response.group_leader_info,
-    topic_list: response.topic_list || [],
+    sub_data: response.sub_data,
   };
 };
 
@@ -420,7 +441,7 @@ export const getUserList = async (
   usersList: UserRaw[];
   totalCount: number;
 }> => {
-  const response = await requestApi('/api/mqtt/user/list', query || {});
+  const response = await requestApi('/api/mqtt/user/list', query || {}, 'GET');
   return {
     usersList: response.data,
     totalCount: response.total_count,
@@ -464,7 +485,7 @@ export const getAclListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/acl/list', httpQuery);
+  const response = await requestApi('/api/mqtt/acl/list', httpQuery, 'GET');
   return {
     aclsList: response.data,
     totalCount: response.total_count,
@@ -514,7 +535,7 @@ export const getBlacklistListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/blacklist/list', httpQuery);
+  const response = await requestApi('/api/mqtt/blacklist/list', httpQuery, 'GET');
   return {
     blacklistsList: response.data,
     totalCount: response.total_count,
@@ -565,7 +586,7 @@ export const getConnectorListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/connector/list', httpQuery);
+  const response = await requestApi('/api/mqtt/connector/list', httpQuery, 'GET');
   return {
     connectorsList: response.data,
     totalCount: response.total_count,
@@ -605,7 +626,7 @@ export interface ConnectorDetailResponse {
 }
 
 export const getConnectorDetail = async (data: ConnectorDetailRequest): Promise<ConnectorDetailResponse> => {
-  const response = await requestApi('/api/mqtt/connector/detail', data);
+  const response = await requestApi('/api/mqtt/connector/detail', data, 'GET');
   return response;
 };
 
@@ -624,7 +645,7 @@ export const getSchemaListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query) || {};
-  const response = await requestApi('/api/mqtt/schema/list', httpQuery);
+  const response = await requestApi('/api/mqtt/schema/list', httpQuery, 'GET');
   return {
     schemasList: response.data,
     totalCount: response.total_count,
@@ -684,7 +705,7 @@ export const getSchemaBindList = async (
   if (schema_name) {
     request.schema_name = schema_name;
   }
-  const response = await requestApi('/api/mqtt/schema-bind/list', request);
+  const response = await requestApi('/api/mqtt/schema-bind/list', request, 'GET');
   return {
     schemaBindList: response.data || [],
     totalCount: response.total_count || 0,
@@ -727,7 +748,7 @@ export const getAutoSubscribeListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/auto-subscribe/list', httpQuery);
+  const response = await requestApi('/api/mqtt/auto-subscribe/list', httpQuery, 'GET');
   return {
     autoSubscribesList: response.data,
     totalCount: response.total_count,
@@ -773,7 +794,7 @@ export const getSlowSubscribeListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/slow-subscribe/list', httpQuery);
+  const response = await requestApi('/api/mqtt/slow-subscribe/list', httpQuery, 'GET');
   return {
     slowSubscribesList: response.data,
     totalCount: response.total_count,
@@ -795,7 +816,7 @@ export const getTopicRewriteListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/topic-rewrite/list', httpQuery);
+  const response = await requestApi('/api/mqtt/topic-rewrite/list', httpQuery, 'GET');
   return {
     topicRewritesList: response.data,
     totalCount: response.total_count,
@@ -839,7 +860,7 @@ export const getSystemAlarmListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/system-alarm/list', httpQuery);
+  const response = await requestApi('/api/mqtt/system-alarm/list', httpQuery, 'GET');
   return {
     systemAlarmsList: response.data,
     totalCount: response.total_count,
@@ -860,7 +881,7 @@ export const getConnectionJitterListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/flapping_detect/list', httpQuery);
+  const response = await requestApi('/api/mqtt/flapping_detect/list', httpQuery, 'GET');
   return {
     connectionJittersList: response.data,
     totalCount: response.total_count,
@@ -885,7 +906,7 @@ export const getBanLogListHttp = async (
   totalCount: number;
 }> => {
   const httpQuery = convertPaginationForHttpApi(query);
-  const response = await requestApi('/api/mqtt/ban-log/list', httpQuery);
+  const response = await requestApi('/api/mqtt/ban-log/list', httpQuery, 'GET');
   return {
     banLogsList: response.data,
     totalCount: response.total_count,
@@ -1054,12 +1075,25 @@ export interface BrokerNode {
   cluster_name: string;
   cluster_type: string;
   extend_info: string;
+  extend?: {
+    mqtt?: {
+      grpc_addr?: string;
+      mqtt_addr?: string;
+      mqtts_addr?: string;
+      websocket_addr?: string;
+      websockets_addr?: string;
+      quic_addr?: string;
+    };
+  };
   node_id: number;
   node_ip: string;
   node_inner_addr: string;
+  grpc_addr: string;
+  engine_addr?: string;
   start_time: string;
   register_time: string;
   roles: string[];
+  storage_fold?: string[];
   [key: string]: any;
 }
 
@@ -1067,6 +1101,7 @@ export interface ClusterStatus {
   cluster_name: string;
   version: string;
   start_time: string;
+  nodes?: any[];
   broker_node_list: BrokerNode[];
   meta: {
     replication: {
