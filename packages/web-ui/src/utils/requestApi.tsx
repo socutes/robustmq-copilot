@@ -11,12 +11,7 @@ const getApiBaseUrl = () => {
     return window.__APP_CONFIG__.api.baseUrl;
   }
 
-  // 2. 使用当前页面地址
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-
-  // 3. 服务端渲染时的fallback（虽然这个项目是SPA，但保险起见）
+  // 2. 默认使用 localhost:8080
   return 'http://localhost:8080';
 };
 

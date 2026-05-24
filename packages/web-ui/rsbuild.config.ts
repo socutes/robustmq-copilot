@@ -8,17 +8,12 @@ const appConfig = require('./config/app.js');
 
 export default defineConfig({
   server: {
-    port: appConfig.ports.dev,
-    host: appConfig.dev.host,
-    open: appConfig.dev.open,
+    port: appConfig.port,
   },
   html: {
-    title: appConfig.app.title,
+    title: 'RobustMQ: New generation of cloud-native and AI-native messaging infrastructure',
     favicon: path.resolve(__dirname, './public/images/favicon.png'),
     meta: {
-      'theme-color': appConfig.app.themeColor,
-      title: appConfig.app.title,
-      description: appConfig.app.description,
       viewport: 'width=device-width, initial-scale=1',
     },
     tags: [
