@@ -18,6 +18,7 @@ import {
   Gauge,
   Cpu,
   Bot,
+  Network,
 } from 'lucide-react';
 import { getClusterConfig, ClusterConfig, LimitQuota } from '@/services/mqtt';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -157,26 +158,15 @@ export default function Configuration() {
             <ConfigItem label="Roles" value={config.roles.join(', ')} mono={false} />
           </Section>
 
-          <Section title="Prometheus" icon={Activity}>
-            <BoolItem label="Enable" value={config.prometheus.enable} />
-            <ConfigItem label="Port" value={config.prometheus.port} />
-          </Section>
-
           <Section title="Log" icon={FileText}>
             <ConfigItem label="Log Path" value={config.log.log_path} />
             <ConfigItem label="Log Config" value={config.log.log_config} />
           </Section>
 
-          <Section title="pprof" icon={Gauge}>
-            <BoolItem label="Enable" value={config.pprof.enable} />
-            <ConfigItem label="Port" value={config.pprof.port} />
-            <ConfigItem label="Frequency" value={config.pprof.frequency} />
-          </Section>
-
           {config.llm_client && (
             <Section title="LLM Client" icon={Bot}>
-              <ConfigItem label="Platform" value={config.llm_client.platform} mono={false} />
-              <ConfigItem label="Model" value={config.llm_client.model} mono={false} />
+              {config.llm_client.platform && <ConfigItem label="Platform" value={config.llm_client.platform} mono={false} />}
+              {config.llm_client.model && <ConfigItem label="Model" value={config.llm_client.model} mono={false} />}
               {config.llm_client.base_url && <ConfigItem label="Base URL" value={config.llm_client.base_url} />}
             </Section>
           )}
@@ -190,6 +180,7 @@ export default function Configuration() {
             <ConfigItem label="Meta Worker Threads" value={config.runtime.meta_worker_threads} />
             <ConfigItem label="Broker Worker Threads" value={config.runtime.broker_worker_threads} />
             <ConfigItem label="Channels per Address" value={config.runtime.channels_per_address} />
+            <BoolItem label="pprof Enable" value={config.runtime.pprof_enable} />
           </Section>
 
           <Section title="TLS" icon={Shield}>
@@ -197,10 +188,10 @@ export default function Configuration() {
             <ConfigItem label="TLS Key" value={config.runtime.tls_key} />
           </Section>
 
-          <Section title="Network" icon={Wifi}>
-            <ConfigItem label="Accept Thread Num" value={config.network.accept_thread_num} />
-            <ConfigItem label="Handler Thread Num" value={config.network.handler_thread_num} />
-            <ConfigItem label="Queue Size" value={config.network.queue_size} />
+          <Section title="Broker Network" icon={Network}>
+            <ConfigItem label="Accept Thread Num" value={config.broker_network.accept_thread_num} />
+            <ConfigItem label="Handler Thread Num" value={config.broker_network.handler_thread_num} />
+            <ConfigItem label="Queue Size" value={config.broker_network.queue_size} />
           </Section>
 
           <Section title="Meta Runtime" icon={Server}>
@@ -209,6 +200,7 @@ export default function Configuration() {
             <ConfigItem label="Raft Write Timeout (s)" value={config.meta_runtime.raft_write_timeout_sec} />
             <ConfigItem label="Offset Raft Groups" value={config.meta_runtime.offset_raft_group_num} />
             <ConfigItem label="Data Raft Groups" value={config.meta_runtime.data_raft_group_num} />
+            <ConfigItem label="Group Offset Expire (s)" value={config.meta_runtime.group_offset_expire_sec} />
           </Section>
         </TabsContent>
 
@@ -228,6 +220,12 @@ export default function Configuration() {
             <BoolItem label="Durable Sessions" value={config.mqtt_runtime.durable_sessions_enable} />
             <BoolItem label="Secret Free Login" value={config.mqtt_runtime.secret_free_login} />
             <BoolItem label="Self Protection" value={config.mqtt_runtime.is_self_protection_status} />
+          </Section>
+
+          <Section title="MQTT Network" icon={Network}>
+            <ConfigItem label="Accept Thread Num" value={config.mqtt_runtime.network.accept_thread_num} />
+            <ConfigItem label="Handler Thread Num" value={config.mqtt_runtime.network.handler_thread_num} />
+            <ConfigItem label="Queue Size" value={config.mqtt_runtime.network.queue_size} />
           </Section>
 
           <Section title="Keep Alive" icon={Clock}>
@@ -284,19 +282,21 @@ export default function Configuration() {
 
         {/* Storage Tab */}
         <TabsContent value="storage" className="space-y-4">
-          <Section title="RocksDB" icon={Database}>
-            <ConfigItem label="Data Path" value={config.rocksdb.data_path} />
-            <ConfigItem label="Max Open Files" value={config.rocksdb.max_open_files.toLocaleString()} />
-          </Section>
-
           <Section title="Storage Runtime" icon={HardDrive}>
             <ConfigItem label="TCP Port" value={config.storage_runtime.tcp_port} />
             <ConfigItem label="Max Segment Size (B)" value={config.storage_runtime.max_segment_size.toLocaleString()} />
             <ConfigItem label="IO Thread Num" value={config.storage_runtime.io_thread_num} />
+            <ConfigItem label="Expire Scan Task Num" value={config.storage_runtime.expire_scan_task_num} />
             <BoolItem label="Offset Cache" value={config.storage_runtime.offset_enable_cache} />
             {config.storage_runtime.data_path.length > 0 && (
               <ConfigItem label="Data Paths" value={config.storage_runtime.data_path.join(', ')} />
             )}
+          </Section>
+
+          <Section title="Storage Network" icon={Network}>
+            <ConfigItem label="Accept Thread Num" value={config.storage_runtime.network.accept_thread_num} />
+            <ConfigItem label="Handler Thread Num" value={config.storage_runtime.network.handler_thread_num} />
+            <ConfigItem label="Queue Size" value={config.storage_runtime.network.queue_size} />
           </Section>
         </TabsContent>
 

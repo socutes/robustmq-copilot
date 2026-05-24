@@ -36,7 +36,7 @@ The web UI will be available at `http://localhost:4000`
 pnpm ui:dev
 
 # Start development server on custom port
-PORT_DEV=8080 pnpm ui:dev
+PORT=8080 pnpm ui:dev
 
 # Build for production
 pnpm ui:build
@@ -52,14 +52,9 @@ The project supports flexible configuration through environment variables and co
 #### Port Configuration
 
 ```bash
-# Set development server port
-PORT_DEV=8080 pnpm ui:dev
-
-# Set preview server port
-PORT_PREVIEW=8080 pnpm ui:preview
-
-# Set build port
-PORT_BUILD=8080 pnpm ui:build
+# Set server port
+PORT=8080 pnpm ui:dev
+PORT=8080 pnpm ui:preview
 ```
 
 #### API Address Configuration
@@ -69,32 +64,6 @@ The system automatically detects the current page address for API requests, but 
 ```bash
 # Set custom HTTP API address
 API_BASE_URL=http://localhost:8080 pnpm ui:dev
-```
-
-#### Application Configuration
-
-```bash
-# Set application title
-APP_TITLE="My Custom Title" pnpm ui:dev
-
-# Set application description
-APP_DESCRIPTION="My Custom Description" pnpm ui:dev
-
-# Set theme color
-APP_THEME_COLOR="#000000" pnpm ui:dev
-```
-
-#### Development Configuration
-
-```bash
-# Set development server host
-DEV_HOST=0.0.0.0 pnpm ui:dev
-
-# Disable auto-open browser
-DEV_OPEN=false pnpm ui:dev
-
-# Disable hot reload
-DEV_HOT=false pnpm ui:dev
 ```
 
 ### Predefined Scripts
@@ -113,11 +82,7 @@ pnpm run preview:3001  # Start preview server on port 3001
 
 ### Configuration Priority
 
-1. **Environment Variables** (Highest Priority)
-2. **Configuration File Defaults** (Medium Priority)
-3. **Hardcoded Defaults** (Lowest Priority)
-
-For API addresses specifically:
+For API addresses:
 
 1. **Environment Variable API Address** (Highest Priority)
 2. **Current Page Address** (Medium Priority)
@@ -145,31 +110,11 @@ API_BASE_URL=http://192.168.1.100:8080 pnpm ui:dev
 # Frontend at http://localhost:4000, API calls to http://192.168.1.100:8080
 ```
 
-#### Multi-Service Development
-
-```bash
-# Different services on different servers
-API_BASE_URL=http://api-server:8080 \
-API_GRPC_URL=http://grpc-server:8080 \
-API_PLACEMENT_GRPC_URL=http://placement-server:1228 \
-pnpm ui:dev
-```
-
-#### Production Build with Custom Configuration
-
-```bash
-# Build with production API endpoints
-API_BASE_URL=https://api.production.com \
-API_GRPC_URL=https://grpc.production.com \
-pnpm ui:build
-```
-
 #### Network Access Development
 
 ```bash
-# Allow network access to development server
-DEV_HOST=0.0.0.0 PORT_DEV=8080 pnpm ui:dev
-# Access from other devices on network at http://your-ip:8080
+# Use a different port
+PORT=8080 pnpm ui:dev
 ```
 
 ## Development
@@ -228,10 +173,6 @@ pnpm ui:build
 pnpm ui:preview
 ```
 
-### Environment Variables
-
-All configuration can be overridden with environment variables. See the [Configuration](#configuration) section for details.
-
 ### Troubleshooting
 
 #### Port Already in Use
@@ -240,7 +181,7 @@ If you encounter port conflicts:
 
 ```bash
 # Use a different port
-PORT_DEV=8080 pnpm ui:dev
+PORT=8080 pnpm ui:dev
 
 # Or kill existing processes
 pkill -f "rsbuild dev"

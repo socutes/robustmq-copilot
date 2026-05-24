@@ -124,16 +124,12 @@ export interface OverviewStatusData {
   quicConnectionNum: number;
   subscribeNum: number;
   exclusiveSubscribeNum: number;
-  shareSubscribeLeaderNum: number;
-  shareSubscribeResubNum: number;
   exclusiveSubscribeThreadNum: number;
-  shareSubscribeLeaderThreadNum: number;
-  shareSubscribeFollowerThreadNum: number;
+  shareSubscribeGroupNum: number;
+  shareSubscribeNum: number;
+  shareSubscribeThreadNum: number;
   connectorNum: number;
   connectorThreadNum: number;
-  shareGroupNum: number;
-  shareSubNum: number;
-  shareSubThreadNum: number;
 }
 
 export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
@@ -145,7 +141,7 @@ export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
     connectionNum: response.connection_num,
     sessionNum: response.session_num,
     topicNum: response.topic_num,
-    nodesList: response.nodes,
+    nodesList: response.node_list,
     placementStatus: response.placement_status ? JSON.parse(response.placement_status) : undefined,
     tcpConnectionNum: response.tcp_connection_num,
     tlsConnectionNum: response.tls_connection_num,
@@ -153,16 +149,12 @@ export const getOverviewStatusData = async (): Promise<OverviewStatusData> => {
     quicConnectionNum: response.quic_connection_num,
     subscribeNum: response.subscribe_num,
     exclusiveSubscribeNum: response.exclusive_subscribe_num,
-    shareSubscribeLeaderNum: response.share_subscribe_leader_num,
-    shareSubscribeResubNum: response.share_subscribe_resub_num,
     exclusiveSubscribeThreadNum: response.exclusive_subscribe_thread_num,
-    shareSubscribeLeaderThreadNum: response.share_subscribe_leader_thread_num,
-    shareSubscribeFollowerThreadNum: response.share_subscribe_follower_thread_num,
+    shareSubscribeGroupNum: response.share_subscribe_group_num || 0,
+    shareSubscribeNum: response.share_subscribe_num || 0,
+    shareSubscribeThreadNum: response.share_subscribe_thread_num || 0,
     connectorNum: response.connector_num || 0,
     connectorThreadNum: response.connector_thread_num || 0,
-    shareGroupNum: response.share_group_num || 0,
-    shareSubNum: response.share_sub_num || 0,
-    shareSubThreadNum: response.share_sub_thread_num || 0,
   };
 
   return data;
@@ -293,7 +285,7 @@ export const getTopicListHttp = async (
   const { tenant, topic_name, topic_type, ...rest } = (query || {}) as any;
   const httpQuery = convertPaginationForHttpApi(rest);
   const response = await requestApi(
-    '/api/mqtt/topic/list',
+    '/api/cluster/topic/list',
     {
       ...httpQuery,
       ...(tenant ? { tenant } : {}),
@@ -347,7 +339,7 @@ export interface TopicDetail {
 
 export const getTopicDetail = async (topicName: string, tenant?: string): Promise<TopicDetail> => {
   const response = await requestApi(
-    '/api/mqtt/topic/detail',
+    '/api/cluster/topic/detail',
     { topic_name: topicName, ...(tenant ? { tenant } : {}) },
     'GET',
   );
@@ -366,7 +358,7 @@ export interface DeleteTopicRequest {
 }
 
 export const deleteTopic = async (data: DeleteTopicRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/topic/delete', data);
+  const response = await requestApi('/api/cluster/topic/delete', data);
   return response;
 };
 
@@ -490,7 +482,7 @@ export const getUserList = async (
     ...(tenant ? { tenant } : {}),
     ...(user_name ? { user_name } : {}),
   };
-  const response = await requestApi('/api/mqtt/user/list', httpQuery, 'GET');
+  const response = await requestApi('/api/cluster/user/list', httpQuery, 'GET');
   return {
     usersList: response.data,
     totalCount: response.total_count,
@@ -505,7 +497,7 @@ export interface CreateUserRequest {
 }
 
 export const createUser = async (data: CreateUserRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/user/create', data);
+  const response = await requestApi('/api/cluster/user/create', data);
   return response;
 };
 
@@ -515,7 +507,7 @@ export interface DeleteUserRequest {
 }
 
 export const deleteUser = async (data: DeleteUserRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/user/delete', data);
+  const response = await requestApi('/api/cluster/user/delete', data);
   return response;
 };
 
@@ -541,7 +533,7 @@ export const getAclListHttp = async (
   const { tenant, name, ...rest } = (query || {}) as any;
   const httpQuery = convertPaginationForHttpApi(rest);
   const response = await requestApi(
-    '/api/mqtt/acl/list',
+    '/api/cluster/acl/list',
     {
       ...httpQuery,
       ...(tenant ? { tenant } : {}),
@@ -568,7 +560,7 @@ export interface CreateAclRequest {
 }
 
 export const createAcl = async (data: CreateAclRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/acl/create', data);
+  const response = await requestApi('/api/cluster/acl/create', data);
   return response;
 };
 
@@ -578,7 +570,7 @@ export interface DeleteAclRequest {
 }
 
 export const deleteAcl = async (data: DeleteAclRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/acl/delete', data);
+  const response = await requestApi('/api/cluster/acl/delete', data);
   return response;
 };
 
@@ -601,7 +593,7 @@ export const getBlacklistListHttp = async (
   const { tenant, name, ...rest } = (query || {}) as any;
   const httpQuery = convertPaginationForHttpApi(rest);
   const response = await requestApi(
-    '/api/mqtt/blacklist/list',
+    '/api/cluster/blacklist/list',
     {
       ...httpQuery,
       ...(tenant ? { tenant } : {}),
@@ -625,7 +617,7 @@ export interface CreateBlacklistRequest {
 }
 
 export const createBlacklist = async (data: CreateBlacklistRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/blacklist/create', data);
+  const response = await requestApi('/api/cluster/blacklist/create', data);
   return response;
 };
 
@@ -635,7 +627,7 @@ export interface DeleteBlacklistRequest {
 }
 
 export const deleteBlacklist = async (data: DeleteBlacklistRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/blacklist/delete', data);
+  const response = await requestApi('/api/cluster/blacklist/delete', data);
   return response;
 };
 
@@ -665,7 +657,7 @@ export const getConnectorListHttp = async (
   const httpQuery = convertPaginationForHttpApi({ pagination, ...rest });
   if (tenant) httpQuery.tenant = tenant;
   if (connector_name) httpQuery.connector_name = connector_name;
-  const response = await requestApi('/api/mqtt/connector/list', httpQuery, 'GET');
+  const response = await requestApi('/api/cluster/connector/list', httpQuery, 'GET');
   return {
     connectorsList: response.data,
     totalCount: response.total_count,
@@ -689,7 +681,7 @@ export interface CreateConnectorRequest {
 }
 
 export const createConnector = async (data: CreateConnectorRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/connector/create', data);
+  const response = await requestApi('/api/cluster/connector/create', data);
   return response;
 };
 
@@ -699,7 +691,7 @@ export interface DeleteConnectorRequest {
 }
 
 export const deleteConnector = async (data: DeleteConnectorRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/connector/delete', data);
+  const response = await requestApi('/api/cluster/connector/delete', data);
   return response;
 };
 
@@ -716,7 +708,7 @@ export interface ConnectorDetailResponse {
 }
 
 export const getConnectorDetail = async (data: ConnectorDetailRequest): Promise<ConnectorDetailResponse> => {
-  const response = await requestApi('/api/mqtt/connector/detail', data, 'GET');
+  const response = await requestApi('/api/cluster/connector/detail', data, 'GET');
   return response;
 };
 
@@ -738,7 +730,7 @@ export const getSchemaListHttp = async (
   const { tenant, name, ...rest } = (query || {}) as any;
   const httpQuery = convertPaginationForHttpApi(rest) || {};
   const response = await requestApi(
-    '/api/mqtt/schema/list',
+    '/api/cluster/schema/list',
     {
       ...httpQuery,
       ...(tenant ? { tenant } : {}),
@@ -761,7 +753,7 @@ export interface CreateSchemaRequest {
 }
 
 export const createSchema = async (data: CreateSchemaRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/schema/create', data);
+  const response = await requestApi('/api/cluster/schema/create', data);
   return response;
 };
 
@@ -771,7 +763,7 @@ export interface DeleteSchemaRequest {
 }
 
 export const deleteSchema = async (data: DeleteSchemaRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/schema/delete', data);
+  const response = await requestApi('/api/cluster/schema/delete', data);
   return response;
 };
 
@@ -782,6 +774,7 @@ export interface SchemaBindItem {
 }
 
 export interface GetSchemaBindListRequest {
+  tenant?: string;
   resource_name?: string;
   schema_name?: string;
   limit?: number;
@@ -794,6 +787,7 @@ export interface GetSchemaBindListRequest {
 }
 
 export const getSchemaBindList = async (
+  tenant?: string,
   resource_name?: string,
   schema_name?: string,
 ): Promise<{
@@ -801,13 +795,10 @@ export const getSchemaBindList = async (
   totalCount: number;
 }> => {
   const request: GetSchemaBindListRequest = {};
-  if (resource_name) {
-    request.resource_name = resource_name;
-  }
-  if (schema_name) {
-    request.schema_name = schema_name;
-  }
-  const response = await requestApi('/api/mqtt/schema-bind/list', request, 'GET');
+  if (tenant) request.tenant = tenant;
+  if (resource_name) request.resource_name = resource_name;
+  if (schema_name) request.schema_name = schema_name;
+  const response = await requestApi('/api/cluster/schema-bind/list', request, 'GET');
   return {
     schemaBindList: response.data || [],
     totalCount: response.total_count || 0,
@@ -815,22 +806,24 @@ export const getSchemaBindList = async (
 };
 
 export interface CreateSchemaBindRequest {
+  tenant: string;
   schema_name: string;
   resource_name: string;
 }
 
 export const createSchemaBind = async (data: CreateSchemaBindRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/schema-bind/create', data);
+  const response = await requestApi('/api/cluster/schema-bind/create', data);
   return response;
 };
 
 export interface DeleteSchemaBindRequest {
+  tenant: string;
   schema_name: string;
   resource_name: string;
 }
 
 export const deleteSchemaBind = async (data: DeleteSchemaBindRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/schema-bind/delete', data);
+  const response = await requestApi('/api/cluster/schema-bind/delete', data);
   return response;
 };
 
@@ -941,7 +934,7 @@ export const getTopicRewriteListHttp = async (
   const { tenant, name, ...rest } = query ?? {};
   const httpQuery = convertPaginationForHttpApi(rest);
   const response = await requestApi(
-    '/api/mqtt/topic-rewrite/list',
+    '/api/cluster/topic-rewrite/list',
     { ...httpQuery, ...(tenant ? { tenant } : {}), ...(name ? { name } : {}) },
     'GET',
   );
@@ -962,7 +955,7 @@ export interface CreateTopicRewriteRequest {
 }
 
 export const createTopicRewrite = async (data: CreateTopicRewriteRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/topic-rewrite/create', data);
+  const response = await requestApi('/api/cluster/topic-rewrite/create', data);
   return response;
 };
 
@@ -972,7 +965,7 @@ export interface DeleteTopicRewriteRequest {
 }
 
 export const deleteTopicRewrite = async (data: DeleteTopicRewriteRequest): Promise<string> => {
-  const response = await requestApi('/api/mqtt/topic-rewrite/delete', data);
+  const response = await requestApi('/api/cluster/topic-rewrite/delete', data);
   return response;
 };
 
@@ -1096,11 +1089,6 @@ export interface ClusterConfig {
   roles: string[];
   grpc_port: number;
   http_port: number;
-  meta_addrs: Record<string, string>;
-  prometheus: {
-    enable: boolean;
-    port: number;
-  };
   log: {
     log_path: string;
     log_config: string;
@@ -1113,20 +1101,12 @@ export interface ClusterConfig {
     channels_per_address: number;
     tls_cert: string;
     tls_key: string;
+    pprof_enable: boolean;
   };
-  network: {
+  broker_network: {
     accept_thread_num: number;
     handler_thread_num: number;
     queue_size: number;
-  };
-  pprof: {
-    enable: boolean;
-    port: number;
-    frequency: number;
-  };
-  rocksdb: {
-    data_path: string;
-    max_open_files: number;
   };
   meta_runtime: {
     heartbeat_timeout_ms: number;
@@ -1134,6 +1114,7 @@ export interface ClusterConfig {
     raft_write_timeout_sec: number;
     offset_raft_group_num: number;
     data_raft_group_num: number;
+    group_offset_expire_sec: number;
   };
   storage_runtime: {
     tcp_port: number;
@@ -1141,6 +1122,12 @@ export interface ClusterConfig {
     io_thread_num: number;
     data_path: string[];
     offset_enable_cache: boolean;
+    expire_scan_task_num: number;
+    network: {
+      accept_thread_num: number;
+      handler_thread_num: number;
+      queue_size: number;
+    };
   };
   mqtt_server: {
     tcp_port: number;
@@ -1161,6 +1148,11 @@ export interface ClusterConfig {
     durable_sessions_enable: boolean;
     secret_free_login: boolean;
     is_self_protection_status: boolean;
+    network: {
+      accept_thread_num: number;
+      handler_thread_num: number;
+      queue_size: number;
+    };
   };
   mqtt_offline_message: {
     enable: boolean;
@@ -1182,7 +1174,6 @@ export interface ClusterConfig {
     max_session_expiry_interval: number;
     default_session_expiry_interval: number;
     topic_alias_max: number;
-    max_qos_flight_message?: number;
     max_packet_size: number;
     receive_max: number;
     max_message_expiry_interval: number;
@@ -1211,10 +1202,10 @@ export interface ClusterConfig {
     tenant: LimitQuota;
   };
   llm_client: {
-    platform: string;
-    model: string;
-    token: string | null;
-    base_url: string | null;
+    platform?: string | null;
+    model?: string | null;
+    token?: string | null;
+    base_url?: string | null;
   } | null;
 }
 
@@ -1301,7 +1292,7 @@ export interface ClusterStatus {
 }
 
 export const getClusterStatus = async (): Promise<ClusterStatus> => {
-  const response = await requestApi('/api/status', undefined, 'GET');
+  const response = await requestApi('/api/info', undefined, 'GET');
   return response;
 };
 
@@ -1338,7 +1329,7 @@ export interface DeleteTenantRequest {
 }
 
 export const getTenantList = async (query?: QueryOption): Promise<{ tenantList: TenantRaw[]; totalCount: number }> => {
-  const response = await requestApi('/api/tenant/list', query || {}, 'GET');
+  const response = await requestApi('/api/cluster/tenant/list', query || {}, 'GET');
   return {
     tenantList: response.data,
     totalCount: response.total_count,
@@ -1346,16 +1337,16 @@ export const getTenantList = async (query?: QueryOption): Promise<{ tenantList: 
 };
 
 export const createTenant = async (data: CreateTenantRequest): Promise<string> => {
-  const response = await requestApi('/api/tenant/create', data);
+  const response = await requestApi('/api/cluster/tenant/create', data);
   return response;
 };
 
 export const deleteTenant = async (data: DeleteTenantRequest): Promise<string> => {
-  const response = await requestApi('/api/tenant/delete', data);
+  const response = await requestApi('/api/cluster/tenant/delete', data);
   return response;
 };
 
 export const updateTenant = async (data: UpdateTenantRequest): Promise<string> => {
-  const response = await requestApi('/api/tenant/update', data);
+  const response = await requestApi('/api/cluster/tenant/update', data);
   return response;
 };
