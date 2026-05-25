@@ -1,244 +1,97 @@
-# RobustMQ-Copilot
+# RobustMQ Copilot
 
-The one-step RobustMQ operation and maintenance management platform.
+Web management console for [RobustMQ](https://github.com/robustmq/robustmq) — the next-generation cloud-native and AI-native messaging infrastructure.
+
+Copilot provides a one-stop UI for operating and monitoring RobustMQ clusters: real-time metrics, client/session/topic management, ACL, connectors, schema validation, configuration, and more.
+
+> **Online Demo**: http://demo.robustmq.com:8080
+
+## What is RobustMQ
+
+RobustMQ is a unified messaging engine built with Rust — one binary, one broker, no external dependencies. It natively supports MQTT, Kafka, NATS, AMQP, and **mq9** on a shared storage layer.
+
+| Protocol | Best for                     |
+| -------- | ---------------------------- |
+| MQTT     | IoT devices, edge sensors    |
+| Kafka    | Streaming data pipelines     |
+| NATS     | Ultra-low-latency pub/sub    |
+| AMQP     | Enterprise messaging         |
+| mq9      | AI Agent async communication |
 
 ## Quick Start
 
-### Prerequisites
-
-- Node >= 20.0
-- pnpm >= 10.0
-
-### Installation
-
-1. Clone the project and install dependencies:
+**Requirements**: Node >= 20, pnpm >= 10
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/robustmq/robustmq-copilot.git
 cd robustmq-copilot
 pnpm install
+pnpm ui:dev        # http://localhost:4000
 ```
 
-2. Start the development server:
+By default connects to the RobustMQ admin API at `http://localhost:8080`. Make sure RobustMQ backend is running first — see [RobustMQ Quick Start](https://robustmq.com/QuickGuide/Overview.html).
+
+### Connect to a different backend
 
 ```bash
-pnpm ui:dev
+ROBUSTMQ_API_URL=http://192.168.1.100:8080 pnpm ui:dev
 ```
 
-The web UI will be available at `http://localhost:4000`
+### Commands
 
-## Usage Guide
+| Command                                  | Description              |
+| ---------------------------------------- | ------------------------ |
+| `pnpm ui:dev`                            | Dev server on port 4000  |
+| `pnpm ui:build`                          | Production build         |
+| `pnpm ui:preview`                        | Preview production build |
+| `pnpm run dev:8080` / `dev:3001`         | Dev on custom port       |
+| `pnpm run preview:8080` / `preview:3001` | Preview on custom port   |
 
-### Development Commands
+## Features
 
-```bash
-# Start development server (default port 4000)
-pnpm ui:dev
+- **Dashboard** — cluster overview, real-time message in/out rates, connection and session metrics
+- **Clients & Sessions** — live connection list, session state, heartbeat info
+- **Topics** — topic list, detail view, retain messages, subscription bindings
+- **Subscriptions** — all active subscriptions, share group tracking, slow subscribe detection
+- **Users & ACL** — user management, access control rules, blacklist
+- **Connectors** — create and monitor data connectors (Kafka, HTTP, etc.)
+- **Schema** — schema registry and topic binding for message validation
+- **Configuration** — full cluster config viewer (runtime, MQTT, storage, limits)
+- **System** — alarms, ban log, flapping detection
 
-# Start development server on custom port
-PORT=8080 pnpm ui:dev
-
-# Build for production
-pnpm ui:build
-
-# Preview production build
-pnpm ui:preview
-```
-
-### Configuration
-
-The project supports flexible configuration through environment variables and configuration files.
-
-#### Port Configuration
-
-```bash
-# Set server port
-PORT=8080 pnpm ui:dev
-PORT=8080 pnpm ui:preview
-```
-
-#### API Address Configuration
-
-The system automatically detects the current page address for API requests, but you can override this with environment variables:
-
-```bash
-# Set custom HTTP API address
-API_BASE_URL=http://localhost:8080 pnpm ui:dev
-```
-
-### Predefined Scripts
-
-The project includes several predefined scripts for common configurations:
-
-```bash
-# Development with custom ports
-pnpm run dev:8080    # Start dev server on port 8080
-pnpm run dev:3001    # Start dev server on port 3001
-
-# Preview with custom ports
-pnpm run preview:8080  # Start preview server on port 8080
-pnpm run preview:3001  # Start preview server on port 3001
-```
-
-### Configuration Priority
-
-For API addresses:
-
-1. **Environment Variable API Address** (Highest Priority)
-2. **Current Page Address** (Medium Priority)
-3. **Default Fallback Address** (Lowest Priority)
-
-### Configuration Files
-
-Configuration is managed through `packages/web-ui/config/app.js`. You can view the current configuration in the browser console via `window.__APP_CONFIG__`.
-
-### Common Use Cases
-
-#### Local Development
-
-```bash
-# Standard local development
-pnpm ui:dev
-# Access at http://localhost:4000
-```
-
-#### Development with Custom Backend
-
-```bash
-# Connect to remote API server
-API_BASE_URL=http://192.168.1.100:8080 pnpm ui:dev
-# Frontend at http://localhost:4000, API calls to http://192.168.1.100:8080
-```
-
-#### Network Access Development
-
-```bash
-# Use a different port
-PORT=8080 pnpm ui:dev
-```
-
-## Development
-
-### Project Structure
+## Project Structure
 
 ```
 robustmq-copilot/
 ├── packages/
-│   ├── web-ui/           # Frontend React application
-│   │   ├── src/          # Source code
-│   │   ├── config/       # Configuration files
-│   │   └── dist/         # Build output
-│   └── services/         # gRPC service definitions
-└── package.json          # Root package configuration
+│   ├── web-ui/        # React frontend
+│   │   ├── src/       # Source code
+│   │   └── config/    # Build & API configuration
+│   └── services/      # gRPC service definitions
+└── package.json
 ```
 
-### Development Setup
+## Tech Stack
 
-1. Clone the project:
+- **React 19** + TypeScript, TanStack Router, TanStack Query
+- **UI**: Radix UI, Tailwind CSS
+- **Build**: Rsbuild
+- **State**: Zustand
 
-```bash
-git clone <repository-url>
-cd robustmq-copilot
-```
+## Troubleshooting
 
-2. Install dependencies:
+**Port in use** — `pkill -f "rsbuild dev"`
 
-```bash
-pnpm install
-```
+**API errors** — verify RobustMQ backend is running at port 8080, or set `ROBUSTMQ_API_URL`. Check `window.__APP_CONFIG__` in the browser console for the active config.
 
-3. Start development:
+**Build fails** — `rm -rf packages/web-ui/dist && pnpm ui:build`
 
-```bash
-pnpm ui:dev
-```
+## Documentation
 
-### Configuration Development
-
-The configuration system is located in `packages/web-ui/config/`:
-
-- `app.js` - Main configuration file
-- `README.md` - Detailed configuration documentation
-
-### Build and Deployment
-
-```bash
-# Development build
-pnpm ui:dev
-
-# Production build
-pnpm ui:build
-
-# Preview production build
-pnpm ui:preview
-```
-
-### Troubleshooting
-
-#### Port Already in Use
-
-If you encounter port conflicts:
-
-```bash
-# Use a different port
-PORT=8080 pnpm ui:dev
-
-# Or kill existing processes
-pkill -f "rsbuild dev"
-```
-
-#### API Connection Issues
-
-If API requests fail:
-
-1. Check if the backend service is running
-2. Verify API address configuration:
-   ```bash
-   # Use custom API address
-   API_BASE_URL=http://your-api-server:8080 pnpm ui:dev
-   ```
-3. Check browser console for configuration: `window.__APP_CONFIG__`
-
-#### Build Issues
-
-If builds fail:
-
-1. Clear node_modules and reinstall:
-   ```bash
-   rm -rf node_modules
-   pnpm install
-   ```
-2. Clear build cache:
-   ```bash
-   rm -rf packages/web-ui/dist
-   pnpm ui:build
-   ```
-
-## Technology Stack
-
-- **Frontend**: React 19, TypeScript, TanStack Router, TanStack Query
-- **UI Components**: Radix UI, Tailwind CSS
-- **Build Tool**: Rsbuild
-- **Package Manager**: pnpm
-- **State Management**: Zustand
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes and test them thoroughly
-4. Commit your changes: `git commit -m 'Add some feature'`
-5. Push to the branch: `git push origin feature/your-feature-name`
-6. Submit a pull request
-
-### Development Guidelines
-
-- Follow the existing code style and patterns
-- Add TypeScript types for new features
-- Update configuration documentation when adding new environment variables
-- Test your changes with different configuration scenarios
-- Ensure backward compatibility when possible
+- [RobustMQ Official Docs](https://robustmq.com/)
+- [RobustMQ GitHub](https://github.com/robustmq/robustmq)
+- [mq9 — AI Agent Communication](https://robustmq.com/en/mq9/Overview.html)
 
 ## License
 
-This project is licensed under the terms specified in the [LICENSE](LICENSE) file.
+[Apache 2.0](LICENSE)

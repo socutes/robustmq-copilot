@@ -12,8 +12,7 @@ interface AppConfig {
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      PORT?: string;
-      API_BASE_URL?: string;
+      ROBUSTMQ_API_URL?: string;
     }
   }
 
