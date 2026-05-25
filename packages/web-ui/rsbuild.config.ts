@@ -40,11 +40,14 @@ export default defineConfig({
         },
       },
       {
+        // config.js is loaded at runtime so ROBUSTMQ_API_URL can be injected
+        // by the server without requiring a rebuild. The file is written by
+        // robust-server on startup (see bin/robust-server) and falls back to
+        // the copy in public/config.js when served statically.
         tag: 'script',
         attrs: {
-          type: 'text/javascript',
+          src: '/config.js',
         },
-        children: `window.__APP_CONFIG__ = ${JSON.stringify(appConfig)};`,
       },
     ],
   },
