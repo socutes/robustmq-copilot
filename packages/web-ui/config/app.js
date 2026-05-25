@@ -13,10 +13,10 @@ const defaultConfig = {
 };
 
 const config = {
-  port: process.env.PORT ? parseInt(process.env.PORT, 10) : defaultConfig.port,
+  port: defaultConfig.port,
 
   api: {
-    baseUrl: process.env.API_BASE_URL || defaultConfig.api.baseUrl,
+    baseUrl: process.env.ROBUSTMQ_API_URL || defaultConfig.api.baseUrl,
   },
 
   // 导出默认配置供参考
