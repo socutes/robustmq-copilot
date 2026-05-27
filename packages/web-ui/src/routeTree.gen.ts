@@ -20,8 +20,12 @@ import { Route as AuthenticatedSystemTenantRouteImport } from './routes/_authent
 import { Route as AuthenticatedSystemSystemLogRouteImport } from './routes/_authenticated/system/system-log'
 import { Route as AuthenticatedSystemPubSubRouteImport } from './routes/_authenticated/system/pub-sub'
 import { Route as AuthenticatedSystemConfigurationRouteImport } from './routes/_authenticated/system/configuration'
+import { Route as AuthenticatedSystemClusterInfoRouteImport } from './routes/_authenticated/system/cluster-info'
 import { Route as AuthenticatedSystemBanLogRouteImport } from './routes/_authenticated/system/ban-log'
 import { Route as AuthenticatedAdvancedSystemAlarmRouteImport } from './routes/_authenticated/advanced/system-alarm'
+import { Route as AuthenticatedStorageEngineShardShardNameRouteImport } from './routes/_authenticated/storage-engine/shard/$shardName'
+import { Route as AuthenticatedMq9MailboxMailAddressRouteImport } from './routes/_authenticated/mq9/mailbox/$mailAddress'
+import { Route as AuthenticatedMq9AgentAgentNameRouteImport } from './routes/_authenticated/mq9/agent/$agentName'
 import { Route as AuthenticatedGeneralTopicTopicIdRouteImport } from './routes/_authenticated/general/topic/$topicId'
 import { Route as AuthenticatedGeneralSubscribeSubscribeIdRouteImport } from './routes/_authenticated/general/subscribe/$subscribeId'
 import { Route as AuthenticatedGeneralSessionSessionIdRouteImport } from './routes/_authenticated/general/session/$sessionId'
@@ -44,6 +48,18 @@ const AuthenticatedHelpCenterIndexLazyRouteImport = createFileRoute(
 )()
 const AuthenticatedAppsIndexLazyRouteImport = createFileRoute(
   '/_authenticated/apps/',
+)()
+const AuthenticatedStorageEngineShardIndexLazyRouteImport = createFileRoute(
+  '/_authenticated/storage-engine/shard/',
+)()
+const AuthenticatedStorageEngineSegmentIndexLazyRouteImport = createFileRoute(
+  '/_authenticated/storage-engine/segment/',
+)()
+const AuthenticatedMq9MailboxIndexLazyRouteImport = createFileRoute(
+  '/_authenticated/mq9/mailbox/',
+)()
+const AuthenticatedMq9AgentIndexLazyRouteImport = createFileRoute(
+  '/_authenticated/mq9/agent/',
 )()
 const AuthenticatedMonitoringTopicIndexLazyRouteImport = createFileRoute(
   '/_authenticated/monitoring/topic/',
@@ -230,6 +246,12 @@ const AuthenticatedSystemConfigurationRoute =
     path: '/system/configuration',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSystemClusterInfoRoute =
+  AuthenticatedSystemClusterInfoRouteImport.update({
+    id: '/system/cluster-info',
+    path: '/system/cluster-info',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSystemBanLogRoute =
   AuthenticatedSystemBanLogRouteImport.update({
     id: '/system/ban-log',
@@ -242,6 +264,44 @@ const AuthenticatedAdvancedSystemAlarmRoute =
     path: '/advanced/system-alarm',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStorageEngineShardIndexLazyRoute =
+  AuthenticatedStorageEngineShardIndexLazyRouteImport.update({
+    id: '/storage-engine/shard/',
+    path: '/storage-engine/shard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/storage-engine/shard/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+const AuthenticatedStorageEngineSegmentIndexLazyRoute =
+  AuthenticatedStorageEngineSegmentIndexLazyRouteImport.update({
+    id: '/storage-engine/segment/',
+    path: '/storage-engine/segment/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/storage-engine/segment/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+const AuthenticatedMq9MailboxIndexLazyRoute =
+  AuthenticatedMq9MailboxIndexLazyRouteImport.update({
+    id: '/mq9/mailbox/',
+    path: '/mq9/mailbox/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/mq9/mailbox/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+const AuthenticatedMq9AgentIndexLazyRoute =
+  AuthenticatedMq9AgentIndexLazyRouteImport.update({
+    id: '/mq9/agent/',
+    path: '/mq9/agent/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/mq9/agent/index.lazy').then((d) => d.Route),
+  )
 const AuthenticatedMonitoringTopicIndexLazyRoute =
   AuthenticatedMonitoringTopicIndexLazyRouteImport.update({
     id: '/monitoring/topic/',
@@ -432,6 +492,24 @@ const AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute =
       (d) => d.Route,
     ),
   )
+const AuthenticatedStorageEngineShardShardNameRoute =
+  AuthenticatedStorageEngineShardShardNameRouteImport.update({
+    id: '/storage-engine/shard/$shardName',
+    path: '/storage-engine/shard/$shardName',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMq9MailboxMailAddressRoute =
+  AuthenticatedMq9MailboxMailAddressRouteImport.update({
+    id: '/mq9/mailbox/$mailAddress',
+    path: '/mq9/mailbox/$mailAddress',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMq9AgentAgentNameRoute =
+  AuthenticatedMq9AgentAgentNameRouteImport.update({
+    id: '/mq9/agent/$agentName',
+    path: '/mq9/agent/$agentName',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGeneralTopicTopicIdRoute =
   AuthenticatedGeneralTopicTopicIdRouteImport.update({
     id: '/general/topic/$topicId',
@@ -466,6 +544,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
   '/system/ban-log': typeof AuthenticatedSystemBanLogRoute
+  '/system/cluster-info': typeof AuthenticatedSystemClusterInfoRoute
   '/system/configuration': typeof AuthenticatedSystemConfigurationRoute
   '/system/pub-sub': typeof AuthenticatedSystemPubSubRoute
   '/system/system-log': typeof AuthenticatedSystemSystemLogRoute
@@ -476,6 +555,9 @@ export interface FileRoutesByFullPath {
   '/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
+  '/mq9/agent/$agentName': typeof AuthenticatedMq9AgentAgentNameRoute
+  '/mq9/mailbox/$mailAddress': typeof AuthenticatedMq9MailboxMailAddressRoute
+  '/storage-engine/shard/$shardName': typeof AuthenticatedStorageEngineShardShardNameRoute
   '/data-integration/connector/$connectorName': typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
   '/data-integration/connector/create': typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -495,6 +577,10 @@ export interface FileRoutesByFullPath {
   '/general/topic': typeof AuthenticatedGeneralTopicIndexLazyRoute
   '/monitoring/cluster': typeof AuthenticatedMonitoringClusterIndexLazyRoute
   '/monitoring/topic': typeof AuthenticatedMonitoringTopicIndexLazyRoute
+  '/mq9/agent': typeof AuthenticatedMq9AgentIndexLazyRoute
+  '/mq9/mailbox': typeof AuthenticatedMq9MailboxIndexLazyRoute
+  '/storage-engine/segment': typeof AuthenticatedStorageEngineSegmentIndexLazyRoute
+  '/storage-engine/shard': typeof AuthenticatedStorageEngineShardIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
@@ -511,6 +597,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
   '/system/ban-log': typeof AuthenticatedSystemBanLogRoute
+  '/system/cluster-info': typeof AuthenticatedSystemClusterInfoRoute
   '/system/configuration': typeof AuthenticatedSystemConfigurationRoute
   '/system/pub-sub': typeof AuthenticatedSystemPubSubRoute
   '/system/system-log': typeof AuthenticatedSystemSystemLogRoute
@@ -521,6 +608,9 @@ export interface FileRoutesByTo {
   '/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
+  '/mq9/agent/$agentName': typeof AuthenticatedMq9AgentAgentNameRoute
+  '/mq9/mailbox/$mailAddress': typeof AuthenticatedMq9MailboxMailAddressRoute
+  '/storage-engine/shard/$shardName': typeof AuthenticatedStorageEngineShardShardNameRoute
   '/data-integration/connector/$connectorName': typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
   '/data-integration/connector/create': typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   '/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -540,6 +630,10 @@ export interface FileRoutesByTo {
   '/general/topic': typeof AuthenticatedGeneralTopicIndexLazyRoute
   '/monitoring/cluster': typeof AuthenticatedMonitoringClusterIndexLazyRoute
   '/monitoring/topic': typeof AuthenticatedMonitoringTopicIndexLazyRoute
+  '/mq9/agent': typeof AuthenticatedMq9AgentIndexLazyRoute
+  '/mq9/mailbox': typeof AuthenticatedMq9MailboxIndexLazyRoute
+  '/storage-engine/segment': typeof AuthenticatedStorageEngineSegmentIndexLazyRoute
+  '/storage-engine/shard': typeof AuthenticatedStorageEngineShardIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -558,6 +652,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/advanced/system-alarm': typeof AuthenticatedAdvancedSystemAlarmRoute
   '/_authenticated/system/ban-log': typeof AuthenticatedSystemBanLogRoute
+  '/_authenticated/system/cluster-info': typeof AuthenticatedSystemClusterInfoRoute
   '/_authenticated/system/configuration': typeof AuthenticatedSystemConfigurationRoute
   '/_authenticated/system/pub-sub': typeof AuthenticatedSystemPubSubRoute
   '/_authenticated/system/system-log': typeof AuthenticatedSystemSystemLogRoute
@@ -568,6 +663,9 @@ export interface FileRoutesById {
   '/_authenticated/general/session/$sessionId': typeof AuthenticatedGeneralSessionSessionIdRoute
   '/_authenticated/general/subscribe/$subscribeId': typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   '/_authenticated/general/topic/$topicId': typeof AuthenticatedGeneralTopicTopicIdRoute
+  '/_authenticated/mq9/agent/$agentName': typeof AuthenticatedMq9AgentAgentNameRoute
+  '/_authenticated/mq9/mailbox/$mailAddress': typeof AuthenticatedMq9MailboxMailAddressRoute
+  '/_authenticated/storage-engine/shard/$shardName': typeof AuthenticatedStorageEngineShardShardNameRoute
   '/_authenticated/data-integration/connector/$connectorName': typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
   '/_authenticated/data-integration/connector/create': typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   '/_authenticated/general/client/$clientId': typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -587,6 +685,10 @@ export interface FileRoutesById {
   '/_authenticated/general/topic/': typeof AuthenticatedGeneralTopicIndexLazyRoute
   '/_authenticated/monitoring/cluster/': typeof AuthenticatedMonitoringClusterIndexLazyRoute
   '/_authenticated/monitoring/topic/': typeof AuthenticatedMonitoringTopicIndexLazyRoute
+  '/_authenticated/mq9/agent/': typeof AuthenticatedMq9AgentIndexLazyRoute
+  '/_authenticated/mq9/mailbox/': typeof AuthenticatedMq9MailboxIndexLazyRoute
+  '/_authenticated/storage-engine/segment/': typeof AuthenticatedStorageEngineSegmentIndexLazyRoute
+  '/_authenticated/storage-engine/shard/': typeof AuthenticatedStorageEngineShardIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -605,6 +707,7 @@ export interface FileRouteTypes {
     | '/'
     | '/advanced/system-alarm'
     | '/system/ban-log'
+    | '/system/cluster-info'
     | '/system/configuration'
     | '/system/pub-sub'
     | '/system/system-log'
@@ -615,6 +718,9 @@ export interface FileRouteTypes {
     | '/general/session/$sessionId'
     | '/general/subscribe/$subscribeId'
     | '/general/topic/$topicId'
+    | '/mq9/agent/$agentName'
+    | '/mq9/mailbox/$mailAddress'
+    | '/storage-engine/shard/$shardName'
     | '/data-integration/connector/$connectorName'
     | '/data-integration/connector/create'
     | '/general/client/$clientId'
@@ -634,6 +740,10 @@ export interface FileRouteTypes {
     | '/general/topic'
     | '/monitoring/cluster'
     | '/monitoring/topic'
+    | '/mq9/agent'
+    | '/mq9/mailbox'
+    | '/storage-engine/segment'
+    | '/storage-engine/shard'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -650,6 +760,7 @@ export interface FileRouteTypes {
     | '/'
     | '/advanced/system-alarm'
     | '/system/ban-log'
+    | '/system/cluster-info'
     | '/system/configuration'
     | '/system/pub-sub'
     | '/system/system-log'
@@ -660,6 +771,9 @@ export interface FileRouteTypes {
     | '/general/session/$sessionId'
     | '/general/subscribe/$subscribeId'
     | '/general/topic/$topicId'
+    | '/mq9/agent/$agentName'
+    | '/mq9/mailbox/$mailAddress'
+    | '/storage-engine/shard/$shardName'
     | '/data-integration/connector/$connectorName'
     | '/data-integration/connector/create'
     | '/general/client/$clientId'
@@ -679,6 +793,10 @@ export interface FileRouteTypes {
     | '/general/topic'
     | '/monitoring/cluster'
     | '/monitoring/topic'
+    | '/mq9/agent'
+    | '/mq9/mailbox'
+    | '/storage-engine/segment'
+    | '/storage-engine/shard'
   id:
     | '__root__'
     | '/_authenticated'
@@ -696,6 +814,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/advanced/system-alarm'
     | '/_authenticated/system/ban-log'
+    | '/_authenticated/system/cluster-info'
     | '/_authenticated/system/configuration'
     | '/_authenticated/system/pub-sub'
     | '/_authenticated/system/system-log'
@@ -706,6 +825,9 @@ export interface FileRouteTypes {
     | '/_authenticated/general/session/$sessionId'
     | '/_authenticated/general/subscribe/$subscribeId'
     | '/_authenticated/general/topic/$topicId'
+    | '/_authenticated/mq9/agent/$agentName'
+    | '/_authenticated/mq9/mailbox/$mailAddress'
+    | '/_authenticated/storage-engine/shard/$shardName'
     | '/_authenticated/data-integration/connector/$connectorName'
     | '/_authenticated/data-integration/connector/create'
     | '/_authenticated/general/client/$clientId'
@@ -725,6 +847,10 @@ export interface FileRouteTypes {
     | '/_authenticated/general/topic/'
     | '/_authenticated/monitoring/cluster/'
     | '/_authenticated/monitoring/topic/'
+    | '/_authenticated/mq9/agent/'
+    | '/_authenticated/mq9/mailbox/'
+    | '/_authenticated/storage-engine/segment/'
+    | '/_authenticated/storage-engine/shard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -884,6 +1010,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSystemConfigurationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/system/cluster-info': {
+      id: '/_authenticated/system/cluster-info'
+      path: '/system/cluster-info'
+      fullPath: '/system/cluster-info'
+      preLoaderRoute: typeof AuthenticatedSystemClusterInfoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/system/ban-log': {
       id: '/_authenticated/system/ban-log'
       path: '/system/ban-log'
@@ -896,6 +1029,34 @@ declare module '@tanstack/react-router' {
       path: '/advanced/system-alarm'
       fullPath: '/advanced/system-alarm'
       preLoaderRoute: typeof AuthenticatedAdvancedSystemAlarmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/storage-engine/shard/': {
+      id: '/_authenticated/storage-engine/shard/'
+      path: '/storage-engine/shard'
+      fullPath: '/storage-engine/shard'
+      preLoaderRoute: typeof AuthenticatedStorageEngineShardIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/storage-engine/segment/': {
+      id: '/_authenticated/storage-engine/segment/'
+      path: '/storage-engine/segment'
+      fullPath: '/storage-engine/segment'
+      preLoaderRoute: typeof AuthenticatedStorageEngineSegmentIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mq9/mailbox/': {
+      id: '/_authenticated/mq9/mailbox/'
+      path: '/mq9/mailbox'
+      fullPath: '/mq9/mailbox'
+      preLoaderRoute: typeof AuthenticatedMq9MailboxIndexLazyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mq9/agent/': {
+      id: '/_authenticated/mq9/agent/'
+      path: '/mq9/agent'
+      fullPath: '/mq9/agent'
+      preLoaderRoute: typeof AuthenticatedMq9AgentIndexLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/monitoring/topic/': {
@@ -1031,6 +1192,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/storage-engine/shard/$shardName': {
+      id: '/_authenticated/storage-engine/shard/$shardName'
+      path: '/storage-engine/shard/$shardName'
+      fullPath: '/storage-engine/shard/$shardName'
+      preLoaderRoute: typeof AuthenticatedStorageEngineShardShardNameRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mq9/mailbox/$mailAddress': {
+      id: '/_authenticated/mq9/mailbox/$mailAddress'
+      path: '/mq9/mailbox/$mailAddress'
+      fullPath: '/mq9/mailbox/$mailAddress'
+      preLoaderRoute: typeof AuthenticatedMq9MailboxMailAddressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mq9/agent/$agentName': {
+      id: '/_authenticated/mq9/agent/$agentName'
+      path: '/mq9/agent/$agentName'
+      fullPath: '/mq9/agent/$agentName'
+      preLoaderRoute: typeof AuthenticatedMq9AgentAgentNameRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/general/topic/$topicId': {
       id: '/_authenticated/general/topic/$topicId'
       path: '/general/topic/$topicId'
@@ -1059,6 +1241,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdvancedSystemAlarmRoute: typeof AuthenticatedAdvancedSystemAlarmRoute
   AuthenticatedSystemBanLogRoute: typeof AuthenticatedSystemBanLogRoute
+  AuthenticatedSystemClusterInfoRoute: typeof AuthenticatedSystemClusterInfoRoute
   AuthenticatedSystemConfigurationRoute: typeof AuthenticatedSystemConfigurationRoute
   AuthenticatedSystemPubSubRoute: typeof AuthenticatedSystemPubSubRoute
   AuthenticatedSystemSystemLogRoute: typeof AuthenticatedSystemSystemLogRoute
@@ -1069,6 +1252,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGeneralSessionSessionIdRoute: typeof AuthenticatedGeneralSessionSessionIdRoute
   AuthenticatedGeneralSubscribeSubscribeIdRoute: typeof AuthenticatedGeneralSubscribeSubscribeIdRoute
   AuthenticatedGeneralTopicTopicIdRoute: typeof AuthenticatedGeneralTopicTopicIdRoute
+  AuthenticatedMq9AgentAgentNameRoute: typeof AuthenticatedMq9AgentAgentNameRoute
+  AuthenticatedMq9MailboxMailAddressRoute: typeof AuthenticatedMq9MailboxMailAddressRoute
+  AuthenticatedStorageEngineShardShardNameRoute: typeof AuthenticatedStorageEngineShardShardNameRoute
   AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute: typeof AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute
   AuthenticatedDataIntegrationConnectorCreateLazyRoute: typeof AuthenticatedDataIntegrationConnectorCreateLazyRoute
   AuthenticatedGeneralClientClientIdLazyRoute: typeof AuthenticatedGeneralClientClientIdLazyRoute
@@ -1088,12 +1274,17 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGeneralTopicIndexLazyRoute: typeof AuthenticatedGeneralTopicIndexLazyRoute
   AuthenticatedMonitoringClusterIndexLazyRoute: typeof AuthenticatedMonitoringClusterIndexLazyRoute
   AuthenticatedMonitoringTopicIndexLazyRoute: typeof AuthenticatedMonitoringTopicIndexLazyRoute
+  AuthenticatedMq9AgentIndexLazyRoute: typeof AuthenticatedMq9AgentIndexLazyRoute
+  AuthenticatedMq9MailboxIndexLazyRoute: typeof AuthenticatedMq9MailboxIndexLazyRoute
+  AuthenticatedStorageEngineSegmentIndexLazyRoute: typeof AuthenticatedStorageEngineSegmentIndexLazyRoute
+  AuthenticatedStorageEngineShardIndexLazyRoute: typeof AuthenticatedStorageEngineShardIndexLazyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdvancedSystemAlarmRoute: AuthenticatedAdvancedSystemAlarmRoute,
   AuthenticatedSystemBanLogRoute: AuthenticatedSystemBanLogRoute,
+  AuthenticatedSystemClusterInfoRoute: AuthenticatedSystemClusterInfoRoute,
   AuthenticatedSystemConfigurationRoute: AuthenticatedSystemConfigurationRoute,
   AuthenticatedSystemPubSubRoute: AuthenticatedSystemPubSubRoute,
   AuthenticatedSystemSystemLogRoute: AuthenticatedSystemSystemLogRoute,
@@ -1107,6 +1298,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGeneralSubscribeSubscribeIdRoute:
     AuthenticatedGeneralSubscribeSubscribeIdRoute,
   AuthenticatedGeneralTopicTopicIdRoute: AuthenticatedGeneralTopicTopicIdRoute,
+  AuthenticatedMq9AgentAgentNameRoute: AuthenticatedMq9AgentAgentNameRoute,
+  AuthenticatedMq9MailboxMailAddressRoute:
+    AuthenticatedMq9MailboxMailAddressRoute,
+  AuthenticatedStorageEngineShardShardNameRoute:
+    AuthenticatedStorageEngineShardShardNameRoute,
   AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute:
     AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute,
   AuthenticatedDataIntegrationConnectorCreateLazyRoute:
@@ -1145,6 +1341,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedMonitoringClusterIndexLazyRoute,
   AuthenticatedMonitoringTopicIndexLazyRoute:
     AuthenticatedMonitoringTopicIndexLazyRoute,
+  AuthenticatedMq9AgentIndexLazyRoute: AuthenticatedMq9AgentIndexLazyRoute,
+  AuthenticatedMq9MailboxIndexLazyRoute: AuthenticatedMq9MailboxIndexLazyRoute,
+  AuthenticatedStorageEngineSegmentIndexLazyRoute:
+    AuthenticatedStorageEngineSegmentIndexLazyRoute,
+  AuthenticatedStorageEngineShardIndexLazyRoute:
+    AuthenticatedStorageEngineShardIndexLazyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -67,5 +67,7 @@
   "topic_management": "Topic Management",
   "all_types": "All Types",
   "tenant_management": "Tenant Management",
-  "create_tenant": "Create Tenant"
+  "create_tenant": "Create Tenant",
+  "cluster_info": "Cluster Info",
+  "loading_cluster_status": "Loading cluster status..."
 }

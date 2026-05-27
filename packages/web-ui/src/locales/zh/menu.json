@@ -1,6 +1,7 @@
 {
   "overview": "概览",
   "general": "常规",
+  "mqtt": "MQTT",
   "client": "客户端",
   "session": "会话",
   "topic": "主题",
@@ -19,5 +20,11 @@
   "tenant": "租户",
   "pub_sub": "发布订阅",
   "system_log": "系统日志",
-  "configuration": "配置"
+  "configuration": "配置",
+  "mq9": "MQ9",
+  "mailbox": "邮箱",
+  "agent": "Agent",
+  "storage_engine": "存储引擎",
+  "shard": "分片",
+  "cluster_info": "集群信息"
 }

@@ -16,6 +16,10 @@ import {
   MessageSquare,
   Building2,
   ScrollText,
+  Mail,
+  Bot,
+  HardDrive,
+  Server,
 } from 'lucide-react';
 
 export const sidebarData: SidebarData = {
@@ -28,15 +32,25 @@ export const sidebarData: SidebarData = {
     {
       items: [
         {
-          title: 'overview',
-          url: '/',
-          icon: LayoutDashboard,
+          title: 'tenant',
+          url: '/system/tenant',
+          icon: Building2,
+        },
+        {
+          title: 'topic',
+          url: '/general/topic',
+          icon: ListTodo,
         },
       ],
     },
     {
-      title: 'general',
+      title: 'mqtt',
       items: [
+        {
+          title: 'overview',
+          url: '/',
+          icon: LayoutDashboard,
+        },
         {
           title: 'client',
           url: '/general/client',
@@ -48,15 +62,43 @@ export const sidebarData: SidebarData = {
           icon: UserRound,
         },
         {
-          title: 'topic',
-          url: '/general/topic',
-          icon: ListTodo,
-        },
-        {
           title: 'subscribe',
           url: '/general/subscribe-manager',
           icon: Bell,
         },
+        {
+          title: 'auto_subscription',
+          url: '/advanced/auto-subscription',
+          icon: Zap,
+        },
+        {
+          title: 'topic_rewrite',
+          url: '/advanced/topic-rewrite',
+          icon: FileEdit,
+        },
+        {
+          title: 'pub_sub',
+          url: '/system/pub-sub',
+          icon: MessageSquare,
+        },
+        {
+          title: 'system_log',
+          url: '/system/system-log',
+          icon: ScrollText,
+        },
+      ],
+    },
+    {
+      title: 'mq9',
+      items: [
+        { title: 'mailbox', url: '/mq9/mailbox', icon: Mail },
+        { title: 'agent', url: '/mq9/agent', icon: Bot },
+      ],
+    },
+    {
+      title: 'storage_engine',
+      items: [
+        { title: 'shard', url: '/storage-engine/shard', icon: HardDrive },
       ],
     },
     {
@@ -95,42 +137,17 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: 'advanced',
-      items: [
-        {
-          title: 'auto_subscription',
-          url: '/advanced/auto-subscription',
-          icon: Zap,
-        },
-        {
-          title: 'topic_rewrite',
-          url: '/advanced/topic-rewrite',
-          icon: FileEdit,
-        },
-      ],
-    },
-    {
       title: 'system',
       items: [
-        {
-          title: 'tenant',
-          url: '/system/tenant',
-          icon: Building2,
-        },
-        {
-          title: 'pub_sub',
-          url: '/system/pub-sub',
-          icon: MessageSquare,
-        },
-        {
-          title: 'system_log',
-          url: '/system/system-log',
-          icon: ScrollText,
-        },
         {
           title: 'configuration',
           url: '/system/configuration',
           icon: Settings,
+        },
+        {
+          title: 'cluster_info',
+          url: '/system/cluster-info',
+          icon: Server,
         },
       ],
     },
