@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import { setStoredToken } from '@/utils/requestApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,10 +23,12 @@ interface FallingQ {
 }
 
 export default function Login() {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin');
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [isHovering, setIsHovering] = useState(false);
   const [fallingQs, setFallingQs] = useState<FallingQ[]>([]);
   const qIdRef = useRef(0);
@@ -64,16 +69,40 @@ export default function Login() {
     };
   }, [isHovering]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError('');
 
-    // 模拟登录延迟
-    setTimeout(() => {
-      // 设置登录状态，30 分钟后过期
-      Cookies.set('isAuthenticated', 'true', { expires: 1 / 48 }); // 1/48 天 = 30 分钟
+    const getApiBaseUrl = () => {
+      if (typeof window !== 'undefined' && window.__APP_CONFIG__?.api?.baseUrl) {
+        return window.__APP_CONFIG__.api.baseUrl;
+      }
+      return 'http://localhost:8080';
+    };
+
+    try {
+      const res = await axios.post(`${getApiBaseUrl()}/api/v1/login`, {
+        username,
+        password,
+      });
+      const { token, expires_in } = res.data?.data ?? {};
+      if (!token) {
+        setLoginError('Login failed: no token returned');
+        return;
+      }
+      setStoredToken(token, Math.ceil(expires_in / 3600) || 8);
+      Cookies.set('isAuthenticated', 'true', { expires: expires_in / 86400 });
       navigate({ to: '/' });
-    }, 800);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Login failed';
+      setLoginError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,19 +161,19 @@ export default function Login() {
                   <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-300 via-purple-200 to-indigo-300 bg-clip-text text-transparent">
                     {APP_CONFIG.NAME}
                   </h1>
-                  <p className="text-sm text-purple-300 font-medium">Unified Messaging Infrastructure for AI & IoT</p>
+                  <p className="text-sm text-purple-300 font-medium">{t('brand_tagline')}</p>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold leading-tight">
-                  Connect AI, IoT & Data
+                  {t('brand_subtitle')}
                   <br />
                   <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                    Through One Messaging Layer
+                    {t('brand_description')}
                   </span>
                 </h2>
-                <p className="text-purple-200 text-lg">One data layer. Every protocol. Built with Rust.</p>
+                <p className="text-purple-200 text-lg">{t('brand_detail')}</p>
               </div>
             </div>
 
@@ -155,9 +184,9 @@ export default function Login() {
                   <div className="p-2 rounded-lg bg-purple-500/20 backdrop-blur-sm border border-purple-400/30">
                     <Shield className="h-5 w-5 text-purple-300" />
                   </div>
-                  <span className="text-sm font-semibold text-purple-200">Rust Performance</span>
+                  <span className="text-sm font-semibold text-purple-200">{t('feature_performance')}</span>
                 </div>
-                <p className="text-xs text-purple-300/80 pl-11">Zero GC, microsecond latency</p>
+                <p className="text-xs text-purple-300/80 pl-11">{t('feature_performance_desc')}</p>
               </div>
 
               <div className="space-y-2">
@@ -165,9 +194,9 @@ export default function Login() {
                   <div className="p-2 rounded-lg bg-indigo-500/20 backdrop-blur-sm border border-indigo-400/30">
                     <Zap className="h-5 w-5 text-indigo-300" />
                   </div>
-                  <span className="text-sm font-semibold text-indigo-200">Unified Protocol</span>
+                  <span className="text-sm font-semibold text-indigo-200">{t('feature_protocol')}</span>
                 </div>
-                <p className="text-xs text-indigo-300/80 pl-11">MQTT in, Kafka out — one data plane</p>
+                <p className="text-xs text-indigo-300/80 pl-11">{t('feature_protocol_desc')}</p>
               </div>
 
               <div className="space-y-2">
@@ -175,9 +204,9 @@ export default function Login() {
                   <div className="p-2 rounded-lg bg-blue-500/20 backdrop-blur-sm border border-blue-400/30">
                     <Cpu className="h-5 w-5 text-blue-300" />
                   </div>
-                  <span className="text-sm font-semibold text-blue-200">AI-Native</span>
+                  <span className="text-sm font-semibold text-blue-200">{t('feature_ai')}</span>
                 </div>
-                <p className="text-xs text-blue-300/80 pl-11">Agent-scale topics & training data acceleration</p>
+                <p className="text-xs text-blue-300/80 pl-11">{t('feature_ai_desc')}</p>
               </div>
 
               <div className="space-y-2">
@@ -185,9 +214,9 @@ export default function Login() {
                   <div className="p-2 rounded-lg bg-purple-500/20 backdrop-blur-sm border border-purple-400/30">
                     <Cloud className="h-5 w-5 text-purple-300" />
                   </div>
-                  <span className="text-sm font-semibold text-purple-200">Edge to Cloud</span>
+                  <span className="text-sm font-semibold text-purple-200">{t('feature_edge')}</span>
                 </div>
-                <p className="text-xs text-purple-300/80 pl-11">One architecture, IoT to cluster</p>
+                <p className="text-xs text-purple-300/80 pl-11">{t('feature_edge_desc')}</p>
               </div>
             </div>
 
@@ -214,20 +243,20 @@ export default function Login() {
                   <img src={Logo} alt="RobustMQ" className="h-8 w-8" />
                 </div>
                 <h1 className="text-2xl font-bold text-white">{APP_CONFIG.NAME}</h1>
-                <p className="text-sm text-purple-300">Management Console</p>
+                <p className="text-sm text-purple-300">{t('management_console')}</p>
               </div>
 
               {/* 登录标题 */}
               <div className="space-y-2 text-center lg:text-left">
-                <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
-                <p className="text-sm text-purple-300">Sign in to access the management console</p>
+                <h2 className="text-2xl font-bold text-white">{t('login_title')}</h2>
+                <p className="text-sm text-purple-300">{t('login_subtitle')}</p>
               </div>
 
               {/* 登录表单 */}
               <form onSubmit={handleLogin} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-white font-medium">
-                    Username
+                    {t('username')}
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-400" />
@@ -237,7 +266,7 @@ export default function Login() {
                       value={username}
                       onChange={e => setUsername(e.target.value)}
                       className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-purple-300/50 focus:border-purple-400 focus:ring-purple-400/30 h-12"
-                      placeholder="Enter your username"
+                      placeholder={t('username_placeholder')}
                       required
                     />
                   </div>
@@ -245,7 +274,7 @@ export default function Login() {
 
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-white font-medium">
-                    Password
+                    {t('password')}
                   </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-400" />
@@ -255,7 +284,7 @@ export default function Login() {
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-purple-300/50 focus:border-purple-400 focus:ring-purple-400/30 h-12"
-                      placeholder="Enter your password"
+                      placeholder={t('password_placeholder')}
                       required
                     />
                   </div>
@@ -269,20 +298,27 @@ export default function Login() {
                   {isLoading ? (
                     <div className="flex items-center justify-center space-x-2">
                       <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Signing In...</span>
+                      <span>{t('signing_in')}</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
                       <Lock className="h-4 w-4" />
-                      <span>Sign In</span>
+                      <span>{t('sign_in')}</span>
                     </div>
                   )}
                 </Button>
               </form>
 
+              {/* 错误信息 */}
+              {loginError && (
+                <div className="pt-2 text-center">
+                  <p className="text-xs text-red-400">{loginError}</p>
+                </div>
+              )}
+
               {/* 提示信息 */}
-              <div className="pt-4 text-center">
-                <p className="text-xs text-purple-300/70">Default credentials: admin / admin</p>
+              <div className="pt-2 text-center">
+                <p className="text-xs text-purple-300/70">{t('default_credentials')}</p>
               </div>
             </div>
           </Card>

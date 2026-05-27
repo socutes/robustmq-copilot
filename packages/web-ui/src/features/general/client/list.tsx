@@ -7,6 +7,7 @@ import { Hash, Wifi, Clock, User, Eye, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from '@tanstack/react-router';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface ClientListProps {
   leftActions?: React.ReactNode;
@@ -17,22 +18,19 @@ interface ClientListProps {
 export default function SessionList({ leftActions, tenant, onSearch }: ClientListProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleCopyClientId = (clientId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(clientId);
-    toast({
-      title: 'Copied!',
-      description: 'Client ID copied to clipboard',
-      duration: 2000,
-    });
+    toast({ title: t('copied'), description: t('client_id_copied'), duration: 2000 });
   };
 
   const columns: ColumnSetting<any, any>[] = [
     {
       id: 'client_id',
       accessorKey: 'client_id',
-      header: 'Client ID',
+      header: t('client_id'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2 max-w-xs">
           <div
@@ -61,7 +59,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     {
       id: 'tenant',
       accessorKey: 'tenant',
-      header: 'Tenant',
+      header: t('tenant'),
       cell: ({ row }) => (
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {row.original.mqtt_connection?.tenant || '-'}
@@ -70,7 +68,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       id: 'source_ip',
-      header: 'Source IP',
+      header: t('source_ip'),
       cell: ({ row }) => (
         <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
           {row.original.mqtt_connection?.source_ip_addr || '-'}
@@ -80,7 +78,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     {
       id: 'connection_id',
       accessorKey: 'connection_id',
-      header: 'Connection ID',
+      header: t('connection_id'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
@@ -92,7 +90,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       accessorKey: 'connection_type',
-      header: 'Connection Type',
+      header: t('connection_type'),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -105,7 +103,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       accessorKey: 'protocol',
-      header: 'Protocol',
+      header: t('protocol'),
       cell: ({ row }) => (
         <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
           {row.original.network_connection?.protocol || '-'}
@@ -114,15 +112,12 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       accessorKey: 'create_time',
-      header: 'Created At',
+      header: t('created_at'),
       cell: ({ row }) => {
         const createTime = row.original.mqtt_connection?.create_time;
         if (!createTime) return '-';
-
-        // 如果是时间戳（数字），转换为日期格式
         const timestamp = typeof createTime === 'string' ? parseInt(createTime) : createTime;
         const formattedTime = format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
-
         return (
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4 text-gray-500" />
@@ -133,15 +128,12 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       accessorKey: 'heartbeat_time',
-      header: 'Heartbeat Time',
+      header: t('heartbeat_time'),
       cell: ({ row }) => {
         const heartbeatTime = row.original.heartbeat?.heartbeat;
         if (!heartbeatTime) return '-';
-
-        // 如果是时间戳（数字），转换为日期格式
         const timestamp = typeof heartbeatTime === 'string' ? parseInt(heartbeatTime) : heartbeatTime;
         const formattedTime = format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
-
         return (
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4 text-green-500" />
@@ -152,11 +144,10 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       accessorKey: 'keep_alive',
-      header: 'Keep Alive',
+      header: t('keep_alive'),
       cell: ({ row }) => {
         const keepLive = row.original.heartbeat?.keep_live;
         if (keepLive === null || keepLive === undefined) return '-';
-
         return (
           <div className="flex items-center space-x-2">
             <Badge
@@ -172,7 +163,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <Button
           size="sm"
@@ -182,7 +173,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
           }}
         >
           <Eye className="mr-0.5 h-2.5 w-2.5" />
-          Details
+          {t('details_btn')}
         </Button>
       ),
       size: 100,
@@ -191,7 +182,6 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
 
   const fetchDataFn = async (pageIndex: number, pageSize: number, searchValue: FilterValue[]) => {
     const clientIdVal = searchValue.find(f => f.field === 'client_id' || f.field === '')?.valueList?.[0];
-
     const ret = await getClientListHttp({
       pagination: { offset: pageIndex * pageSize, limit: pageSize },
       sort_field: 'connection_id',
@@ -214,7 +204,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: ClientLis
         headerClassName="bg-purple-600 text-white"
         leftActions={leftActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by client ID..."
+        searchPlaceholder={t('search_by_client_id')}
       />
     </div>
   );

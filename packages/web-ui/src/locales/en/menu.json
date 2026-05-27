@@ -1,0 +1,23 @@
+{
+  "overview": "Overview",
+  "general": "General",
+  "client": "Client",
+  "session": "Session",
+  "topic": "Topic",
+  "subscribe": "Subscribe",
+  "access_control": "Access Control",
+  "user": "User",
+  "acl": "ACL",
+  "blacklist": "Blacklist",
+  "data_integration": "Data Integration",
+  "connector": "Connector",
+  "schema": "Schema",
+  "advanced": "Advanced",
+  "auto_subscription": "Auto Subscription",
+  "topic_rewrite": "Topic Rewrite",
+  "system": "System",
+  "tenant": "Tenant",
+  "pub_sub": "Pub Sub",
+  "system_log": "System Log",
+  "configuration": "Configuration"
+}

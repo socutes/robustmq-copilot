@@ -17,6 +17,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { DeleteConnectorButton } from './components/delete-connector-button';
 import { DataTableColumnHeader } from '@/components/table/data-table-column-header';
 import { SortDirection } from '@/services/common/sort';
@@ -100,11 +101,12 @@ interface ConnectorListProps {
 
 export default function ConnectorList({ extraActions, leftActions, tenant, onSearch }: ConnectorListProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const columns: ColumnDef<ConnectorRaw>[] = [
     {
       accessorKey: 'connector_name',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Connector Name" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('connector_name')} />,
       cell: ({ row }) => (
         <div className="flex items-center space-x-2 min-w-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900 shrink-0">
@@ -119,7 +121,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
     },
     {
       accessorKey: 'tenant',
-      header: 'Tenant',
+      header: t('tenant'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-1.5 min-w-0">
           <Building2 className="h-4 w-4 text-gray-500 shrink-0" />
@@ -131,7 +133,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
     },
     {
       accessorKey: 'connector_type',
-      header: 'Type',
+      header: t('type'),
       cell: ({ row }) => {
         const type = row.original.connector_type;
         const Icon = getConnectorTypeIcon(type);
@@ -147,7 +149,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
     },
     {
       accessorKey: 'topic_name',
-      header: 'Topic Name',
+      header: t('topic_name'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-1.5 min-w-0">
           <Tag className="h-4 w-4 text-gray-500 shrink-0" />
@@ -159,7 +161,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('status'),
       cell: ({ row }) => (
         <Badge variant="default" className={getStatusBadgeStyle(row.original.status)}>
           <Activity className="mr-1 h-3 w-3" />
@@ -171,7 +173,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
     },
     {
       accessorKey: 'create_time',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('created_at')} />,
       cell: ({ row }) => {
         const createTime = row.original.create_time;
         if (!createTime) return '-';
@@ -188,7 +190,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <div className="flex items-center justify-center space-x-2">
           <Button
@@ -203,7 +205,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
             }}
           >
             <Eye className="mr-0.5 h-2.5 w-2.5" />
-            Details
+            {t('details_btn')}
           </Button>
           <DeleteConnectorButton connectorName={row.original.connector_name} tenant={row.original.tenant} />
         </div>
@@ -256,7 +258,7 @@ export default function ConnectorList({ extraActions, leftActions, tenant, onSea
         extraActions={extraActions}
         leftActions={leftActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by connector name..."
+        searchPlaceholder={t('search_by_connector')}
       />
     </div>
   );

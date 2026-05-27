@@ -1,0 +1,16 @@
+{
+  "not_found_code": "404",
+  "not_found_title": "Oops! Page Not Found!",
+  "not_found_desc": "It seems like the page you're looking for does not exist or might have been removed.",
+  "server_error_code": "500",
+  "server_error_title": "Oops! Something went wrong",
+  "server_error_desc": "We apologize for the inconvenience. Please try again later.",
+  "forbidden_code": "403",
+  "forbidden_title": "Access Forbidden",
+  "forbidden_desc": "You don't have necessary permission to view this resource.",
+  "unauthorized_code": "401",
+  "unauthorized_title": "Unauthorized Access",
+  "unauthorized_desc": "Please log in with the appropriate credentials to access this resource.",
+  "go_back": "Go Back",
+  "back_to_home": "Back to Home"
+}

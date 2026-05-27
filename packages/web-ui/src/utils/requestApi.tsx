@@ -1,23 +1,56 @@
-import React from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { QueryOption } from '@/services/common/query';
 import { toast } from '@/hooks/use-toast';
 
+const TOKEN_KEY = 'robustmq_token';
+
+export const getStoredToken = (): string => Cookies.get(TOKEN_KEY) ?? '';
+export const setStoredToken = (token: string, ttlHours = 8) => {
+  Cookies.set(TOKEN_KEY, token, { expires: ttlHours / 24 });
+};
+export const clearStoredToken = () => {
+  Cookies.remove(TOKEN_KEY);
+  Cookies.remove('isAuthenticated');
+};
+
 // 动态获取 API 基础地址
-// 优先级：环境变量 > 当前页面地址 > 默认fallback
+// 优先级：runtime config.js > 默认fallback
 const getApiBaseUrl = () => {
-  // 1. 优先使用环境变量配置的API地址
   if (typeof window !== 'undefined' && window.__APP_CONFIG__?.api?.baseUrl) {
     return window.__APP_CONFIG__.api.baseUrl;
   }
-
-  // 2. 默认使用 localhost:8080
   return 'http://localhost:8080';
 };
 
 const requestInstance = axios.create({
   baseURL: getApiBaseUrl(),
 });
+
+// Attach Bearer token to every request
+requestInstance.interceptors.request.use(config => {
+  const token = getStoredToken();
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// On 401, clear token and redirect to login
+requestInstance.interceptors.response.use(
+  res => res,
+  err => {
+    if (axios.isAxiosError(err) && err.response?.status === 401) {
+      clearStoredToken();
+      // Use window.location to avoid router dependency in this utility
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(err);
+  },
+);
 
 interface ApiResponse<T = any> {
   code: number;

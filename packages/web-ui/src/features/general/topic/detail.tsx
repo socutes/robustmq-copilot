@@ -48,8 +48,10 @@ import { SimpleLineChart } from '@/features/general/dashboard/components/chart';
 import { BindSchemaButton } from './components/bind-schema-button';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function TopicDetail() {
+  const { t } = useTranslation();
   const { topicId } = useParams({ from: '/_authenticated/general/topic/$topicId' });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -71,8 +73,8 @@ export default function TopicDetail() {
     mutationFn: deleteSchemaBind,
     onSuccess: () => {
       toast({
-        title: 'Success',
-        description: 'Schema binding deleted successfully!',
+        title: t('success'),
+        description: t('schema_binding_deleted'),
       });
       queryClient.invalidateQueries({ queryKey: ['schemaBindList', topicId] });
       setDeleteDialogOpen(false);
@@ -82,7 +84,7 @@ export default function TopicDetail() {
       console.error('Failed to delete schema binding:', error);
       const errorMessage = error?.message || error?.toString() || 'Failed to delete schema binding';
       toast({
-        title: 'Error',
+        title: t('error'),
         description: errorMessage,
         variant: 'destructive',
       });
@@ -139,7 +141,7 @@ export default function TopicDetail() {
     return (
       <CommonLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading...</div>
+          <div className="text-lg">{t('loading')}</div>
         </div>
       </CommonLayout>
     );
@@ -150,11 +152,11 @@ export default function TopicDetail() {
     return (
       <CommonLayout>
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <div className="text-lg text-red-600">Error loading topic data</div>
+          <div className="text-lg text-red-600">{t('error_loading_topic')}</div>
           <div className="text-sm text-gray-600">{String(error)}</div>
           <Button onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            {t('back')}
           </Button>
         </div>
       </CommonLayout>
@@ -165,10 +167,10 @@ export default function TopicDetail() {
     return (
       <CommonLayout>
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <div className="text-lg">Topic not found</div>
+          <div className="text-lg">{t('topic_not_found')}</div>
           <Button onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            {t('back')}
           </Button>
         </div>
       </CommonLayout>
@@ -224,7 +226,7 @@ export default function TopicDetail() {
                 className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+                {t('back')}
               </Button>
               <div className="flex items-center space-x-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 dark:bg-purple-500">
@@ -232,7 +234,7 @@ export default function TopicDetail() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">
-                    Topic Name
+                    {t('topic_name')}
                   </p>
                   <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                     {topicInfo?.topic_name || topicId}
@@ -248,7 +250,7 @@ export default function TopicDetail() {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-1.5">
               <Info className="h-4 w-4" />
-              Overview
+              {t('overview')}
             </TabsTrigger>
             <TabsTrigger value="schema" className="flex items-center gap-1.5">
               <Link2 className="h-4 w-4" />
@@ -256,11 +258,11 @@ export default function TopicDetail() {
             </TabsTrigger>
             <TabsTrigger value="subscribe" className="flex items-center gap-1.5">
               <Users className="h-4 w-4" />
-              Subscribe
+              {t('subscribe')}
             </TabsTrigger>
             <TabsTrigger value="monitoring" className="flex items-center gap-1.5">
               <BarChart3 className="h-4 w-4" />
-              Monitoring
+              {t('monitoring')}
             </TabsTrigger>
           </TabsList>
 
@@ -271,7 +273,7 @@ export default function TopicDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Info className="h-5 w-5 text-purple-600" />
-                  <span>Basic Information</span>
+                  <span>{t('basic_information')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -282,7 +284,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
-                        Tenant
+                        {t('tenant')}
                       </label>
                       <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
                         {tenant || topicInfo?.tenant || '-'}
@@ -296,7 +298,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
-                        Topic ID
+                        {t('topic_id')}
                       </label>
                       <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
                         {topicInfo?.topic_id || '-'}
@@ -310,7 +312,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide">
-                        Topic Name
+                        {t('topic_name')}
                       </label>
                       <div className="mt-1 text-sm font-mono break-all text-gray-900 dark:text-gray-100">
                         {topicInfo?.topic_name || '-'}
@@ -324,7 +326,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-cyan-700 dark:text-cyan-400 uppercase tracking-wide">
-                        Storage Type
+                        {t('storage_type')}
                       </label>
                       <div className="mt-1">
                         <Badge variant="outline" className="font-mono text-xs">
@@ -340,7 +342,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
-                        Partition
+                        {t('partition')}
                       </label>
                       <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {topicInfo?.partition ?? '-'}
@@ -354,7 +356,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wide">
-                        Replication
+                        {t('replication')}
                       </label>
                       <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {topicInfo?.replication ?? '-'}
@@ -368,7 +370,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
-                        Created At
+                        {t('created_at')}
                       </label>
                       <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-100">
                         {formattedCreateTime}
@@ -382,7 +384,7 @@ export default function TopicDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <label className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide">
-                        Tenant
+                        {t('tenant')}
                       </label>
                       <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                         {tenant || '-'}
@@ -396,7 +398,7 @@ export default function TopicDetail() {
                   <div className="mt-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
                     <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide block mb-2 flex items-center">
                       <Layers className="h-4 w-4 mr-2 text-gray-500" />
-                      Storage Name List
+                      {t('storage_name_list')}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(topicInfo.storage_name_list).map(([partition, name]) => (
@@ -422,7 +424,7 @@ export default function TopicDetail() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center space-x-2">
                     <FileText className="h-5 w-5 text-yellow-600" />
-                    <span>Retain Message</span>
+                    <span>{t('retain_message')}</span>
                   </CardTitle>
                   {data?.retain_message_at && (
                     <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
@@ -441,7 +443,7 @@ export default function TopicDetail() {
                       String(data.retain_message)
                     )
                   ) : (
-                    <span className="text-gray-400 dark:text-gray-600 italic">No retain message</span>
+                    <span className="text-gray-400 dark:text-gray-600 italic">{t('no_retain_message')}</span>
                   )}
                 </div>
               </CardContent>
@@ -452,7 +454,7 @@ export default function TopicDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Box className="h-5 w-5 text-teal-600" />
-                  <span>Partition List</span>
+                  <span>{t('partition_list')}</span>
                   {data?.storage_list && (
                     <span className="ml-2 text-sm text-muted-foreground">
                       ({Object.keys(data.storage_list).length})
@@ -462,21 +464,21 @@ export default function TopicDetail() {
               </CardHeader>
               <CardContent>
                 {!data?.storage_list || Object.keys(data.storage_list).length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">No partition data available</div>
+                  <div className="text-center py-8 text-muted-foreground">{t('no_partition_data')}</div>
                 ) : (
                   <div className="rounded-md border">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[80px]">Partition</TableHead>
-                          <TableHead>Shard Name</TableHead>
-                          <TableHead className="w-[90px]">Status</TableHead>
-                          <TableHead>Storage Type</TableHead>
-                          <TableHead className="w-[80px]">Replicas</TableHead>
-                          <TableHead>Segments</TableHead>
-                          <TableHead>Retention</TableHead>
-                          <TableHead>Max Size</TableHead>
-                          <TableHead className="w-[90px] text-center">Actions</TableHead>
+                          <TableHead className="w-[80px]">{t('partition')}</TableHead>
+                          <TableHead>{t('shard_name')}</TableHead>
+                          <TableHead className="w-[90px]">{t('status')}</TableHead>
+                          <TableHead>{t('storage_type')}</TableHead>
+                          <TableHead className="w-[80px]">{t('replicas')}</TableHead>
+                          <TableHead>{t('segments')}</TableHead>
+                          <TableHead>{t('retention')}</TableHead>
+                          <TableHead>{t('max_size')}</TableHead>
+                          <TableHead className="w-[90px] text-center">{t('actions')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -545,7 +547,7 @@ export default function TopicDetail() {
                                 }}
                               >
                                 <Eye className="mr-0.5 h-2.5 w-2.5" />
-                                Details
+                                {t('details_btn')}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -565,7 +567,7 @@ export default function TopicDetail() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center space-x-2">
                     <Link2 className="h-5 w-5 text-green-600" />
-                    <span>Schema Bindings</span>
+                    <span>{t('schema_bindings')}</span>
                     <span className="ml-2 text-sm text-muted-foreground">
                       ({schemaBindData?.schemaBindList?.[0]?.data?.length || 0})
                     </span>
@@ -596,8 +598,8 @@ export default function TopicDetail() {
                 {!schemaBindData?.schemaBindList?.length || !schemaBindData.schemaBindList[0]?.data?.length ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <Link2 className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                    <p className="text-sm">No schema bindings found</p>
-                    <p className="text-xs text-gray-400 mt-1">Bind a schema to validate message payloads</p>
+                    <p className="text-sm">{t('no_schema_bindings')}</p>
+                    <p className="text-xs text-gray-400 mt-1">{t('bind_schema_hint')}</p>
                   </div>
                 ) : (
                   <div className="rounded-md border">
@@ -605,8 +607,8 @@ export default function TopicDetail() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[80px]">#</TableHead>
-                          <TableHead>Schema Name</TableHead>
-                          <TableHead className="w-[100px] text-center">Actions</TableHead>
+                          <TableHead>{t('schema_name')}</TableHead>
+                          <TableHead className="w-[100px] text-center">{t('actions')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -657,7 +659,7 @@ export default function TopicDetail() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center space-x-2">
                     <Users className="h-5 w-5 text-blue-600" />
-                    <span>Subscriptions</span>
+                    <span>{t('subscriptions')}</span>
                     <span className="ml-2 text-sm text-muted-foreground">({subscriptions.length})</span>
                   </CardTitle>
                   <Button
@@ -680,17 +682,17 @@ export default function TopicDetail() {
                 {subscriptions.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <Users className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                    <p className="text-sm">No subscriptions found</p>
-                    <p className="text-xs text-gray-400 mt-1">Clients subscribing to this topic will appear here</p>
+                    <p className="text-sm">{t('no_subscriptions')}</p>
+                    <p className="text-xs text-gray-400 mt-1">{t('subscriptions_hint')}</p>
                   </div>
                 ) : (
                   <div className="rounded-md border">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Client ID</TableHead>
-                          <TableHead>Path</TableHead>
-                          <TableHead className="w-[90px] text-center">Actions</TableHead>
+                          <TableHead>{t('client_id')}</TableHead>
+                          <TableHead>{t('path')}</TableHead>
+                          <TableHead className="w-[90px] text-center">{t('actions')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -735,7 +737,7 @@ export default function TopicDetail() {
                                 }
                               >
                                 <Eye className="mr-0.5 h-2.5 w-2.5" />
-                                Details
+                                {t('details_btn')}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -751,8 +753,8 @@ export default function TopicDetail() {
           {/* ==================== Tab 4: Monitoring ==================== */}
           <TabsContent value="monitoring" className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <SimpleLineChart title="Topic Message In (Count/Sec)" data={topicInData || []} color="cyan" />
-              <SimpleLineChart title="Topic Message Out (Count/Sec)" data={topicOutData || []} color="blue" />
+              <SimpleLineChart title={t('topic_message_in')} data={topicInData || []} color="cyan" />
+              <SimpleLineChart title={t('topic_message_out')} data={topicOutData || []} color="blue" />
             </div>
           </TabsContent>
         </Tabs>
@@ -761,23 +763,23 @@ export default function TopicDetail() {
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Schema Binding</AlertDialogTitle>
+              <AlertDialogTitle>{t('delete_schema_binding')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to unbind schema <strong>"{schemaToDelete}"</strong> from topic{' '}
+                {t('delete_schema_binding_confirm')} <strong>"{schemaToDelete}"</strong> {t('delete_schema_binding_from')}{' '}
                 <strong>"{topicId}"</strong>?
                 <br />
                 <br />
-                This action will remove the binding relationship between the schema and the topic.
+                {t('delete_schema_binding_desc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteConfirm}
                 disabled={deleteBindMutation.isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {deleteBindMutation.isPending ? 'Deleting...' : 'Delete Binding'}
+                {deleteBindMutation.isPending ? t('deleting') : t('delete_binding')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -790,9 +792,9 @@ export default function TopicDetail() {
           <SheetHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30">
             <SheetTitle className="flex items-center space-x-2">
               <Box className="h-5 w-5 text-teal-600" />
-              <span>Partition {selectedPartition?.id} Details</span>
+              <span>{t('partition')} {selectedPartition?.id} {t('details')}</span>
             </SheetTitle>
-            <SheetDescription>Complete storage information for this partition</SheetDescription>
+            <SheetDescription>{t('partition_storage_info')}</SheetDescription>
           </SheetHeader>
 
           {selectedPartition && (
@@ -802,7 +804,7 @@ export default function TopicDetail() {
                 <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border">
                   <div className="flex items-center space-x-2">
                     <Activity className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('status')}</span>
                   </div>
                   <Badge
                     variant={selectedPartition.shard.status === 'Run' ? 'default' : 'secondary'}
@@ -823,23 +825,23 @@ export default function TopicDetail() {
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
                     <Server className="h-3.5 w-3.5 mr-1.5" />
-                    Shard Information
+                    {t('shard_information')}
                   </h4>
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Shard UID</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('shard_uid')}</span>
                       <span className="font-mono text-xs text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                         {selectedPartition.shard.shard_uid}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Shard Name</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('shard_name')}</span>
                       <span className="font-mono text-xs text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                         {selectedPartition.shard.shard_name}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Created At</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('created_at')}</span>
                       <span className="text-sm text-gray-900 dark:text-gray-100">
                         {selectedPartition.shard.create_time
                           ? format(new Date(selectedPartition.shard.create_time * 1000), 'yyyy-MM-dd HH:mm:ss')
@@ -855,7 +857,7 @@ export default function TopicDetail() {
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
                     <Layers className="h-3.5 w-3.5 mr-1.5" />
-                    Segment Information
+                    {t('segment_information')}
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border">
@@ -885,13 +887,13 @@ export default function TopicDetail() {
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
                     <Settings className="h-3.5 w-3.5 mr-1.5" />
-                    Configuration
+                    {t('configuration')}
                   </h4>
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                         <Database className="h-3.5 w-3.5 mr-1.5" />
-                        Storage Type
+                        {t('storage_type')}
                       </span>
                       <Badge
                         variant="outline"
@@ -903,7 +905,7 @@ export default function TopicDetail() {
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                         <GitFork className="h-3.5 w-3.5 mr-1.5" />
-                        Replicas
+                        {t('replicas')}
                       </span>
                       <Badge variant="secondary" className="font-mono">
                         {selectedPartition.shard.config.replica_num}
@@ -912,15 +914,15 @@ export default function TopicDetail() {
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                         <Clock className="h-3.5 w-3.5 mr-1.5" />
-                        Retention
+                        {t('retention')}
                       </span>
                       <div className="text-right">
                         <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {selectedPartition.shard.config.retention_sec >= 86400
-                            ? `${Math.floor(selectedPartition.shard.config.retention_sec / 86400)} days`
+                            ? `${Math.floor(selectedPartition.shard.config.retention_sec / 86400)} ${t('days')}`
                             : selectedPartition.shard.config.retention_sec >= 3600
-                              ? `${Math.floor(selectedPartition.shard.config.retention_sec / 3600)} hours`
-                              : `${selectedPartition.shard.config.retention_sec} seconds`}
+                              ? `${Math.floor(selectedPartition.shard.config.retention_sec / 3600)} ${t('hours')}`
+                              : `${selectedPartition.shard.config.retention_sec} ${t('seconds')}`}
                         </span>
                         <span className="block text-xs text-gray-400">
                           {selectedPartition.shard.config.retention_sec.toLocaleString()}s
@@ -930,7 +932,7 @@ export default function TopicDetail() {
                     <div className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                         <HardDrive className="h-3.5 w-3.5 mr-1.5" />
-                        Max Segment Size
+                        {t('max_segment_size')}
                       </span>
                       <div className="text-right">
                         <span className="text-sm font-medium text-gray-900 dark:text-gray-100">

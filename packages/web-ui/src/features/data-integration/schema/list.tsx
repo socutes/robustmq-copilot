@@ -6,6 +6,7 @@ import { FileCode, FileJson, Database, Code, FileText, MessageSquare, Building2 
 import { DeleteSchemaButton } from './components/delete-schema-button';
 import { DetailSchemaButton } from './components/detail-schema-button';
 import { FilterValue } from '@/components/table/filter';
+import { useTranslation } from 'react-i18next';
 
 const SCHEMA_TYPE_MAP = {
   json: 'JSON',
@@ -42,10 +43,11 @@ interface SchemaListProps {
 }
 
 export default function SchemaList({ leftActions, extraActions, tenant, onSearch }: SchemaListProps) {
+  const { t } = useTranslation();
   const columns: ColumnDef<SchemaRaw>[] = [
     {
       id: 'tenant',
-      header: 'Tenant',
+      header: t('tenant'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4 text-purple-400" />
@@ -56,7 +58,7 @@ export default function SchemaList({ leftActions, extraActions, tenant, onSearch
     },
     {
       accessorKey: 'name',
-      header: 'Schema Name',
+      header: t('schema_name'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
@@ -68,7 +70,7 @@ export default function SchemaList({ leftActions, extraActions, tenant, onSearch
     },
     {
       accessorKey: 'schema_type',
-      header: 'Schema Type',
+      header: t('schema_type'),
       cell: ({ row }) => {
         const type = row.original.schema_type;
         const Icon = getSchemaTypeIcon(type);
@@ -82,7 +84,7 @@ export default function SchemaList({ leftActions, extraActions, tenant, onSearch
     },
     {
       accessorKey: 'desc',
-      header: 'Description',
+      header: t('description'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <MessageSquare className="h-4 w-4 text-gray-500" />
@@ -94,7 +96,7 @@ export default function SchemaList({ leftActions, extraActions, tenant, onSearch
     },
     {
       id: 'schema_definition',
-      header: 'Schema Definition',
+      header: t('schema_definition'),
       cell: ({ row }) => {
         const schema = row.original.schema || '';
         const truncated = schema.length > 50 ? schema.substring(0, 50) + '...' : schema;
@@ -110,7 +112,7 @@ export default function SchemaList({ leftActions, extraActions, tenant, onSearch
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <div className="flex items-center justify-center space-x-2">
           <DetailSchemaButton schema={row.original} />
@@ -151,7 +153,7 @@ export default function SchemaList({ leftActions, extraActions, tenant, onSearch
         leftActions={leftActions}
         extraActions={extraActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by schema name..."
+        searchPlaceholder={t('search_by_schema')}
       />
     </div>
   );

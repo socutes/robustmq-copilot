@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,6 +10,7 @@ import { Plug, Plus } from 'lucide-react';
 import { getTenantList } from '@/services/mqtt';
 
 export default function Connector() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedTenant, setSelectedTenant] = useState<string>('all');
   const [appliedTenant, setAppliedTenant] = useState<string>('all');
@@ -22,16 +24,16 @@ export default function Connector() {
   const leftActions = useMemo(() => (
     <Select value={selectedTenant} onValueChange={setSelectedTenant}>
       <SelectTrigger className="w-[160px] h-8 text-sm">
-        <SelectValue placeholder="All Tenants" />
+        <SelectValue placeholder={t('all_tenants')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Tenants</SelectItem>
-        {tenants.map(t => (
-          <SelectItem key={t.tenant_name} value={t.tenant_name}>{t.tenant_name}</SelectItem>
+        <SelectItem value="all">{t('all_tenants')}</SelectItem>
+        {tenants.map(tenant => (
+          <SelectItem key={tenant.tenant_name} value={tenant.tenant_name}>{tenant.tenant_name}</SelectItem>
         ))}
       </SelectContent>
     </Select>
-  ), [selectedTenant, tenants]);
+  ), [selectedTenant, tenants, t]);
 
   const extraActions = (
     <Button
@@ -40,7 +42,7 @@ export default function Connector() {
       className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
     >
       <Plus className="mr-2 h-4 w-4" />
-      Create Connector
+      {t('create_connector')}
     </Button>
   );
 
@@ -51,7 +53,7 @@ export default function Connector() {
           <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-md">
             <Plug className="h-3 w-3 text-white" />
           </div>
-          <h2 className="text-lg font-bold text-purple-600">Connector Management</h2>
+          <h2 className="text-lg font-bold text-purple-600">{t('connector_management')}</h2>
         </div>
       </div>
       <ConnectorList

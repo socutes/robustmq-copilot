@@ -1,6 +1,7 @@
 import { DataTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
 import { getAclListHttp, AclRaw } from '@/services/mqtt';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function AclDetailButton({ acl }: { acl: AclRaw }) {
+  const { t } = useTranslation(['acl', 'common']);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -43,9 +45,9 @@ function AclDetailButton({ acl }: { acl: AclRaw }) {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-purple-600" />
-            ACL Rule Detail
+            {t('acl_detail_title')}
           </SheetTitle>
-          <SheetDescription>View complete ACL rule information</SheetDescription>
+          <SheetDescription>{t('acl_detail_desc')}</SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-4">
@@ -53,13 +55,13 @@ function AclDetailButton({ acl }: { acl: AclRaw }) {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center space-x-2 text-base">
                 <FileText className="h-4 w-4 text-purple-600" />
-                <span>Basic Information</span>
+                <span>{t('basic_info')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <InfoRow label="Tenant" value={<span className="font-mono font-medium">{acl.tenant}</span>} />
-              <InfoRow label="Name" value={<span className="font-mono font-medium">{acl.name}</span>} />
-              <InfoRow label="Description" value={acl.desc || <span className="text-gray-400">—</span>} />
+              <InfoRow label={t('tenant', { ns: 'common' })} value={<span className="font-mono font-medium">{acl.tenant}</span>} />
+              <InfoRow label={t('name', { ns: 'common' })} value={<span className="font-mono font-medium">{acl.name}</span>} />
+              <InfoRow label={t('description', { ns: 'common' })} value={acl.desc || <span className="text-gray-400">—</span>} />
             </CardContent>
           </Card>
 
@@ -67,24 +69,24 @@ function AclDetailButton({ acl }: { acl: AclRaw }) {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center space-x-2 text-base">
                 <Shield className="h-4 w-4 text-blue-600" />
-                <span>Access Control</span>
+                <span>{t('access_control')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <InfoRow label="Resource Type" value={
+              <InfoRow label={t('resource_type')} value={
                 <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300">
                   {acl.resource_type}
                 </Badge>
               } />
-              <InfoRow label="Resource Name" value={<span className="font-mono">{acl.resource_name || '—'}</span>} />
-              <InfoRow label="Topic" value={<span className="font-mono">{acl.topic || '—'}</span>} />
-              <InfoRow label="IP Address" value={<span className="font-mono">{acl.ip || '—'}</span>} />
-              <InfoRow label="Action" value={
+              <InfoRow label={t('resource_name')} value={<span className="font-mono">{acl.resource_name || '—'}</span>} />
+              <InfoRow label={t('topic')} value={<span className="font-mono">{acl.topic || '—'}</span>} />
+              <InfoRow label={t('ip_address')} value={<span className="font-mono">{acl.ip || '—'}</span>} />
+              <InfoRow label={t('action')} value={
                 <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                   {acl.action}
                 </Badge>
               } />
-              <InfoRow label="Permission" value={
+              <InfoRow label={t('permission')} value={
                 <Badge className={acl.permission === 'Allow'
                   ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
                   : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
@@ -102,10 +104,12 @@ function AclDetailButton({ acl }: { acl: AclRaw }) {
 }
 
 export default function AclList({ leftActions, extraActions, tenant, onSearch }: AclListProps) {
+  const { t } = useTranslation(['acl', 'common']);
+
   const columns: ColumnDef<AclRaw>[] = [
     {
       id: 'tenant',
-      header: 'Tenant',
+      header: t('tenant', { ns: 'common' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4 text-purple-400" />
@@ -116,7 +120,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: t('name', { ns: 'common' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Tag className="h-4 w-4 text-indigo-500" />
@@ -128,7 +132,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     {
       id: 'resource_type',
       accessorKey: 'resource_type',
-      header: 'Resource Type',
+      header: t('resource_type', { ns: 'acl' }),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -141,7 +145,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       accessorKey: 'resource_name',
-      header: 'Resource Name',
+      header: t('resource_name', { ns: 'acl' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
@@ -153,7 +157,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       accessorKey: 'topic',
-      header: 'Topic',
+      header: t('topic', { ns: 'acl' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Hash className="h-4 w-4 text-gray-500" />
@@ -163,7 +167,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       accessorKey: 'ip',
-      header: 'IP Address',
+      header: t('ip_address', { ns: 'acl' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Globe className="h-4 w-4 text-gray-500" />
@@ -173,7 +177,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       accessorKey: 'action',
-      header: 'Action',
+      header: t('action', { ns: 'acl' }),
       cell: ({ row }) => (
         <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
           <Lock className="mr-1 h-3 w-3" />
@@ -183,7 +187,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       accessorKey: 'permission',
-      header: 'Permission',
+      header: t('permission', { ns: 'acl' }),
       cell: ({ row }) => (
         <Badge
           variant={row.original.permission === 'Allow' ? 'default' : 'destructive'}
@@ -200,7 +204,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions', { ns: 'common' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-1">
           <AclDetailButton acl={row.original} />
@@ -237,7 +241,7 @@ export default function AclList({ leftActions, extraActions, tenant, onSearch }:
         leftActions={leftActions}
         extraActions={extraActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by ACL name..."
+        searchPlaceholder={t('search_acl', { ns: 'acl' })}
       />
 
     </div>

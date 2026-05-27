@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DataTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
 import { getTenantList, TenantRaw } from '@/services/mqtt';
@@ -31,10 +32,11 @@ interface TenantListProps {
 }
 
 export default function TenantList({ extraActions }: TenantListProps) {
+  const { t } = useTranslation();
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: 'tenant_name',
-      header: 'Tenant Name',
+      header: t('tenant_name'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
@@ -46,7 +48,7 @@ export default function TenantList({ extraActions }: TenantListProps) {
     },
     {
       accessorKey: 'desc',
-      header: 'Description',
+      header: t('description'),
       cell: ({ row }) => (
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {row.original.desc || '-'}
@@ -55,21 +57,21 @@ export default function TenantList({ extraActions }: TenantListProps) {
     },
     {
       id: 'max_connections_per_node',
-      header: 'Max Connections',
+      header: t('max_connections'),
       cell: ({ row }) => (
         <span className="text-sm">{row.original.config?.max_connections_per_node?.toLocaleString() ?? '-'}</span>
       ),
     },
     {
       id: 'max_topics',
-      header: 'Max Topics',
+      header: t('max_topics'),
       cell: ({ row }) => (
         <span className="text-sm">{row.original.config?.max_topics?.toLocaleString() ?? '-'}</span>
       ),
     },
     {
       id: 'max_publish_rate',
-      header: 'Max Publish Rate',
+      header: t('max_publish_rate'),
       cell: ({ row }) => (
         <span className="text-sm">
           {row.original.config?.max_publish_rate != null
@@ -80,7 +82,7 @@ export default function TenantList({ extraActions }: TenantListProps) {
     },
     {
       accessorKey: 'create_time',
-      header: 'Create Time',
+      header: t('create_time'),
       cell: ({ row }) => {
         const createTime = row.original.create_time;
         if (!createTime) return <span className="text-gray-500">-</span>;
@@ -97,7 +99,7 @@ export default function TenantList({ extraActions }: TenantListProps) {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <div className="flex items-center justify-center gap-1">
           <DetailTenantButton tenant={row.original} />

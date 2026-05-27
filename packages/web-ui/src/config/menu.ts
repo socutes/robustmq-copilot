@@ -28,107 +28,107 @@ export const sidebarData: SidebarData = {
     {
       items: [
         {
-          title: 'Overview',
+          title: 'overview',
           url: '/',
           icon: LayoutDashboard,
         },
       ],
     },
     {
-      title: 'General',
+      title: 'general',
       items: [
         {
-          title: 'Client',
+          title: 'client',
           url: '/general/client',
           icon: Network,
         },
         {
-          title: 'Session',
+          title: 'session',
           url: '/general/session',
           icon: UserRound,
         },
         {
-          title: 'Topic',
+          title: 'topic',
           url: '/general/topic',
           icon: ListTodo,
         },
         {
-          title: 'Subscribe',
+          title: 'subscribe',
           url: '/general/subscribe-manager',
           icon: Bell,
         },
       ],
     },
     {
-      title: 'Access Control',
+      title: 'access_control',
       items: [
         {
-          title: 'User',
+          title: 'user',
           url: '/acl/user-management',
           icon: Users,
         },
         {
-          title: 'ACL',
+          title: 'acl',
           url: '/acl/acl-management',
           icon: Shield,
         },
         {
-          title: 'Blacklist',
+          title: 'blacklist',
           url: '/acl/blacklist-management',
           icon: UserX,
         },
       ],
     },
     {
-      title: 'Data Integration',
+      title: 'data_integration',
       items: [
         {
-          title: 'Connector',
+          title: 'connector',
           url: '/data-integration/connector',
           icon: Cable,
         },
         {
-          title: 'Schema',
+          title: 'schema',
           url: '/data-integration/schema',
           icon: Database,
         },
       ],
     },
     {
-      title: 'Advanced',
+      title: 'advanced',
       items: [
         {
-          title: 'Auto Subscription',
+          title: 'auto_subscription',
           url: '/advanced/auto-subscription',
           icon: Zap,
         },
         {
-          title: 'Topic Rewrite',
+          title: 'topic_rewrite',
           url: '/advanced/topic-rewrite',
           icon: FileEdit,
         },
       ],
     },
     {
-      title: 'System',
+      title: 'system',
       items: [
         {
-          title: 'Tenant',
+          title: 'tenant',
           url: '/system/tenant',
           icon: Building2,
         },
         {
-          title: 'Pub Sub',
+          title: 'pub_sub',
           url: '/system/pub-sub',
           icon: MessageSquare,
         },
         {
-          title: 'System Log',
+          title: 'system_log',
           url: '/system/system-log',
           icon: ScrollText,
         },
         {
-          title: 'Configuration',
+          title: 'configuration',
           url: '/system/configuration',
           icon: Settings,
         },

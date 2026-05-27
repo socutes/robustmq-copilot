@@ -6,6 +6,7 @@ import { DeleteUserButton } from './components/delete-user-button';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 interface UserListProps {
   extraActions?: React.ReactNode;
@@ -15,11 +16,13 @@ interface UserListProps {
 }
 
 export default function UserList({ extraActions, leftActions, tenant, onSearch }: UserListProps) {
+  const { t } = useTranslation(['acl', 'common']);
+
   const columns: ColumnDef<any>[] = [
     {
       id: 'username',
       accessorKey: 'username',
-      header: 'Username',
+      header: t('username', { ns: 'acl' }),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
@@ -31,14 +34,14 @@ export default function UserList({ extraActions, leftActions, tenant, onSearch }
     },
     {
       accessorKey: 'tenant',
-      header: 'Tenant',
+      header: t('tenant', { ns: 'common' }),
       cell: ({ row }) => (
         <span className="text-sm text-gray-600 dark:text-gray-400">{row.original.tenant || '-'}</span>
       ),
     },
     {
       accessorKey: 'is_superuser',
-      header: 'Role',
+      header: t('role', { ns: 'common' }),
       cell: ({ row }) => (
         <Badge
           variant={row.original.is_superuser ? 'default' : 'secondary'}
@@ -48,13 +51,13 @@ export default function UserList({ extraActions, leftActions, tenant, onSearch }
               : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
           }
         >
-          {row.original.is_superuser ? 'Super User' : 'Normal User'}
+          {row.original.is_superuser ? t('super_user', { ns: 'acl' }) : t('normal_user', { ns: 'acl' })}
         </Badge>
       ),
     },
     {
       accessorKey: 'create_time',
-      header: 'Create Time',
+      header: t('create_time', { ns: 'common' }),
       cell: ({ row }) => {
         const createTime = row.original.create_time;
         if (!createTime) return <span className="text-gray-500">-</span>;
@@ -71,7 +74,7 @@ export default function UserList({ extraActions, leftActions, tenant, onSearch }
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions', { ns: 'common' }),
       cell: ({ row }) => (
         <div className="flex items-center justify-center">
           <DeleteUserButton tenant={row.original.tenant} username={row.original.username} isSuperUser={row.original.is_superuser} />
@@ -110,7 +113,7 @@ export default function UserList({ extraActions, leftActions, tenant, onSearch }
         leftActions={leftActions}
         headerClassName="bg-purple-600 text-white"
         onSearch={onSearch}
-        searchPlaceholder="Search by username..."
+        searchPlaceholder={t('search_username', { ns: 'acl' })}
       />
     </div>
   );

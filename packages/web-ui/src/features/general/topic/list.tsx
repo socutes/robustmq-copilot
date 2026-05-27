@@ -1,5 +1,4 @@
 import { DataTable, ColumnSetting } from '@/components/table';
-import { ColumnDef } from '@tanstack/react-table';
 import { FilterValue } from '@/components/table/filter';
 import { getTopicListHttp, deleteTopic, readMessages } from '@/services/mqtt';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,7 @@ import { DataTableColumnHeader } from '@/components/table/data-table-column-head
 import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,70 +44,56 @@ interface TopicListProps {
 export default function TopicList({ leftActions, tenant, topicType, onSearch }: TopicListProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [topicToDelete, setTopicToDelete] = useState<{ topic_name: string; tenant?: string } | null>(null);
 
-  // Message viewer state
   const [messageSheetOpen, setMessageSheetOpen] = useState(false);
   const [selectedTopicForMessages, setSelectedTopicForMessages] = useState<string>('');
   const [messageOffset, setMessageOffset] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch messages for selected topic
   const { data: messagesData, isLoading: isLoadingMessages } = useQuery({
     queryKey: ['topicMessages', selectedTopicForMessages, messageOffset],
     queryFn: async () => {
       if (!selectedTopicForMessages) return [];
-      const response = await readMessages({
-        topic: selectedTopicForMessages,
-        offset: messageOffset,
-      });
-      // Only return first 10 messages
+      const response = await readMessages({ topic: selectedTopicForMessages, offset: messageOffset });
       return response.slice(0, 10);
     },
     enabled: !!selectedTopicForMessages && messageSheetOpen,
   });
 
-  // Auto scroll to bottom when messages update
   useEffect(() => {
     if (messagesData && messagesData.length > 0 && messageOffset > 0) {
-      // Only scroll when loading next messages (offset > 0)
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messagesData, messageOffset]);
 
-  // Handle view messages click
   const handleViewMessages = (topicName: string) => {
     setSelectedTopicForMessages(topicName);
     setMessageOffset(0);
     setMessageSheetOpen(true);
   };
 
-  // Handle load next 10 messages
-  const handleLoadNext = () => {
-    setMessageOffset(prev => prev + 10);
-  };
+  const handleLoadNext = () => setMessageOffset(prev => prev + 10);
 
-  // Delete topic mutation
   const deleteMutation = useMutation({
     mutationFn: deleteTopic,
     onSuccess: () => {
-      // Show deleting progress toast
       toast({
         title: (
           <div className="flex items-center space-x-2">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 animate-pulse">
               <Trash2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 animate-bounce" />
             </div>
-            <span>Deleting Topic...</span>
+            <span>{t('deleting')}...</span>
           </div>
         ),
-        description: <div className="text-sm">Please wait while the topic is being removed from the system.</div>,
+        description: <div className="text-sm">{t('loading')}</div>,
       });
 
       setDeleteDialogOpen(false);
 
-      // Wait 2 seconds before refreshing the list
       setTimeout(() => {
         toast({
           title: (
@@ -115,10 +101,10 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
                 <Trash2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
               </div>
-              <span>Topic Deleted Successfully!</span>
+              <span>{t('success')}</span>
             </div>
           ),
-          description: <div className="text-sm">The topic has been permanently deleted from the system.</div>,
+          description: <div className="text-sm">{t('delete_topic')} {t('success').toLowerCase()}</div>,
         });
         queryClient.refetchQueries({ queryKey: ['QueryTopicListData_'], exact: false });
         setTopicToDelete(null);
@@ -145,7 +131,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
   const columns: ColumnSetting<any, any>[] = [
     {
       accessorKey: 'topic_name',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Topic Name" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('topic_name')} />,
       cell: ({ row }) => {
         const isSystemTopic = row.original.topic_name?.startsWith('$');
         return (
@@ -156,7 +142,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
                   variant="outline"
                   className="bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 flex-shrink-0"
                 >
-                  System
+                  {t('system')}
                 </Badge>
               )}
               <span className="font-medium text-sm truncate" title={row.original.topic_name}>
@@ -171,8 +157,8 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
                 e.stopPropagation();
                 navigator.clipboard.writeText(row.original.topic_name || '');
                 toast({
-                  title: 'Copied!',
-                  description: 'Topic name copied to clipboard',
+                  title: t('copied'),
+                  description: t('topic_name_copied'),
                   duration: 2000,
                 });
               }}
@@ -187,7 +173,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
     },
     {
       id: 'tenant',
-      header: 'Tenant',
+      header: t('tenant'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4 text-purple-400" />
@@ -198,16 +184,16 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
     },
     {
       id: 'topic_type_display',
-      header: 'Topic Type',
+      header: t('topic_type'),
       cell: ({ row }) => {
         const isSystem = row.original.topic_name?.startsWith('$');
         return isSystem ? (
           <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 text-xs">
-            System
+            {t('system')}
           </Badge>
         ) : (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 text-xs">
-            Normal
+            {t('normal')}
           </Badge>
         );
       },
@@ -215,7 +201,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
     },
     {
       accessorKey: 'storage_type',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Storage Type" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('storage_type')} />,
       cell: ({ row }) => {
         const storageType = row.original.storage_type;
         return (
@@ -232,7 +218,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
     },
     {
       id: 'partition_replication',
-      header: 'P / R',
+      header: t('partition_replication'),
       cell: ({ row }) => (
         <span
           className="text-sm font-medium cursor-default"
@@ -245,15 +231,13 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
     },
     {
       accessorKey: 'create_time',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('created_at')} />,
       cell: ({ row }) => {
         const createTime = row.original.create_time;
         if (!createTime) return '-';
-
         try {
           const timestamp = typeof createTime === 'string' ? parseInt(createTime) : createTime;
           const formattedTime = format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
-
           return (
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-gray-500" />
@@ -269,7 +253,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -284,7 +268,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
             }}
           >
             <Eye className="mr-0.5 h-2.5 w-2.5" />
-            Details
+            {t('details_btn')}
           </Button>
           <Button
             size="sm"
@@ -295,7 +279,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
             }}
           >
             <MessageSquare className="mr-0.5 h-2.5 w-2.5" />
-            Messages
+            {t('messages_btn')}
           </Button>
           <Button
             size="sm"
@@ -317,10 +301,7 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
   const fetchDataFn = async (pageIndex: number, pageSize: number, searchValue: FilterValue[]) => {
     const topicNameVal = searchValue.find(f => f.field === 'topic_name' || f.field === '')?.valueList?.[0];
     const ret = await getTopicListHttp({
-      pagination: {
-        offset: pageIndex * pageSize,
-        limit: pageSize,
-      },
+      pagination: { offset: pageIndex * pageSize, limit: pageSize },
       ...(tenant ? { tenant } : {}),
       ...(topicNameVal ? { topic_name: topicNameVal } : {}),
       ...(topicType ? { topic_type: topicType } : {}),
@@ -339,41 +320,38 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
         queryKey={`QueryTopicListData_${tenant ?? 'all'}_${topicType ?? 'all'}`}
         defaultPageSize={20}
         defaultSorting={[{ id: 'create_time', desc: true }]}
-        defaultColumnVisibility={{  }}
+        defaultColumnVisibility={{}}
         headerClassName="bg-purple-600 text-white"
         leftActions={leftActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by topic name..."
+        searchPlaceholder={t('search_by_topic')}
       />
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Topic</AlertDialogTitle>
+            <AlertDialogTitle>{t('delete_topic')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete topic <strong>"{topicToDelete?.topic_name}"</strong>?
-              <br />
-              <br />
+              {t('delete_topic_confirm')} <strong>"{topicToDelete?.topic_name}"</strong>？
+              <br /><br />
               <span className="text-red-600 dark:text-red-400 font-medium">
-                ⚠️ This action cannot be undone. All data including retain messages will be permanently deleted.
+                {t('delete_topic_warning')}
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete Topic'}
+              {deleteMutation.isPending ? t('deleting') : t('delete_topic')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Message Viewer Sheet */}
       <Sheet open={messageSheetOpen} onOpenChange={setMessageSheetOpen}>
         <SheetContent className="sm:max-w-[600px] flex flex-col">
           <SheetHeader>
@@ -381,10 +359,10 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-md">
                 <Inbox className="h-3.5 w-3.5 text-white" />
               </div>
-              <span>Topic Messages</span>
+              <span>{t('topic_messages')}</span>
             </SheetTitle>
             <SheetDescription>
-              Viewing messages from topic:{' '}
+              {t('viewing_messages_from')}{' '}
               <span className="font-mono text-blue-600 dark:text-blue-400">{selectedTopicForMessages}</span>
             </SheetDescription>
           </SheetHeader>
@@ -396,17 +374,17 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
                   <div className="flex items-center justify-center py-12">
                     <div className="flex items-center space-x-2 text-muted-foreground">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
-                      <span>Loading messages...</span>
+                      <span>{t('loading_messages')}</span>
                     </div>
                   </div>
                 ) : !messagesData || messagesData.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                     <Inbox className="h-16 w-16 mb-4 text-gray-300 dark:text-gray-700" />
-                    <p className="text-lg font-medium">No messages found</p>
+                    <p className="text-lg font-medium">{t('no_messages')}</p>
                     <p className="text-sm text-gray-400 mt-1">
                       {messageOffset === 0
-                        ? `No messages in topic "${selectedTopicForMessages}"`
-                        : 'No more messages available'}
+                        ? `${t('no_messages_in_topic')} "${selectedTopicForMessages}"`
+                        : t('no_more_messages')}
                     </p>
                   </div>
                 ) : (
@@ -431,7 +409,6 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
                             <span>{format(new Date(message.timestamp * 1000), 'yyyy-MM-dd HH:mm:ss')}</span>
                           </div>
                         </div>
-
                         <div className="text-sm bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-850 p-3 rounded-lg border border-gray-200 dark:border-gray-700 font-mono break-all">
                           {message.content}
                         </div>
@@ -444,7 +421,6 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
             </ScrollArea>
           </div>
 
-          {/* Load Next Button */}
           {messagesData && messagesData.length > 0 && (
             <div className="mt-4 pt-4 border-t">
               <Button
@@ -455,17 +431,17 @@ export default function TopicList({ leftActions, tenant, topicType, onSearch }: 
                 {isLoadingMessages ? (
                   <>
                     <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Loading...
+                    {t('loading')}
                   </>
                 ) : (
                   <>
                     <ChevronRight className="mr-2 h-4 w-4" />
-                    Load Next 10 Messages
+                    {t('load_next_10')}
                   </>
                 )}
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-2">
-                Showing messages {messageOffset} - {messageOffset + (messagesData?.length || 0)}
+                {t('showing_messages')} {messageOffset} - {messageOffset + (messagesData?.length || 0)}
               </p>
             </div>
           )}
