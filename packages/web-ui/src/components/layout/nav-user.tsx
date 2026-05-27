@@ -1,6 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react';
+import { clearStoredToken } from '@/utils/requestApi';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -26,9 +27,8 @@ export function NavUser({
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // 清除登录 cookie
     Cookies.remove('isAuthenticated');
-    // 跳转到登录页
+    clearStoredToken();
     navigate({ to: '/login' });
   };
 

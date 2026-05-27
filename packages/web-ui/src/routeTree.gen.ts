@@ -318,9 +318,9 @@ const AuthenticatedDataIntegrationConnectorIndexLazyRoute =
     path: '/data-integration/connector/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import(
-      './routes/_authenticated/data-integration/connector/index.lazy'
-    ).then((d) => d.Route),
+    import('./routes/_authenticated/data-integration/connector/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const AuthenticatedAdvancedTopicRewriteIndexLazyRoute =
   AuthenticatedAdvancedTopicRewriteIndexLazyRouteImport.update({
@@ -338,9 +338,9 @@ const AuthenticatedAdvancedSlowSubscriptionIndexLazyRoute =
     path: '/advanced/slow-subscription/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import(
-      './routes/_authenticated/advanced/slow-subscription/index.lazy'
-    ).then((d) => d.Route),
+    import('./routes/_authenticated/advanced/slow-subscription/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const AuthenticatedAdvancedDelayedMessageIndexLazyRoute =
   AuthenticatedAdvancedDelayedMessageIndexLazyRouteImport.update({
@@ -358,9 +358,9 @@ const AuthenticatedAdvancedConnectionJitterIndexLazyRoute =
     path: '/advanced/connection-jitter/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import(
-      './routes/_authenticated/advanced/connection-jitter/index.lazy'
-    ).then((d) => d.Route),
+    import('./routes/_authenticated/advanced/connection-jitter/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const AuthenticatedAdvancedAutoSubscriptionIndexLazyRoute =
   AuthenticatedAdvancedAutoSubscriptionIndexLazyRouteImport.update({
@@ -368,9 +368,9 @@ const AuthenticatedAdvancedAutoSubscriptionIndexLazyRoute =
     path: '/advanced/auto-subscription/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import(
-      './routes/_authenticated/advanced/auto-subscription/index.lazy'
-    ).then((d) => d.Route),
+    import('./routes/_authenticated/advanced/auto-subscription/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const AuthenticatedAclUserManagementIndexLazyRoute =
   AuthenticatedAclUserManagementIndexLazyRouteImport.update({
@@ -418,9 +418,9 @@ const AuthenticatedDataIntegrationConnectorCreateLazyRoute =
     path: '/data-integration/connector/create',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import(
-      './routes/_authenticated/data-integration/connector/create.lazy'
-    ).then((d) => d.Route),
+    import('./routes/_authenticated/data-integration/connector/create.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute =
   AuthenticatedDataIntegrationConnectorConnectorNameLazyRouteImport.update({
@@ -428,9 +428,9 @@ const AuthenticatedDataIntegrationConnectorConnectorNameLazyRoute =
     path: '/data-integration/connector/$connectorName',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any).lazy(() =>
-    import(
-      './routes/_authenticated/data-integration/connector/$connectorName.lazy'
-    ).then((d) => d.Route),
+    import('./routes/_authenticated/data-integration/connector/$connectorName.lazy').then(
+      (d) => d.Route,
+    ),
   )
 const AuthenticatedGeneralTopicTopicIdRoute =
   AuthenticatedGeneralTopicTopicIdRouteImport.update({

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { Button } from '@/components/ui/button';
 import { Plus, Building2 } from 'lucide-react';
@@ -6,6 +7,7 @@ import TenantList from './list';
 import { CreateTenantForm } from './components/create-tenant-form';
 
 export default function TenantManagement() {
+  const { t } = useTranslation();
   const [createTenantOpen, setCreateTenantOpen] = useState(false);
 
   const extraActions = (
@@ -15,7 +17,7 @@ export default function TenantManagement() {
       className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
     >
       <Plus className="mr-2 h-4 w-4" />
-      Create Tenant
+      {t('create_tenant')}
     </Button>
   );
 
@@ -27,7 +29,7 @@ export default function TenantManagement() {
             <Building2 className="h-3 w-3 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-purple-600">Tenant Management</h2>
+            <h2 className="text-lg font-bold tracking-tight text-purple-600">{t('tenant_management')}</h2>
           </div>
         </div>
       </div>

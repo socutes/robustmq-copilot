@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { User, Hash, Timer, MessageSquare, Calendar, LogOut, CheckCircle, XCircle, Eye, Copy, Building2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface SessionListProps {
   leftActions?: React.ReactNode;
@@ -18,22 +19,19 @@ interface SessionListProps {
 export default function SessionList({ leftActions, tenant, onSearch }: SessionListProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleCopyClientId = (clientId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(clientId);
-    toast({
-      title: 'Copied!',
-      description: 'Client ID copied to clipboard',
-      duration: 2000,
-    });
+    toast({ title: t('copied'), description: t('client_id_copied'), duration: 2000 });
   };
 
   const columns: ColumnDef<any>[] = [
     {
       id: 'client_id',
       accessorKey: 'client_id',
-      header: 'Client ID',
+      header: t('client_id'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2 max-w-xs">
           <div
@@ -67,7 +65,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       id: 'tenant',
-      header: 'Tenant',
+      header: t('tenant'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4 text-purple-400" />
@@ -77,7 +75,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       accessorKey: 'connection_id',
-      header: 'Connection ID',
+      header: t('connection_id'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Hash className="h-4 w-4 text-gray-500" />
@@ -87,11 +85,9 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('status'),
       cell: ({ row }) => {
-        const connectionId = row.original.connection_id;
-        const isOnline = connectionId && connectionId > 0;
-
+        const isOnline = row.original.connection_id && row.original.connection_id > 0;
         return (
           <Badge
             variant={isOnline ? 'default' : 'secondary'}
@@ -102,15 +98,9 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
             }
           >
             {isOnline ? (
-              <>
-                <CheckCircle className="mr-1 h-3 w-3" />
-                Online
-              </>
+              <><CheckCircle className="mr-1 h-3 w-3" />{t('online')}</>
             ) : (
-              <>
-                <XCircle className="mr-1 h-3 w-3" />
-                Offline
-              </>
+              <><XCircle className="mr-1 h-3 w-3" />{t('offline')}</>
             )}
           </Badge>
         );
@@ -118,7 +108,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       accessorKey: 'session_expiry',
-      header: 'Session Expiry',
+      header: t('session_expiry'),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -131,7 +121,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       accessorKey: 'last_will',
-      header: 'Has Last Will',
+      header: t('has_last_will'),
       cell: ({ row }) => {
         const hasLastWill = row.original.last_will && row.original.last_will !== null;
         return (
@@ -144,14 +134,14 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
             }
           >
             <MessageSquare className="mr-1 h-3 w-3" />
-            {hasLastWill ? 'Yes' : 'No'}
+            {hasLastWill ? t('yes') : t('no')}
           </Badge>
         );
       },
     },
     {
       accessorKey: 'create_time',
-      header: 'Created At',
+      header: t('created_at'),
       cell: ({ row }) => {
         if (!row.original.create_time) return '-';
         return (
@@ -164,7 +154,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       accessorKey: 'distinct_time',
-      header: 'Disconnect Time',
+      header: t('disconnect_time'),
       cell: ({ row }) => {
         if (!row.original.distinct_time) return '-';
         return (
@@ -179,7 +169,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <Button
           size="sm"
@@ -193,7 +183,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
           }}
         >
           <Eye className="mr-0.5 h-2.5 w-2.5" />
-          Details
+          {t('details_btn')}
         </Button>
       ),
       size: 100,
@@ -224,7 +214,7 @@ export default function SessionList({ leftActions, tenant, onSearch }: SessionLi
         headerClassName="bg-purple-600 text-white"
         leftActions={leftActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by client ID..."
+        searchPlaceholder={t('search_by_client_id')}
       />
     </div>
   );

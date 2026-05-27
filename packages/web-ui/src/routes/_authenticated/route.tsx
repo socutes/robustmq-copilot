@@ -5,12 +5,13 @@ import { SearchProvider } from '@/context/search-context';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import SkipToMain from '@/components/skip-to-main';
+import { getStoredToken } from '@/utils/requestApi';
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: () => {
-    // 检查是否已登录（cookie 会在 30 分钟后自动过期）
     const isAuthenticated = Cookies.get('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
+    const hasToken = !!getStoredToken();
+    if (!isAuthenticated || !hasToken) {
       throw redirect({ to: '/login' });
     }
   },

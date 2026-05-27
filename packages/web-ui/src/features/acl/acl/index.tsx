@@ -7,11 +7,13 @@ import { Plus, Shield } from 'lucide-react';
 import AclList from './list';
 import { CreateAclForm } from './components/create-acl-form';
 import { getTenantList } from '@/services/mqtt';
+import { useTranslation } from 'react-i18next';
 
 export default function AclManagement() {
   const [createAclOpen, setCreateAclOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<string>('all');
   const [appliedTenant, setAppliedTenant] = useState<string>('all');
+  const { t } = useTranslation(['acl', 'common']);
 
   const { data: tenantData } = useQuery({
     queryKey: ['TenantListForAclFilter'],
@@ -22,18 +24,18 @@ export default function AclManagement() {
   const leftActions = useMemo(() => (
     <Select value={selectedTenant} onValueChange={setSelectedTenant}>
       <SelectTrigger className="w-[160px] h-8 text-sm">
-        <SelectValue placeholder="All Tenants" />
+        <SelectValue placeholder={t('all_tenants', { ns: 'common' })} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Tenants</SelectItem>
-        {tenants.map(t => (
-          <SelectItem key={t.tenant_name} value={t.tenant_name}>
-            {t.tenant_name}
+        <SelectItem value="all">{t('all_tenants', { ns: 'common' })}</SelectItem>
+        {tenants.map(tenant => (
+          <SelectItem key={tenant.tenant_name} value={tenant.tenant_name}>
+            {tenant.tenant_name}
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
-  ), [selectedTenant, tenants]);
+  ), [selectedTenant, tenants, t]);
 
   const extraActions = (
     <Button
@@ -42,7 +44,7 @@ export default function AclManagement() {
       className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
     >
       <Plus className="mr-2 h-4 w-4" />
-      Create ACL Rule
+      {t('create_acl', { ns: 'acl' })}
     </Button>
   );
 
@@ -54,7 +56,7 @@ export default function AclManagement() {
             <Shield className="h-3 w-3 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-purple-600">ACL Management</h2>
+            <h2 className="text-lg font-bold tracking-tight text-purple-600">{t('acl_management', { ns: 'acl' })}</h2>
           </div>
         </div>
       </div>

@@ -1,0 +1,23 @@
+{
+  "overview": "概览",
+  "general": "常规",
+  "client": "客户端",
+  "session": "会话",
+  "topic": "主题",
+  "subscribe": "订阅",
+  "access_control": "访问控制",
+  "user": "用户",
+  "acl": "ACL",
+  "blacklist": "黑名单",
+  "data_integration": "数据集成",
+  "connector": "连接器",
+  "schema": "Schema",
+  "advanced": "高级",
+  "auto_subscription": "自动订阅",
+  "topic_rewrite": "主题重写",
+  "system": "系统",
+  "tenant": "租户",
+  "pub_sub": "发布订阅",
+  "system_log": "系统日志",
+  "configuration": "配置"
+}

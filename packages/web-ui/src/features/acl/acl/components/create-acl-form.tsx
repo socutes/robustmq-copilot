@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -47,6 +48,7 @@ interface CreateAclFormProps {
 export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useTranslation(['acl', 'common']);
 
   const { data: tenantData } = useQuery({
     queryKey: ['TenantListForAclCreate'],
@@ -73,8 +75,8 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
     mutationFn: createAcl,
     onSuccess: () => {
       toast({
-        title: 'Success',
-        description: 'ACL rule created successfully!',
+        title: t('success', { ns: 'common' }),
+        description: t('acl_created', { ns: 'acl' }),
       });
       queryClient.refetchQueries({ queryKey: ['QueryAclListData_all'], exact: false });
       form.reset();
@@ -108,9 +110,9 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-sm">
               <Shield className="h-4 w-4 text-white" />
             </div>
-            Create ACL Rule
+            {t('create_acl_title', { ns: 'acl' })}
           </DialogTitle>
-          <DialogDescription>Create a new access control rule to manage permissions for resources.</DialogDescription>
+          <DialogDescription>{t('create_acl_desc', { ns: 'acl' })}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -121,7 +123,7 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-purple-500" />
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Basic Information</span>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('basic_info', { ns: 'acl' })}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pl-6">
                   <FormField
@@ -129,17 +131,17 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="tenant"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tenant</FormLabel>
+                        <FormLabel>{t('tenant', { ns: 'common' })}</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select tenant" />
+                              <SelectValue placeholder={t('select_tenant', { ns: 'common' })} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {tenants.map(t => (
-                              <SelectItem key={t.tenant_name} value={t.tenant_name}>
-                                {t.tenant_name}
+                            {tenants.map(tenant => (
+                              <SelectItem key={tenant.tenant_name} value={tenant.tenant_name}>
+                                {tenant.tenant_name}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -153,9 +155,9 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>{t('name', { ns: 'common' })}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Unique rule name" {...field} />
+                          <Input placeholder={t('name', { ns: 'common' })} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -168,9 +170,9 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="desc"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description <span className="text-gray-400 font-normal">(optional)</span></FormLabel>
+                        <FormLabel>{t('description', { ns: 'common' })}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter description" {...field} />
+                          <Input placeholder={t('description', { ns: 'common' })} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -186,7 +188,7 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Access Control</span>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('access_control', { ns: 'acl' })}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pl-6">
                   <FormField
@@ -194,17 +196,17 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="resource_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Resource Type</FormLabel>
+                        <FormLabel>{t('resource_type', { ns: 'acl' })}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select type" />
+                              <SelectValue placeholder={t('select_type', { ns: 'acl' })} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="ClientId">Client ID</SelectItem>
-                            <SelectItem value="User">User</SelectItem>
-                            <SelectItem value="Ip">IP</SelectItem>
+                            <SelectItem value="ClientId">{t('client_id', { ns: 'acl' })}</SelectItem>
+                            <SelectItem value="User">{t('username', { ns: 'acl' })}</SelectItem>
+                            <SelectItem value="Ip">{t('ip_address', { ns: 'acl' })}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -216,9 +218,9 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="resource_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Resource Name</FormLabel>
+                        <FormLabel>{t('resource_name', { ns: 'acl' })}</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. client001" {...field} />
+                          <Input placeholder={t('client_placeholder', { ns: 'acl' })} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -229,9 +231,9 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="topic"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Topic <span className="text-gray-400 font-normal">(optional)</span></FormLabel>
+                        <FormLabel>{t('resource_name', { ns: 'acl' })}</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. sensor/+" {...field} />
+                          <Input placeholder={t('topic_placeholder', { ns: 'acl' })} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -242,9 +244,9 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="ip"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>IP Address <span className="text-gray-400 font-normal">(optional)</span></FormLabel>
+                        <FormLabel>{t('ip_address', { ns: 'acl' })}</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. 192.168.1.0/24" {...field} />
+                          <Input placeholder={t('ip_placeholder', { ns: 'acl' })} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -255,17 +257,17 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="action"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Action</FormLabel>
+                        <FormLabel>{t('action', { ns: 'acl' })}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select action" />
+                              <SelectValue placeholder={t('select_action', { ns: 'acl' })} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="All">All</SelectItem>
-                            <SelectItem value="Publish">Publish</SelectItem>
-                            <SelectItem value="Subscribe">Subscribe</SelectItem>
+                            <SelectItem value="All">{t('action_all', { ns: 'acl' })}</SelectItem>
+                            <SelectItem value="Publish">{t('action_publish', { ns: 'acl' })}</SelectItem>
+                            <SelectItem value="Subscribe">{t('action_subscribe', { ns: 'acl' })}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -277,16 +279,16 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
                     name="permission"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Permission</FormLabel>
+                        <FormLabel>{t('permission', { ns: 'acl' })}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select permission" />
+                              <SelectValue placeholder={t('select_permission', { ns: 'acl' })} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Allow">Allow</SelectItem>
-                            <SelectItem value="Deny">Deny</SelectItem>
+                            <SelectItem value="Allow">{t('allow', { ns: 'acl' })}</SelectItem>
+                            <SelectItem value="Deny">{t('deny', { ns: 'acl' })}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -299,10 +301,10 @@ export function CreateAclForm({ open, onOpenChange }: CreateAclFormProps) {
 
             <DialogFooter className="px-6 py-4 border-t bg-gray-50 dark:bg-gray-900/50">
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
-                Cancel
+                {t('cancel', { ns: 'common' })}
               </Button>
               <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
-                {isLoading ? 'Creating...' : 'Create ACL Rule'}
+                {isLoading ? t('creating', { ns: 'acl' }) : t('create_acl_title', { ns: 'acl' })}
               </Button>
             </DialogFooter>
           </form>

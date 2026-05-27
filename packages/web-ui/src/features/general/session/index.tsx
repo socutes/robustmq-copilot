@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { CommonLayout } from '@/components/layout/common-layout';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRound } from 'lucide-react';
@@ -7,6 +8,7 @@ import SessionList from './list';
 import { getTenantList } from '@/services/mqtt';
 
 export default function Session() {
+  const { t } = useTranslation();
   const [selectedTenant, setSelectedTenant] = useState<string>('all');
   const [appliedTenant, setAppliedTenant] = useState<string>('all');
 
@@ -19,13 +21,13 @@ export default function Session() {
   const leftActions = (
     <Select value={selectedTenant} onValueChange={setSelectedTenant}>
       <SelectTrigger className="w-[160px] h-8 text-sm">
-        <SelectValue placeholder="All Tenants" />
+        <SelectValue placeholder={t('all_tenants')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Tenants</SelectItem>
-        {tenants.map((t) => (
-          <SelectItem key={t.tenant_name} value={t.tenant_name}>
-            {t.tenant_name}
+        <SelectItem value="all">{t('all_tenants')}</SelectItem>
+        {tenants.map((tenant) => (
+          <SelectItem key={tenant.tenant_name} value={tenant.tenant_name}>
+            {tenant.tenant_name}
           </SelectItem>
         ))}
       </SelectContent>
@@ -40,7 +42,7 @@ export default function Session() {
             <UserRound className="h-3 w-3 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-purple-600">Session Management</h2>
+            <h2 className="text-lg font-bold tracking-tight text-purple-600">{t('session_management')}</h2>
           </div>
         </div>
       </div>

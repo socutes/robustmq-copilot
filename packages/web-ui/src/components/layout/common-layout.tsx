@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { Header } from '@/components/layout/header';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { InspirationalQuote } from '@/components/inspirational-quote';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Main } from './main';
 import { ExternalLink, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export function CommonLayout(props: CommonLayoutProps) {
       <Header fixed>
         <div className="ml-auto flex items-center space-x-4">
           <InspirationalQuote />
+          <LanguageSwitcher />
           <ThemeSwitch />
 
           {/* 用户信息和退出按钮 */}

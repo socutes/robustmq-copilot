@@ -1,0 +1,16 @@
+{
+  "not_found_code": "404",
+  "not_found_title": "哎呀！页面未找到！",
+  "not_found_desc": "您访问的页面不存在或已被移除。",
+  "server_error_code": "500",
+  "server_error_title": "哎呀！出了点问题",
+  "server_error_desc": "给您带来不便，我们深感抱歉。请稍后重试。",
+  "forbidden_code": "403",
+  "forbidden_title": "禁止访问",
+  "forbidden_desc": "您没有查看此资源的权限。",
+  "unauthorized_code": "401",
+  "unauthorized_title": "未授权访问",
+  "unauthorized_desc": "请使用正确的凭据登录以访问此资源。",
+  "go_back": "返回",
+  "back_to_home": "返回首页"
+}

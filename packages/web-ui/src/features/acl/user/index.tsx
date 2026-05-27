@@ -7,11 +7,13 @@ import { Plus, Users } from 'lucide-react';
 import UserList from './list';
 import { CreateUserForm } from './components/create-user-form';
 import { getTenantList } from '@/services/mqtt';
+import { useTranslation } from 'react-i18next';
 
 export default function UserManagement() {
   const [createUserOpen, setCreateUserOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<string>('all');
   const [appliedTenant, setAppliedTenant] = useState<string>('all');
+  const { t } = useTranslation(['acl', 'common']);
 
   const { data: tenantData } = useQuery({
     queryKey: ['TenantListForUserFilter'],
@@ -23,13 +25,13 @@ export default function UserManagement() {
   const leftActions = (
     <Select value={selectedTenant} onValueChange={setSelectedTenant}>
       <SelectTrigger className="w-[160px] h-8 text-sm">
-        <SelectValue placeholder="All Tenants" />
+        <SelectValue placeholder={t('all_tenants', { ns: 'common' })} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Tenants</SelectItem>
-        {tenants.map((t) => (
-          <SelectItem key={t.tenant_name} value={t.tenant_name}>
-            {t.tenant_name}
+        <SelectItem value="all">{t('all_tenants', { ns: 'common' })}</SelectItem>
+        {tenants.map((tenant) => (
+          <SelectItem key={tenant.tenant_name} value={tenant.tenant_name}>
+            {tenant.tenant_name}
           </SelectItem>
         ))}
       </SelectContent>
@@ -43,7 +45,7 @@ export default function UserManagement() {
       className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
     >
       <Plus className="mr-2 h-4 w-4" />
-      Create User
+      {t('create_user', { ns: 'acl' })}
     </Button>
   );
 
@@ -55,7 +57,7 @@ export default function UserManagement() {
             <Users className="h-3 w-3 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-purple-600">User Management</h2>
+            <h2 className="text-lg font-bold tracking-tight text-purple-600">{t('user_management', { ns: 'acl' })}</h2>
           </div>
         </div>
       </div>

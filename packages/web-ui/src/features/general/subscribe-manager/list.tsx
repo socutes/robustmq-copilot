@@ -8,6 +8,7 @@ import { User, Route, Wifi, Shield, Clock, Eye, Copy, Share2, Building2 } from '
 import { useNavigate } from '@tanstack/react-router';
 import { useToast } from '@/hooks/use-toast';
 import { FilterValue } from '@/components/table/filter';
+import { useTranslation } from 'react-i18next';
 
 interface SubscribeListProps {
   leftActions?: React.ReactNode;
@@ -18,21 +19,18 @@ interface SubscribeListProps {
 export default function SubscribeList({ leftActions, tenant, onSearch }: SubscribeListProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleCopyText = (text: string, label: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(text);
-    toast({
-      title: 'Copied!',
-      description: `${label} copied to clipboard`,
-      duration: 2000,
-    });
+    toast({ title: t('copied'), description: `${label} ${t('path_copied').split(' ').slice(1).join(' ')}`, duration: 2000 });
   };
 
   const columns: ColumnDef<any>[] = [
     {
       id: 'tenant',
-      header: 'Tenant',
+      header: t('tenant'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4 text-purple-400" />
@@ -44,7 +42,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
     {
       id: 'client_id',
       accessorKey: 'client_id',
-      header: 'Client ID',
+      header: t('client_id'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2 max-w-xs">
           <TooltipProvider>
@@ -66,7 +64,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0 flex-shrink-0 hover:bg-purple-100 dark:hover:bg-purple-900"
-            onClick={e => handleCopyText(row.original.client_id, 'Client ID', e)}
+            onClick={e => handleCopyText(row.original.client_id, t('client_id'), e)}
           >
             <Copy className="h-3 w-3 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400" />
           </Button>
@@ -76,7 +74,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
     },
     {
       accessorKey: 'path',
-      header: 'Path',
+      header: t('path'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2 max-w-xs">
           <TooltipProvider>
@@ -96,7 +94,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0 flex-shrink-0 hover:bg-gray-100 dark:hover:bg-gray-800"
-            onClick={e => handleCopyText(row.original.path, 'Path', e)}
+            onClick={e => handleCopyText(row.original.path, t('path'), e)}
           >
             <Copy className="h-3 w-3 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400" />
           </Button>
@@ -106,7 +104,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
     },
     {
       accessorKey: 'protocol',
-      header: 'Protocol',
+      header: t('protocol'),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -119,7 +117,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
     },
     {
       accessorKey: 'qos',
-      header: 'QoS',
+      header: t('qos'),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -132,24 +130,24 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
     },
     {
       accessorKey: 'is_share_sub',
-      header: 'Sub Type',
+      header: t('sub_type'),
       cell: ({ row }) =>
         row.original.is_share_sub ? (
           <Badge className="bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800 hover:bg-orange-100">
             <Share2 className="mr-1 h-3 w-3" />
-            Shared
+            {t('shared')}
           </Badge>
         ) : (
           <Badge variant="outline" className="text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600">
             <User className="mr-1 h-3 w-3" />
-            Exclusive
+            {t('exclusive')}
           </Badge>
         ),
       size: 120,
     },
     {
       accessorKey: 'create_time',
-      header: 'Created At',
+      header: t('created_at'),
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Clock className="h-4 w-4 text-gray-500" />
@@ -159,7 +157,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: ({ row }) => (
         <Button
           size="sm"
@@ -173,7 +171,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
           }}
         >
           <Eye className="mr-0.5 h-2.5 w-2.5" />
-          Details
+          {t('details_btn')}
         </Button>
       ),
       size: 100,
@@ -183,10 +181,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
   const fetchDataFn = async (pageIndex: number, pageSize: number, searchValue: FilterValue[]) => {
     const clientIdVal = searchValue.find(f => f.field === 'client_id' || f.field === '')?.valueList?.[0];
     const ret = await getSubscribeListHttp({
-      pagination: {
-        offset: pageIndex * pageSize,
-        limit: pageSize,
-      },
+      pagination: { offset: pageIndex * pageSize, limit: pageSize },
       ...(tenant ? { tenant } : {}),
       ...(clientIdVal ? { client_id: clientIdVal } : {}),
     });
@@ -205,7 +200,7 @@ export default function SubscribeList({ leftActions, tenant, onSearch }: Subscri
         headerClassName="bg-purple-600 text-white"
         leftActions={leftActions}
         onSearch={onSearch}
-        searchPlaceholder="Search by client ID..."
+        searchPlaceholder={t('search_by_client_id')}
       />
     </div>
   );

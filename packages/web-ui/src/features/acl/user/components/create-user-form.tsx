@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -35,6 +36,7 @@ interface CreateUserFormProps {
 export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useTranslation(['acl', 'common']);
 
   const { data: tenantData } = useQuery({
     queryKey: ['TenantListForUserCreate'],
@@ -56,8 +58,8 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
     mutationFn: createUser,
     onSuccess: () => {
       toast({
-        title: 'Success',
-        description: 'User created successfully!',
+        title: t('success', { ns: 'common' }),
+        description: t('user_created', { ns: 'acl' }),
       });
       queryClient.refetchQueries({ queryKey: ['QueryUserListData_all'], exact: false });
       form.reset();
@@ -90,8 +92,8 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription>Create a new MQTT user with username, password and role permissions.</DialogDescription>
+          <DialogTitle>{t('create_user_title', { ns: 'acl' })}</DialogTitle>
+          <DialogDescription>{t('create_user_desc', { ns: 'acl' })}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -101,17 +103,17 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
               name="tenant"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tenant</FormLabel>
+                  <FormLabel>{t('tenant', { ns: 'common' })}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select tenant" />
+                        <SelectValue placeholder={t('select_tenant', { ns: 'common' })} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {tenants.map((t) => (
-                        <SelectItem key={t.tenant_name} value={t.tenant_name}>
-                          {t.tenant_name}
+                      {tenants.map((tenant) => (
+                        <SelectItem key={tenant.tenant_name} value={tenant.tenant_name}>
+                          {tenant.tenant_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -126,9 +128,9 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>{t('username', { ns: 'acl' })}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter username" {...field} />
+                    <Input placeholder={t('username_placeholder', { ns: 'acl' })} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,9 +142,9 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t('password', { ns: 'common' })}</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Enter password" {...field} />
+                    <Input type="password" placeholder={t('password_placeholder', { ns: 'acl' })} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,19 +156,19 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
               name="is_superuser"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>{t('role', { ns: 'common' })}</FormLabel>
                   <Select
                     onValueChange={value => field.onChange(value === 'true')}
                     defaultValue={field.value ? 'true' : 'false'}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select user role" />
+                        <SelectValue placeholder={t('select_role', { ns: 'acl' })} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="false">Normal User</SelectItem>
-                      <SelectItem value="true">Super User</SelectItem>
+                      <SelectItem value="false">{t('normal_user', { ns: 'acl' })}</SelectItem>
+                      <SelectItem value="true">{t('super_user', { ns: 'acl' })}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -176,10 +178,10 @@ export function CreateUserForm({ open, onOpenChange }: CreateUserFormProps) {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
-                Cancel
+                {t('cancel', { ns: 'common' })}
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create User'}
+                {isLoading ? t('creating', { ns: 'acl' }) : t('create_user', { ns: 'acl' })}
               </Button>
             </DialogFooter>
           </form>
