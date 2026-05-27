@@ -969,6 +969,141 @@ export const deleteTopicRewrite = async (data: DeleteTopicRewriteRequest): Promi
   return response;
 };
 
+// -------- MQ9 Mailbox APIs --------
+export interface MailboxRaw {
+  tenant: string;
+  mail_address: string;
+  desc: string;
+  ttl: number; // seconds, 0 = never expires
+  create_time: number; // seconds
+}
+
+export const getMailboxList = async (
+  query?: QueryOption & { tenant?: string; mail_address?: string },
+): Promise<{
+  mailboxList: MailboxRaw[];
+  totalCount: number;
+}> => {
+  const { tenant, mail_address, ...rest } = query ?? {};
+  const httpQuery = convertPaginationForHttpApi(rest);
+  const response = await requestApi(
+    '/api/mq9/mail/list',
+    { ...httpQuery, ...(tenant ? { tenant } : {}), ...(mail_address ? { mail_address } : {}) },
+    'GET',
+  );
+  return {
+    mailboxList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- MQ9 Agent APIs --------
+export interface AgentRaw {
+  tenant: string;
+  name: string;
+  agent_info: string; // JSON AgentCard
+  create_time: number; // milliseconds
+}
+
+export const getAgentList = async (
+  query?: QueryOption & { tenant?: string; name?: string },
+): Promise<{
+  agentList: AgentRaw[];
+  totalCount: number;
+}> => {
+  const { tenant, name, ...rest } = query ?? {};
+  const httpQuery = convertPaginationForHttpApi(rest);
+  const response = await requestApi(
+    '/api/mq9/agent/list',
+    { ...httpQuery, ...(tenant ? { tenant } : {}), ...(name ? { name } : {}) },
+    'GET',
+  );
+  return {
+    agentList: response.data,
+    totalCount: response.total_count,
+  };
+};
+
+// -------- Storage Engine Shard APIs --------
+export interface EngineShardConfig {
+  replica_num: number;
+  storage_type: string;
+  max_segment_size: number | null;
+  retention_sec: number;
+}
+
+export interface EngineShard {
+  shard_uid: string;
+  shard_name: string;
+  start_segment_seq: number;
+  active_segment_seq: number;
+  last_segment_seq: number;
+  status: 'Run' | 'PrepareDelete' | 'Deleting';
+  config: EngineShardConfig;
+  desc: string;
+  create_time: number; // seconds
+}
+
+export interface ShardRaw {
+  shard_name: string;
+  config: {
+    replica_num: number;
+    storage_type: string;
+    max_segment_size: number | null;
+    max_record_num: number | null;
+    retention_sec: number;
+  };
+  extend: { StorageEngine: EngineShard };
+  offset: { start_offset: number; end_offset: number };
+  desc: string;
+}
+
+export const getShardList = async (params: {
+  pagination: { offset: number; limit: number };
+  shard_name?: string;
+}): Promise<{
+  shardList: ShardRaw[];
+  totalCount: number;
+}> => {
+  const { pagination, shard_name } = params;
+  const page = Math.floor(pagination.offset / pagination.limit) + 1;
+  const response = await requestApi('/api/storage-engine/shard/list', {
+    limit: pagination.limit,
+    page,
+    ...(shard_name ? { shard_name } : {}),
+  });
+  const rawList: Array<{ shard_info: ShardRaw }> = response.data || [];
+  return {
+    shardList: rawList.map(item => item.shard_info),
+    totalCount: response.total_count || 0,
+  };
+};
+
+// -------- Storage Engine Segment APIs --------
+export interface SegmentReplica {
+  replica_seq: number;
+  node_id: number;
+  fold: string;
+}
+
+export interface SegmentRaw {
+  segment: {
+    shard_name: string;
+    segment_seq: number;
+    replicas: SegmentReplica[];
+    leader_epoch: number;
+    leader: number;
+    isr: number[];
+    status: 'Write' | 'PreSealUp' | 'SealUp' | 'PreDelete' | 'Deleting';
+  };
+  segment_meta: Record<string, any> | null;
+}
+
+export const getSegmentList = async (shardName: string): Promise<SegmentRaw[]> => {
+  const response = await requestApi('/api/storage-engine/segment/list', { shard_name: shardName });
+  return response.segment_list || [];
+};
+
 // -------- System Alarm APIs --------
 export interface SystemAlarmRaw {
   name: string;

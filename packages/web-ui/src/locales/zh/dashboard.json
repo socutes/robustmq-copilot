@@ -67,5 +67,7 @@
   "topic_management": "主题管理",
   "all_types": "全部类型",
   "tenant_management": "租户管理",
-  "create_tenant": "创建租户"
+  "create_tenant": "创建租户",
+  "cluster_info": "集群信息",
+  "loading_cluster_status": "正在加载集群状态..."
 }
