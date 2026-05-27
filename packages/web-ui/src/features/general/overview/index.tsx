@@ -13,6 +13,12 @@ export default function Overview() {
         </div>
         <h1 className="text-xl font-bold tracking-tight text-purple-600">{t('global_overview')}</h1>
       </div>
+      <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+        <div className="text-center space-y-2">
+          <LayoutDashboard className="h-10 w-10 mx-auto text-gray-300 dark:text-gray-600" />
+          <p className="text-sm text-gray-400 dark:text-gray-500">Coming soon...</p>
+        </div>
+      </div>
     </CommonLayout>
   );
 }
